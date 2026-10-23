@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { Sidebar } from './components/Sidebar';
@@ -8,17 +8,19 @@ import { FeaturedCarousel } from './components/FeaturedCarousel';
 import { EditorsPicks } from './components/EditorsPicks';
 import { CategoryPills } from './components/CategoryPills';
 import { ArticleGrid } from './components/ArticleGrid';
-import { ArticleDetail } from './components/ArticleDetail';
-import { ReadingListPage } from './components/ReadingListPage';
 import { AuthModal } from './components/AuthModal';
-import { DedicatedWriterStudio } from './components/DedicatedWriterStudio';
-import { DraftsPage } from './components/DraftsPage';
-import { AuthorDirectory } from './components/AuthorDirectory';
-import { AuthorDashboard } from './components/AuthorDashboard';
 import { HeroSkeleton, ArticleCardSkeleton } from './components/Skeletons';
 import { Article, Category, NavTab } from './types';
 import { fetchArticles, fetchUserBookmarks, addUserBookmark, removeUserBookmark } from './services/api';
 import { fallbackArticles } from './data/fallbackData';
+
+// Route-level code-splitting for high Lighthouse performance and lightweight initial chunk
+const ArticleDetail = lazy(() => import('./components/ArticleDetail').then(m => ({ default: m.ArticleDetail })));
+const ReadingListPage = lazy(() => import('./components/ReadingListPage').then(m => ({ default: m.ReadingListPage })));
+const DedicatedWriterStudio = lazy(() => import('./components/DedicatedWriterStudio').then(m => ({ default: m.DedicatedWriterStudio })));
+const DraftsPage = lazy(() => import('./components/DraftsPage').then(m => ({ default: m.DraftsPage })));
+const AuthorDirectory = lazy(() => import('./components/AuthorDirectory').then(m => ({ default: m.AuthorDirectory })));
+const AuthorDashboard = lazy(() => import('./components/AuthorDashboard').then(m => ({ default: m.AuthorDashboard })));
 
 const ALL_CATEGORIES: Category[] = [
   'All',
@@ -209,29 +211,33 @@ export function App() {
         <Route
           path="/write"
           element={
-            <DedicatedWriterStudio
-              onBack={() => {
-                setEditingDraft(null);
-                navigate(isAuthenticated ? '/studio' : '/');
-              }}
-              onArticlePublished={handleArticlePublished}
-              initialDraft={editingDraft}
-              onOpenAuth={() => setIsAuthOpen(true)}
-            />
+            <Suspense fallback={<div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] p-8"><HeroSkeleton /></div>}>
+              <DedicatedWriterStudio
+                onBack={() => {
+                  setEditingDraft(null);
+                  navigate(isAuthenticated ? '/studio' : '/');
+                }}
+                onArticlePublished={handleArticlePublished}
+                initialDraft={editingDraft}
+                onOpenAuth={() => setIsAuthOpen(true)}
+              />
+            </Suspense>
           }
         />
         <Route
           path="/write/:draftId"
           element={
-            <DedicatedWriterStudio
-              onBack={() => {
-                setEditingDraft(null);
-                navigate(isAuthenticated ? '/drafts' : '/');
-              }}
-              onArticlePublished={handleArticlePublished}
-              initialDraft={editingDraft}
-              onOpenAuth={() => setIsAuthOpen(true)}
-            />
+            <Suspense fallback={<div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] p-8"><HeroSkeleton /></div>}>
+              <DedicatedWriterStudio
+                onBack={() => {
+                  setEditingDraft(null);
+                  navigate(isAuthenticated ? '/drafts' : '/');
+                }}
+                onArticlePublished={handleArticlePublished}
+                initialDraft={editingDraft}
+                onOpenAuth={() => setIsAuthOpen(true)}
+              />
+            </Suspense>
           }
         />
 
@@ -306,7 +312,9 @@ export function App() {
                   }}
                 />
 
-                <Outlet />
+                <Suspense fallback={<div className="flex-1 p-6 sm:p-8"><HeroSkeleton /></div>}>
+                  <Outlet />
+                </Suspense>
               </div>
             </div>
           }
