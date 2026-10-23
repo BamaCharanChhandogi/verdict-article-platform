@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Menu, Bookmark, X, Edit3, LogOut, User as UserIcon } from 'lucide-react';
+import { Search, Menu, Bookmark, X, Edit3, LogOut, User as UserIcon, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
@@ -10,6 +10,7 @@ interface HeaderProps {
   onOpenMobileSidebar: () => void;
   onOpenAuth: () => void;
   onOpenEditor: () => void;
+  onNavigateStudio?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenMobileSidebar,
   onOpenAuth,
   onOpenEditor,
+  onNavigateStudio,
 }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -125,6 +127,16 @@ export const Header: React.FC<HeaderProps> = ({
                   <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
                   <span>Write a Story</span>
                 </button>
+
+                {onNavigateStudio && (
+                  <button
+                    onClick={onNavigateStudio}
+                    className="w-full text-left px-4 py-2 text-xs text-zinc-700 hover:bg-[#FAF7F2] flex items-center space-x-2 cursor-pointer"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-zinc-500" />
+                    <span>Author Studio &amp; Stories</span>
+                  </button>
+                )}
 
                 <button
                   onClick={onOpenBookmarks}

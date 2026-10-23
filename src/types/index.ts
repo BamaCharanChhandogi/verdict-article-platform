@@ -59,4 +59,6 @@ export type NavTab =
   | 'topics'
   | 'authors'
   | 'bookmarks'
-  | 'newsletter';
+  | 'newsletter'
+  | 'mystories'
+  | 'analytics';

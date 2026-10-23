@@ -10,6 +10,8 @@ import { ArticleDetail } from './components/ArticleDetail';
 import { BookmarksDrawer } from './components/BookmarksDrawer';
 import { AuthModal } from './components/AuthModal';
 import { ArticleEditor } from './components/ArticleEditor';
+import { AuthorDirectory } from './components/AuthorDirectory';
+import { AuthorDashboard } from './components/AuthorDashboard';
 import { HeroSkeleton, ArticleCardSkeleton, EditorsPicksSkeleton } from './components/Skeletons';
 import { Article, Category, NavTab } from './types';
 import { fetchArticles } from './services/api';
@@ -88,6 +90,11 @@ export function App() {
     return articles.filter(a => bookmarkedIds.includes(String(a.id)));
   }, [articles, bookmarkedIds]);
 
+  // Delete article handler (for Author Studio)
+  const handleDeleteArticle = (id: string | number) => {
+    setArticles((prev) => prev.filter((a) => a.id !== id));
+  };
+
   // Debounced Search & Filter Logic
   const filteredArticles = useMemo(() => {
     return articles.filter((a) => {
@@ -113,13 +120,18 @@ export function App() {
       {/* 1. Fixed Left Vertical Navigation Rail */}
       <Sidebar
         activeNav={activeNav}
-        setActiveNav={setActiveNav}
+        setActiveNav={(nav) => {
+          setActiveNav(nav);
+          setSelectedArticle(null);
+        }}
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         bookmarksCount={bookmarkedIds.length}
         isOpenMobile={isMobileSidebarOpen}
         setIsOpenMobile={setIsMobileSidebarOpen}
         onOpenBookmarks={() => setIsBookmarksOpen(true)}
+        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenEditor={() => setIsEditorOpen(true)}
       />
 
       {/* 2. Main Content Canvas (offset by sidebar width on desktop) */}
@@ -134,9 +146,13 @@ export function App() {
           onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
           onOpenAuth={() => setIsAuthOpen(true)}
           onOpenEditor={() => setIsEditorOpen(true)}
+          onNavigateStudio={() => {
+            setActiveNav('mystories');
+            setSelectedArticle(null);
+          }}
         />
 
-        {/* Dynamic View: Article Detail vs. Home Editorial Feed */}
+        {/* Dynamic View: Article Detail vs. Authors Directory vs. Author Studio vs. Home Editorial Feed */}
         {selectedArticle ? (
           <main className="flex-1">
             <ArticleDetail
@@ -146,6 +162,26 @@ export function App() {
               isBookmarked={isBookmarked(selectedArticle.id)}
               onSelectRelated={setSelectedArticle}
               allArticles={articles}
+            />
+          </main>
+        ) : activeNav === 'authors' ? (
+          <main className="flex-1">
+            <AuthorDirectory
+              onSelectAuthorArticles={(authorName) => {
+                setSearchQuery(authorName);
+                setActiveNav('home');
+                setSelectedCategory('All');
+              }}
+            />
+          </main>
+        ) : activeNav === 'mystories' ? (
+          <main className="flex-1">
+            <AuthorDashboard
+              articles={articles}
+              onOpenEditor={() => setIsEditorOpen(true)}
+              onSelectArticle={setSelectedArticle}
+              onDeleteArticle={handleDeleteArticle}
+              onOpenAuth={() => setIsAuthOpen(true)}
             />
           </main>
         ) : (

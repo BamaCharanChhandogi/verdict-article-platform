@@ -2,14 +2,17 @@ import React from 'react';
 import { 
   Home, 
   Compass, 
-  Hash, 
   Users, 
   Bookmark, 
-  Mail, 
   X,
+  FileText,
+  Edit3,
+  LogOut,
+  LogIn,
   Sparkles
 } from 'lucide-react';
 import { NavTab, Category } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface SidebarProps {
   activeNav: NavTab;
@@ -20,6 +23,8 @@ interface SidebarProps {
   isOpenMobile: boolean;
   setIsOpenMobile: (open: boolean) => void;
   onOpenBookmarks: () => void;
+  onOpenAuth: () => void;
+  onOpenEditor: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -31,15 +36,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile,
   setIsOpenMobile,
   onOpenBookmarks,
+  onOpenAuth,
+  onOpenEditor,
 }) => {
-  const mainNavItems = [
-    { id: 'home', label: 'Home', icon: Home, badge: '•' },
-    { id: 'explore', label: 'Explore', icon: Compass },
-    { id: 'topics', label: 'Topics', icon: Hash },
-    { id: 'authors', label: 'Authors', icon: Users },
-    { id: 'bookmarks', label: 'Bookmarks', icon: Bookmark, count: bookmarksCount },
-    { id: 'newsletter', label: 'Newsletter', icon: Mail },
+  const { user, isAuthenticated, logout } = useAuth();
+
+  // Navigation items adapted dynamically based on auth state
+  const baseNavItems = [
+    { id: 'home', label: 'Home Feed', icon: Home, badge: '•' },
+    { id: 'explore', label: 'Explore & Topics', icon: Compass },
+    { id: 'authors', label: 'Authors & Fellows', icon: Users },
+    { id: 'bookmarks', label: 'Reading List', icon: Bookmark, count: bookmarksCount },
   ];
+
+  const authenticatedNavItems = [
+    ...baseNavItems,
+    { id: 'mystories', label: 'My Stories & Studio', icon: FileText },
+  ];
+
+  const currentNavItems = isAuthenticated ? authenticatedNavItems : baseNavItems;
 
   const popularTopics: Category[] = [
     'Technology',
@@ -48,8 +63,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     'Business',
     'Lifestyle',
     'AI & Future',
-    'Travel',
-    'Health',
   ];
 
   return (
@@ -64,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#FBF9F5] border-r border-[#EFECE6] p-6 flex flex-col justify-between
+        fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#FBF9F5] border-r border-[#EAE4D9] p-6 flex flex-col justify-between
         transition-transform duration-300 ease-in-out overflow-y-auto
         ${isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
@@ -75,9 +88,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => { setActiveNav('home'); setSelectedCategory('All'); setIsOpenMobile(false); }}
               className="text-left group cursor-pointer"
             >
-              <h1 className="font-serif text-3xl font-bold tracking-tight text-[#18181B] flex items-baseline">
+              <h1 className="font-editorial text-3xl font-bold tracking-tight text-[#141416] flex items-baseline">
                 Verdict
-                <span className="text-[#E05A30] font-black text-3xl ml-0.5 group-hover:scale-125 transition-transform">.</span>
+                <span className="text-[#9E5A38] font-black text-3xl ml-0.5 group-hover:scale-125 transition-transform">.</span>
               </h1>
             </button>
             
@@ -90,9 +103,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           </div>
 
+          {/* Quick Write Story CTA for Authenticated Creators */}
+          {isAuthenticated && (
+            <div className="mb-6">
+              <button
+                onClick={() => {
+                  onOpenEditor();
+                  setIsOpenMobile(false);
+                }}
+                className="w-full bg-[#2E4A3E] hover:bg-[#233a30] text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-all shadow-xs flex items-center justify-center space-x-2 cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Write Story</span>
+              </button>
+            </div>
+          )}
+
           {/* Primary Navigation */}
           <nav className="space-y-1 mb-8">
-            {mainNavItems.map((item) => {
+            {currentNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeNav === item.id;
               return (
@@ -107,22 +136,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     setIsOpenMobile(false);
                   }}
                   className={`
-                    w-full flex items-center justify-between px-3 py-2.5 rounded-full text-xs font-medium transition-all cursor-pointer
+                    w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer
                     ${isActive 
-                      ? 'bg-[#EFECE6] text-[#18181B] font-semibold shadow-xs' 
-                      : 'text-zinc-600 hover:text-zinc-950 hover:bg-[#F3EFEA]'
+                      ? 'bg-[#EAE4D9] text-[#141416] font-semibold shadow-2xs' 
+                      : 'text-zinc-600 hover:text-[#141416] hover:bg-[#FAF7F2]'
                     }
                   `}
                 >
                   <div className="flex items-center space-x-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#18181B]' : 'text-zinc-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#141416]' : 'text-zinc-400'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge && isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#E05A30]"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#9E5A38]"></span>
                   )}
                   {item.count !== undefined && item.count > 0 && (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#18181B] text-white">
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#141416] text-white">
                       {item.count}
                     </span>
                   )}
@@ -131,14 +160,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             })}
           </nav>
 
-          {/* Popular Topics Section */}
-          <div className="pt-6 border-t border-[#EFECE6]">
+          {/* Curated Editorial Topics */}
+          <div className="pt-6 border-t border-[#EAE4D9]">
             <h2 className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-3 px-3">
-              Popular Topics
+              Editorial Topics
             </h2>
             <div className="space-y-1">
               {popularTopics.map((topic) => {
-                const isSelected = selectedCategory === topic;
+                const isSelected = selectedCategory === topic && activeNav === 'home';
                 return (
                   <button
                     key={topic}
@@ -150,8 +179,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className={`
                       w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer
                       ${isSelected 
-                        ? 'text-[#E05A30] font-bold bg-[#E05A30]/5' 
-                        : 'text-zinc-600 hover:text-zinc-950 hover:bg-[#F3EFEA]'
+                        ? 'text-[#9E5A38] font-bold bg-[#9E5A38]/10' 
+                        : 'text-zinc-600 hover:text-[#141416] hover:bg-[#FAF7F2]'
                       }
                     `}
                   >
@@ -163,33 +192,63 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {/* Floating Bottom Card: "Stories that move you forward." */}
-        <div className="mt-8 pt-4">
-          <div className="relative rounded-2xl overflow-hidden shadow-md p-5 text-white flex flex-col justify-end min-h-[170px] group">
-            {/* Background image with dark gradient */}
-            <img 
-              src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=500&q=80" 
-              alt="Mountain nature"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
-
-            <div className="relative z-10">
-              <span className="inline-flex items-center space-x-1 text-[10px] uppercase font-bold tracking-widest text-emerald-300 mb-1">
-                <Sparkles className="w-3 h-3" />
-                <span>Verdict Plus</span>
-              </span>
-              <p className="font-serif text-sm font-semibold leading-snug mb-3">
-                Stories that move you forward.
-              </p>
-              <button 
-                onClick={() => alert("Thank you for joining Verdict! Free trial activated.")}
-                className="w-full bg-white hover:bg-zinc-100 text-[#18181B] font-semibold text-xs py-2 px-3 rounded-full transition-colors shadow-xs cursor-pointer"
+        {/* BOTTOM DOCK: Dual-State Behavior */}
+        <div className="mt-8 pt-4 border-t border-[#EAE4D9]">
+          {isAuthenticated && user ? (
+            /* Logged-In User Profile Dock */
+            <div className="bg-white rounded-2xl p-3.5 border border-[#EAE4D9] shadow-2xs flex items-center justify-between">
+              <div 
+                onClick={() => {
+                  setActiveNav('mystories');
+                  setIsOpenMobile(false);
+                }}
+                className="flex items-center space-x-3 min-w-0 cursor-pointer"
               >
-                Join Free
+                <img
+                  src={user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
+                  alt={user.name}
+                  className="w-9 h-9 rounded-full object-cover ring-1 ring-zinc-200 shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-[#141416] truncate">
+                    {user.name}
+                  </p>
+                  <p className="text-[10px] text-zinc-500 capitalize">
+                    {user.role || 'Author'} &bull; Studio
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={logout}
+                className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer shrink-0"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
-          </div>
+          ) : (
+            /* Logged-Out Elegant Invitation Card (No spammy 'Join Free' or alert popups) */
+            <div className="bg-[#FAF7F2] rounded-2xl p-4 border border-[#EAE4D9]">
+              <div className="flex items-center space-x-1.5 text-[10px] font-bold uppercase tracking-wider text-[#2E4A3E] mb-1.5">
+                <Sparkles className="w-3 h-3" />
+                <span>Verdict Circle</span>
+              </div>
+              <p className="text-xs text-zinc-600 leading-snug mb-3">
+                Sign in to save articles, join discussions, and publish your essays.
+              </p>
+              <button
+                onClick={() => {
+                  onOpenAuth();
+                  setIsOpenMobile(false);
+                }}
+                className="w-full bg-[#141416] hover:bg-black text-white text-xs font-semibold py-2 px-3 rounded-full transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In / Register</span>
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>
