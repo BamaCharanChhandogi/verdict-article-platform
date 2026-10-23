@@ -6,7 +6,6 @@ import {
   Bookmark, 
   X,
   FileText,
-  Edit3,
   LogOut,
   LogIn,
   Clock,
@@ -100,24 +99,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="lg:hidden p-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white rounded-lg cursor-pointer"
             >
               <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Prominent Write Button */}
-          <div>
-            <button
-              onClick={() => {
-                if (!isAuthenticated) {
-                  onOpenAuth();
-                } else {
-                  onOpenEditor();
-                }
-                setIsOpenMobile(false);
-              }}
-              className="w-full bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white text-white dark:text-[#0E1116] text-xs font-semibold py-2.5 px-4 rounded-xl transition-all shadow-xs flex items-center justify-center space-x-2 cursor-pointer group"
-            >
-              <Edit3 className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-700 group-hover:text-white dark:group-hover:text-black transition-colors" />
-              <span>Write Story</span>
             </button>
           </div>
 

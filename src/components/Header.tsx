@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, Edit3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
@@ -65,10 +65,11 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenEditor();
             }
           }}
-          className="bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white text-white dark:text-[#0E1116] text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-2xs cursor-pointer shrink-0"
-          title={isAuthenticated ? "Write a new story" : "Write here on Verdict"}
+          className="inline-flex items-center space-x-1.5 bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white text-white dark:text-[#0E1116] text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-2xs cursor-pointer shrink-0 group"
+          title={isAuthenticated ? "Write a new story" : "Write a story on Verdict"}
         >
-          <span>Write here</span>
+          <Edit3 className="w-3.5 h-3.5" />
+          <span>Write Story</span>
         </button>
       </div>
     </header>
