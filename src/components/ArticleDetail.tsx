@@ -226,67 +226,47 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       {/* Scroll Reading Progress Bar at the top */}
       <ReadingProgress />
 
-      {/* FLOATING ACTION CAPSULE (Centered Vertically, Fit-Content Height) */}
-      <aside className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center bg-white/95 dark:bg-[#161B22]/95 backdrop-blur-md p-2 rounded-2xl border border-[#EAE4D9] dark:border-[#262C3A] shadow-xl space-y-3">
+      {/* FROSTED GLASS FLOATING ACTION CAPSULE (Matches User Provided Image 1) */}
+      <aside className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center bg-white/45 dark:bg-[#141824]/60 backdrop-blur-2xl py-6 px-3 rounded-full border border-white/60 dark:border-white/15 shadow-[0_12px_40px_0_rgba(0,0,0,0.14)] space-y-6 w-16 transition-all">
         {/* Like */}
         <button
           onClick={handleLike}
-          className="flex flex-col items-center space-y-0.5 group cursor-pointer"
+          className="flex flex-col items-center group cursor-pointer"
           title="Heart / React to Story"
         >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-            hasLiked
-              ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 scale-105 shadow-2xs'
-              : 'text-zinc-500 dark:text-zinc-400 hover:bg-rose-50/80 dark:hover:bg-rose-950/30 hover:text-rose-500'
-          }`}>
-            <Heart className={`w-4 h-4 transition-transform group-hover:scale-115 ${hasLiked ? 'fill-current text-rose-500' : ''}`} />
-          </div>
-          <span className={`text-[10px] font-bold ${hasLiked ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-500 dark:text-zinc-400'}`}>
-            {likes}
-          </span>
+          <Heart className={`w-6 h-6 stroke-[1.8] transition-transform group-hover:scale-115 ${hasLiked ? 'fill-rose-500 text-rose-500' : 'text-zinc-800 dark:text-zinc-100'}`} />
+          <span className="text-xs font-bold mt-1 text-zinc-800 dark:text-zinc-100">{likes}</span>
         </button>
 
         {/* Comment */}
         <button
           onClick={handleScrollToComments}
-          className="flex flex-col items-center space-y-0.5 group cursor-pointer"
+          className="flex flex-col items-center group cursor-pointer"
           title="Jump to Discussion"
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-[#EBF1EE] dark:hover:bg-emerald-950/30 hover:text-[#2E4A3E] dark:hover:text-emerald-400 transition-all">
-            <MessageSquare className="w-4 h-4 group-hover:scale-115 transition-transform" />
-          </div>
-          <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400">
-            {comments.length}
-          </span>
+          <MessageSquare className="w-6 h-6 stroke-[1.8] text-zinc-800 dark:text-zinc-100 transition-transform group-hover:scale-115" />
+          <span className="text-xs font-bold mt-1 text-zinc-800 dark:text-zinc-100">{comments.length}</span>
         </button>
 
         {/* Save / Bookmark */}
         <button
           onClick={handleBookmarkClick}
-          className="flex flex-col items-center space-y-0.5 group cursor-pointer"
+          className="flex flex-col items-center group cursor-pointer"
           title={isBookmarked(article.id) ? "Remove from Reading List" : "Save to Reading List"}
         >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-            isBookmarked(article.id)
-              ? 'bg-[#F7EFE9] dark:bg-[#2A1D17] text-[#9E5A38] dark:text-[#E05A30] shadow-2xs'
-              : 'text-zinc-500 dark:text-zinc-400 hover:bg-[#F7EFE9]/80 dark:hover:bg-[#2A1D17]/40 hover:text-[#9E5A38]'
-          }`}>
-            <Bookmark className={`w-4 h-4 transition-transform group-hover:scale-115 ${isBookmarked(article.id) ? 'fill-current' : ''}`} />
-          </div>
-          <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400">
-            {isBookmarked(article.id) ? 1 : 0}
-          </span>
+          <Bookmark className={`w-6 h-6 stroke-[1.8] transition-transform group-hover:scale-115 ${isBookmarked(article.id) ? 'fill-current text-[#9E5A38] dark:text-[#E05A30]' : 'text-zinc-800 dark:text-zinc-100'}`} />
+          <span className="text-xs font-bold mt-1 text-zinc-800 dark:text-zinc-100">{isBookmarked(article.id) ? 1 : 0}</span>
         </button>
 
         {/* Share */}
         <button
           onClick={handleShare}
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-[#1F2430] hover:text-black dark:hover:text-white transition-all cursor-pointer relative group"
+          className="flex flex-col items-center p-1 rounded-full text-zinc-800 dark:text-zinc-100 hover:text-black dark:hover:text-white transition-all cursor-pointer relative group"
           title="Share Story"
         >
-          {copiedShare ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 group-hover:scale-115 transition-transform" />}
+          {copiedShare ? <Check className="w-6 h-6 text-emerald-600 stroke-[2.2]" /> : <Share2 className="w-6 h-6 stroke-[1.8] group-hover:scale-115 transition-transform" />}
           {copiedShare && (
-            <span className="absolute left-12 bg-[#141416] text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md pointer-events-none whitespace-nowrap animate-in fade-in">
+            <span className="absolute left-14 bg-[#141416] text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md pointer-events-none whitespace-nowrap animate-in fade-in">
               Copied!
             </span>
           )}
