@@ -89,6 +89,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(201).json({ success: true, token, user });
       }
 
+      // 2B. UPLOAD: IMAGE UPLOAD ENDPOINT
+      if (req.method === 'POST' && cleanUrl.startsWith('/upload/image')) {
+        const { image, url, base64 } = req.body || {};
+        const finalUrl = url || image || base64 || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85';
+        return res.status(200).json({ success: true, url: finalUrl });
+      }
+
       // 3. ARTICLES: CREATE ARTICLE OR BLANK DRAFT (POST)
       if (req.method === 'POST' && (cleanUrl === '/articles' || cleanUrl === '/articles/')) {
         const authHeader = req.headers.authorization;

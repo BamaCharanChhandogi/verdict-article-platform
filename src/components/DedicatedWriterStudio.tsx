@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
+  ArrowRight,
   Upload, 
   Send, 
   Eye, 
@@ -208,32 +209,59 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
     return () => clearTimeout(timer);
   }, [title, subtitle, category, coverImage, textContent, tagsInput, seriesName, seoTitle, seoDescription, canonicalUrl, isUnlisted, scheduledAt, editor]);
 
-  // Direct Cloudflare R2 Upload
+// High-performance image optimizer for instant local and persistent remote storage
+const processImageFile = (file: File): Promise<string> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new window.Image();
+      img.src = e.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1600;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.88));
+        } else {
+          resolve(e.target?.result as string || '');
+        }
+      };
+      img.onerror = () => resolve(e.target?.result as string || '');
+    };
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+};
+
+  // High-Resolution Cover Image Upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingImage(true);
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const res = await axios.post('/api/upload/image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        }
-      });
-
-      if (res.data?.success && res.data?.url) {
-        setCoverImage(res.data.url);
+      const dataUrl = await processImageFile(file);
+      if (dataUrl) {
+        setCoverImage(dataUrl);
+        setSaveStatus('saving');
       }
-    } catch {
-      const localUrl = URL.createObjectURL(file);
-      setCoverImage(localUrl);
+    } catch (err) {
+      console.error('Image processing notice:', err);
     } finally {
       setUploadingImage(false);
       setShowCoverSection(true);
+      e.target.value = '';
     }
   };
 
@@ -245,18 +273,23 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
     }
   };
 
-  const handleInlineImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInlineImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !editor) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        editor.chain().focus().setImage({ src: reader.result }).run();
+    setUploadingImage(true);
+    try {
+      const dataUrl = await processImageFile(file);
+      if (dataUrl) {
+        editor.chain().focus().setImage({ src: dataUrl }).run();
+        setSaveStatus('saving');
       }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+    } catch (err) {
+      console.error('Inline image notice:', err);
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
   };
 
   // Submit Handler: Publish Story
@@ -404,24 +437,25 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
             <span className="hidden sm:inline">{isPreview ? 'Edit' : 'Preview'}</span>
           </button>
 
-          {/* Draft Settings Drawer Trigger (Hashnode ⚙️) */}
+          {/* Next Step: Opens Publishing & Story Details Drawer */}
           <button
-            onClick={() => setIsSettingsOpen(true)}
-            className="inline-flex items-center space-x-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] text-zinc-700 dark:text-zinc-300 border border-[#EAE4D9] dark:border-[#262C3A] transition-colors cursor-pointer"
-            title="Draft Settings"
+            onClick={() => {
+              if (!title.trim()) {
+                setErrorMessage('Please provide an essay title before proceeding.');
+                return;
+              }
+              const htmlContent = editor?.getHTML() || '';
+              if (!htmlContent.trim() || htmlContent === '<p></p>') {
+                setErrorMessage('Please write some content for your story before proceeding.');
+                return;
+              }
+              setErrorMessage('');
+              setIsSettingsOpen(true);
+            }}
+            className="inline-flex items-center space-x-1.5 text-xs font-semibold px-4 sm:px-5 py-2 rounded-full bg-[#141416] dark:bg-emerald-600 hover:bg-black dark:hover:bg-emerald-500 text-white transition-all shadow-sm cursor-pointer"
           >
-            <Settings className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
-            <span className="hidden sm:inline">Draft settings</span>
-          </button>
-
-          {/* Primary Publish CTA */}
-          <button
-            onClick={handlePublish}
-            disabled={isPublishing}
-            className="inline-flex items-center space-x-1.5 text-xs font-semibold px-4 sm:px-5 py-2 rounded-full bg-[#141416] dark:bg-emerald-600 hover:bg-black dark:hover:bg-emerald-500 text-white transition-all shadow-sm cursor-pointer disabled:opacity-50"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span>{isPublishing ? 'Publishing...' : 'Publish'}</span>
+            <span>Next</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </header>
@@ -498,7 +532,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-3">
                         <label className="bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] text-[#141416] dark:text-white text-xs font-semibold px-4 py-2 rounded-full cursor-pointer shadow-md flex items-center space-x-1.5">
                           <Upload className="w-3.5 h-3.5" />
-                          <span>{uploadingImage ? 'Uploading...' : 'Change Cover (Cloudflare R2)'}</span>
+                          <span>{uploadingImage ? 'Uploading...' : 'Change Cover'}</span>
                           <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                         </label>
                       </div>

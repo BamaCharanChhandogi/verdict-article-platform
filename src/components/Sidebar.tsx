@@ -169,14 +169,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   setActiveNav(item.id as NavTab);
                   setSelectedCategory('All');
                 }}
-                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-white text-black shadow-md scale-105'
-                    : 'text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white'
+                    ? 'border-2 border-zinc-800 dark:border-white text-zinc-900 dark:text-white bg-transparent'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white'
                 }`}
                 aria-label={item.label}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.2]' : 'stroke-[1.75]'}`} />
+                <Icon className="w-5 h-5 stroke-[1.8]" />
               </button>
 
               {/* Floating Tooltip Pill */}

@@ -245,10 +245,10 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <div className="relative group flex items-center justify-center">
           <button
             onClick={() => navigate(isAuthenticated ? '/feed' : '/')}
-            className="w-11 h-11 rounded-full bg-white dark:bg-white text-black shadow-md flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 border border-zinc-300/80 dark:border-zinc-700/80 transition-all cursor-pointer"
             aria-label="Return to Home Feed"
           >
-            <Home className="w-5 h-5 fill-current" />
+            <Home className="w-4.5 h-4.5 stroke-[1.8]" />
           </button>
           <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
             {isAuthenticated ? 'Back to Feed' : 'Back to Home'}
