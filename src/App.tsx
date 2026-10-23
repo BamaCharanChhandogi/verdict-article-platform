@@ -11,6 +11,7 @@ import { ArticleDetail } from './components/ArticleDetail';
 import { BookmarksDrawer } from './components/BookmarksDrawer';
 import { AuthModal } from './components/AuthModal';
 import { DedicatedWriterStudio } from './components/DedicatedWriterStudio';
+import { DraftsPage } from './components/DraftsPage';
 import { AuthorDirectory } from './components/AuthorDirectory';
 import { AuthorDashboard } from './components/AuthorDashboard';
 import { HeroSkeleton, ArticleCardSkeleton } from './components/Skeletons';
@@ -47,9 +48,10 @@ export function App() {
   const activeNav: NavTab = useMemo(() => {
     const path = location.pathname;
     if (path === '/authors') return 'authors';
+    if (path === '/drafts') return 'drafts';
     if (path === '/studio' || path === '/mystories') return 'mystories';
-    if (path === '/explore') return 'explore';
-    if (path === '/write') return 'write';
+    if (path === '/feed' || path === '/explore') return 'feed';
+    if (path.startsWith('/write')) return 'write';
     return 'home';
   }, [location.pathname]);
 
@@ -88,6 +90,11 @@ export function App() {
     };
   }, []);
 
+  // Filter drafts vs published stories
+  const draftsList = useMemo(() => {
+    return articles.filter(a => a.status === 'draft');
+  }, [articles]);
+
   // Bookmark Toggle Handler
   const handleBookmarkToggle = (article: Article) => {
     const id = String(article.id);
@@ -119,7 +126,7 @@ export function App() {
 
     setEditingDraft(null);
     if (newArticle.status === 'draft') {
-      navigate('/studio');
+      navigate('/drafts');
     } else {
       navigate(`/article/${newArticle.slug}`);
     }
@@ -150,7 +157,7 @@ export function App() {
   return (
     <>
       <Routes>
-        {/* 1. DEDICATED FULL-SCREEN WRITER STUDIO ROUTE (/write) */}
+        {/* 1. DEDICATED FULL-SCREEN WRITER STUDIO ROUTES (/write and /write/:draftId) */}
         <Route
           path="/write"
           element={
@@ -158,6 +165,19 @@ export function App() {
               onBack={() => {
                 setEditingDraft(null);
                 navigate('/studio');
+              }}
+              onArticlePublished={handleArticlePublished}
+              initialDraft={editingDraft}
+            />
+          }
+        />
+        <Route
+          path="/write/:draftId"
+          element={
+            <DedicatedWriterStudio
+              onBack={() => {
+                setEditingDraft(null);
+                navigate('/drafts');
               }}
               onArticlePublished={handleArticlePublished}
               initialDraft={editingDraft}
@@ -173,9 +193,10 @@ export function App() {
                 activeNav={activeNav}
                 setActiveNav={(nav) => {
                   if (nav === 'home') navigate('/');
+                  else if (nav === 'feed') navigate('/feed');
                   else if (nav === 'authors') navigate('/authors');
+                  else if (nav === 'drafts') navigate('/drafts');
                   else if (nav === 'mystories') navigate('/studio');
-                  else if (nav === 'explore') navigate('/explore');
                   else if (nav === 'write') {
                     setEditingDraft(null);
                     navigate('/write');
@@ -184,6 +205,7 @@ export function App() {
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
                 bookmarksCount={bookmarkedIds.length}
+                draftsCount={draftsList.length}
                 isOpenMobile={isMobileSidebarOpen}
                 setIsOpenMobile={setIsMobileSidebarOpen}
                 onOpenBookmarks={() => setIsBookmarksOpen(true)}
@@ -238,6 +260,28 @@ export function App() {
             }
           />
 
+          {/* DEDICATED DRAFTS PAGE (/drafts) */}
+          <Route
+            path="/drafts"
+            element={
+              <main className="flex-1">
+                <DraftsPage
+                  drafts={draftsList}
+                  onResumeDraft={(draft) => {
+                    setEditingDraft(draft);
+                    navigate(`/write/${draft.id}`);
+                  }}
+                  onOpenNewDraft={() => {
+                    setEditingDraft(null);
+                    navigate('/write');
+                  }}
+                  onDeleteDraft={handleDeleteArticle}
+                  onBackToStudio={() => navigate('/studio')}
+                />
+              </main>
+            }
+          />
+
           {/* AUTHOR HUB & CREATOR STUDIO ROUTE (/studio or /mystories) */}
           <Route
             path="/studio"
@@ -253,14 +297,16 @@ export function App() {
                   onDeleteArticle={handleDeleteArticle}
                   onResumeDraft={(draft) => {
                     setEditingDraft(draft);
-                    navigate('/write');
+                    navigate(`/write/${draft.id}`);
                   }}
                   onOpenAuth={() => setIsAuthOpen(true)}
+                  onNavigateDrafts={() => navigate('/drafts')}
                 />
               </main>
             }
           />
           <Route path="/mystories" element={<Navigate to="/studio" replace />} />
+          <Route path="/feed" element={<Navigate to="/" replace />} />
 
           {/* EDITORIAL HOME & EXPLORE FEED (/) */}
           <Route

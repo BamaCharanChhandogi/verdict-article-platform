@@ -5,7 +5,6 @@ import { appCache } from './cache';
 
 // API Endpoints
 const DEVTO_API = 'https://dev.to/api/articles?per_page=12&top=7';
-const DUMMY_USERS_API = 'https://dummyjson.com/users?limit=8&select=id,firstName,lastName,image,company';
 const DUMMY_COMMENTS_API = 'https://dummyjson.com/comments?limit=15';
 
 /**
@@ -89,16 +88,24 @@ export async function fetchArticles(): Promise<Article[]> {
 }
 
 /**
- * Service 1B: Create Real Article in PostgreSQL Database
+ * Service 1B: Create Real Article / Draft in PostgreSQL Database
  */
 export async function createRealArticle(articleData: {
-  title: string;
-  description: string;
-  content: string;
-  cover_image: string;
-  category: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  content?: string;
+  cover_image?: string;
+  category?: string;
   tags?: string[];
   status?: 'published' | 'draft';
+  seo_title?: string;
+  seo_description?: string;
+  canonical_url?: string;
+  og_image?: string;
+  scheduled_at?: string | null;
+  is_unlisted?: boolean;
+  series_name?: string;
 }, token?: string | null): Promise<Article | null> {
   try {
     const headers: Record<string, string> = {};
@@ -117,7 +124,43 @@ export async function createRealArticle(articleData: {
 }
 
 /**
- * Service 1C: Delete Real Article from PostgreSQL Database
+ * Service 1C: Update Article / Draft in PostgreSQL Database (In-Place PUT)
+ */
+export async function updateRealArticle(id: string | number, updateData: {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  content?: string;
+  cover_image?: string;
+  category?: string;
+  tags?: string[];
+  status?: 'published' | 'draft';
+  seo_title?: string;
+  seo_description?: string;
+  canonical_url?: string;
+  og_image?: string;
+  scheduled_at?: string | null;
+  is_unlisted?: boolean;
+  series_name?: string;
+}, token?: string | null): Promise<Article | null> {
+  try {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.put(`/api/articles/${id}`, updateData, { headers });
+    if (res.data?.success && res.data?.data) {
+      appCache.clear();
+      return res.data.data;
+    }
+    return null;
+  } catch (err) {
+    console.warn('Real DB PUT failed', err);
+    return null;
+  }
+}
+
+/**
+ * Service 1D: Delete Real Article from PostgreSQL Database
  */
 export async function deleteRealArticle(id: string | number, token?: string | null): Promise<boolean> {
   try {
@@ -130,6 +173,36 @@ export async function deleteRealArticle(id: string | number, token?: string | nu
   } catch (err) {
     console.warn('Real DB DELETE failed', err);
     return false;
+  }
+}
+
+/**
+ * Service 1E: Fetch Single Article from DB by ID or Slug
+ */
+export async function fetchSingleArticle(slugOrId: string): Promise<Article | null> {
+  try {
+    const res = await axios.get(`/api/articles/${slugOrId}`);
+    if (res.data?.success && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Service 1F: Fetch Drafts specifically from PostgreSQL
+ */
+export async function fetchMyDrafts(): Promise<Article[]> {
+  try {
+    const res = await axios.get('/api/articles?status=draft');
+    if (res.data?.success && Array.isArray(res.data?.data)) {
+      return res.data.data;
+    }
+    return [];
+  } catch (err) {
+    return [];
   }
 }
 
@@ -162,7 +235,6 @@ export async function fetchCommentsForArticle(articleId: string | number): Promi
   const cached = appCache.get<Comment[]>(cacheKey);
   if (cached) return cached;
 
-  // Check fallback comments first for instant response
   const localComments = fallbackComments[articleId as string] || [];
 
   try {

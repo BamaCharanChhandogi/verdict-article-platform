@@ -30,8 +30,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const url = req.url || '';
-  const cleanUrl = url.replace(/^\/api(\/v1)?/, '');
+  const rawUrl = req.url || '';
+  const parsedUrl = new URL(rawUrl, 'http://localhost');
+  const pathname = parsedUrl.pathname;
+  const cleanUrl = pathname.replace(/^\/api(\/v1)?/, '');
 
   try {
     const client = await pool.connect();
@@ -87,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(201).json({ success: true, token, user });
       }
 
-      // 3. ARTICLES: CREATE ARTICLE (POST)
+      // 3. ARTICLES: CREATE ARTICLE OR BLANK DRAFT (POST)
       if (req.method === 'POST' && (cleanUrl === '/articles' || cleanUrl === '/articles/')) {
         const authHeader = req.headers.authorization;
         let authorId = 'user-demo-1';
@@ -101,30 +103,131 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
 
-        const { title, description, content, cover_image, category, tags = [], status = 'published' } = req.body || {};
-        if (!title || !content) {
-          return res.status(400).json({ success: false, message: 'Title and content required.' });
-        }
+        const {
+          title = 'Untitled Draft',
+          subtitle = '',
+          description = '',
+          content = '',
+          cover_image = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
+          category = 'Technology',
+          tags = [],
+          status = 'published',
+          seo_title = '',
+          seo_description = '',
+          canonical_url = '',
+          og_image = '',
+          scheduled_at = null,
+          is_unlisted = false,
+          series_name = ''
+        } = req.body || {};
 
-        const id = `art_${Date.now()}`;
-        const baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        const id = `art_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+        const cleanTitle = title.trim() || 'Untitled Draft';
+        const baseSlug = cleanTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || 'draft';
         const slug = `${baseSlug}-${Date.now().toString().slice(-4)}`;
-        const wordCount = content.trim().split(/\s+/).length;
+        const wordCount = (content || '').trim().split(/\s+/).filter(Boolean).length;
         const readingTime = Math.max(1, Math.ceil(wordCount / 200));
-        const cover = cover_image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85';
-        const desc = description || content.slice(0, 160).replace(/[#*`_]/g, '') + '...';
+        const desc = description || (content || '').slice(0, 160).replace(/[#*`_]/g, '') + '...';
 
         const insertArt = await client.query(`
           INSERT INTO verdict_articles (
-            id, slug, title, description, content, cover_image, category, author_id, reading_time, tags, status
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-          RETURNING *
-        `, [id, slug, title.trim(), desc.trim(), content, cover, category || 'Technology', authorId, readingTime, tags, status]);
+            id, slug, title, subtitle, description, content, cover_image, category, author_id,
+            reading_time, tags, status, seo_title, seo_description, canonical_url,
+            og_image, scheduled_at, is_unlisted, series_name
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+          RETURNING 
+            id, slug, title, subtitle, description, content, cover_image as "coverImage",
+            category, reading_time as "readingTime", likes_count as "likesCount",
+            comments_count as "commentsCount", views_count as "viewsCount", is_featured as "isFeatured",
+            is_editor_pick as "isEditorPick", status, tags, published_at as "publishedAt",
+            seo_title as "seoTitle", seo_description as "seoDescription", canonical_url as "canonicalUrl",
+            og_image as "ogImage", scheduled_at as "scheduledAt", is_unlisted as "isUnlisted",
+            series_name as "seriesName", updated_at as "updatedAt"
+        `, [
+          id, slug, cleanTitle, subtitle.trim(), desc.trim(), content, cover_image, category, authorId,
+          readingTime, tags, status, seo_title, seo_description, canonical_url,
+          og_image, scheduled_at, is_unlisted, series_name
+        ]);
 
         return res.status(201).json({ success: true, data: insertArt.rows[0] });
       }
 
-      // 4. AUTHORS: GET REAL CONTRIBUTORS FROM POSTGRESQL
+      // 4. ARTICLES: UPDATE ARTICLE / DRAFT IN-PLACE (PUT)
+      if (req.method === 'PUT' && cleanUrl.startsWith('/articles/')) {
+        const artId = cleanUrl.replace('/articles/', '').trim();
+        const {
+          title,
+          subtitle,
+          description,
+          content,
+          cover_image,
+          category,
+          tags,
+          status,
+          seo_title,
+          seo_description,
+          canonical_url,
+          og_image,
+          scheduled_at,
+          is_unlisted,
+          series_name
+        } = req.body || {};
+
+        const existingRes = await client.query('SELECT * FROM verdict_articles WHERE id = $1', [artId]);
+        if (existingRes.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Article or draft not found.' });
+        }
+        const existing = existingRes.rows[0];
+
+        const newTitle = title !== undefined ? title.trim() : existing.title;
+        const newSubtitle = subtitle !== undefined ? subtitle.trim() : existing.subtitle;
+        const newContent = content !== undefined ? content : existing.content;
+        const wordCount = (newContent || '').trim().split(/\s+/).filter(Boolean).length;
+        const newReadingTime = Math.max(1, Math.ceil(wordCount / 200));
+        const newDesc = description !== undefined ? description : (newContent.slice(0, 160).replace(/[#*`_]/g, '') + '...');
+        const newStatus = status !== undefined ? status : existing.status;
+        const newCover = cover_image !== undefined ? cover_image : existing.cover_image;
+        const newCategory = category !== undefined ? category : existing.category;
+        const newTags = tags !== undefined ? tags : existing.tags;
+
+        const updateRes = await client.query(`
+          UPDATE verdict_articles SET
+            title = $1,
+            subtitle = $2,
+            description = $3,
+            content = $4,
+            cover_image = $5,
+            category = $6,
+            tags = $7,
+            status = $8,
+            reading_time = $9,
+            seo_title = COALESCE($10, seo_title),
+            seo_description = COALESCE($11, seo_description),
+            canonical_url = COALESCE($12, canonical_url),
+            og_image = COALESCE($13, og_image),
+            scheduled_at = COALESCE($14, scheduled_at),
+            is_unlisted = COALESCE($15, is_unlisted),
+            series_name = COALESCE($16, series_name),
+            updated_at = NOW(),
+            published_at = CASE WHEN $8 = 'published' AND status = 'draft' THEN NOW() ELSE published_at END
+          WHERE id = $17
+          RETURNING 
+            id, slug, title, subtitle, description, content, cover_image as "coverImage",
+            category, reading_time as "readingTime", likes_count as "likesCount",
+            comments_count as "commentsCount", views_count as "viewsCount", is_featured as "isFeatured",
+            is_editor_pick as "isEditorPick", status, tags, published_at as "publishedAt",
+            seo_title as "seoTitle", seo_description as "seoDescription", canonical_url as "canonicalUrl",
+            og_image as "ogImage", scheduled_at as "scheduledAt", is_unlisted as "isUnlisted",
+            series_name as "seriesName", updated_at as "updatedAt"
+        `, [
+          newTitle, newSubtitle, newDesc, newContent, newCover, newCategory, newTags, newStatus, newReadingTime,
+          seo_title, seo_description, canonical_url, og_image, scheduled_at, is_unlisted, series_name, artId
+        ]);
+
+        return res.status(200).json({ success: true, data: updateRes.rows[0] });
+      }
+
+      // 5. AUTHORS: GET REAL CONTRIBUTORS FROM POSTGRESQL
       if (req.method === 'GET' && (cleanUrl === '/authors' || cleanUrl === '/authors/')) {
         const authorsRes = await client.query(`
           SELECT 
@@ -144,14 +247,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ success: true, data: authorsRes.rows });
       }
 
-      // 5. ARTICLES: DELETE ARTICLE
+      // 6. ARTICLES: DELETE ARTICLE
       if (req.method === 'DELETE' && cleanUrl.startsWith('/articles/')) {
         const artId = cleanUrl.replace('/articles/', '').trim();
         await client.query('DELETE FROM verdict_articles WHERE id = $1', [artId]);
         return res.status(200).json({ success: true, message: 'Article deleted successfully' });
       }
 
-      // 6. ARTICLES: GET SINGLE ARTICLE BY SLUG OR ID
+      // 7. ARTICLES: GET SINGLE ARTICLE BY SLUG OR ID
       if (req.method === 'GET' && cleanUrl.startsWith('/articles/') && cleanUrl !== '/articles/') {
         const slugOrId = cleanUrl.replace('/articles/', '').trim();
         const singleRes = await client.query(`
@@ -161,6 +264,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             a.comments_count as "commentsCount", a.views_count as "viewsCount", a.is_featured as "isFeatured",
             a.is_editor_pick as "isEditorPick", a.editor_pick_rank as "editorPickRank",
             a.status, a.tags, a.published_at as "publishedAt",
+            a.seo_title as "seoTitle", a.seo_description as "seoDescription", a.canonical_url as "canonicalUrl",
+            a.og_image as "ogImage", a.scheduled_at as "scheduledAt", a.is_unlisted as "isUnlisted",
+            a.series_name as "seriesName", a.updated_at as "updatedAt",
             json_build_object(
               'id', u.id,
               'name', u.name,
@@ -182,15 +288,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(404).json({ success: false, message: 'Article not found' });
       }
 
-      // 7. ARTICLES: GET ALL ARTICLES (FROM POSTGRESQL)
+      // 8. ARTICLES: GET ALL ARTICLES (WITH OPTIONAL FILTER BY STATUS & AUTHOR)
       if (req.method === 'GET' && (cleanUrl.startsWith('/articles') || cleanUrl === '' || cleanUrl === '/')) {
-        const result = await client.query(`
+        const statusFilter = parsedUrl.searchParams.get('status');
+        const authorFilter = parsedUrl.searchParams.get('author_id');
+
+        let query = `
           SELECT 
             a.id, a.slug, a.title, a.subtitle, a.description, a.content, a.cover_image as "coverImage",
             a.category, a.reading_time as "readingTime", a.likes_count as "likesCount",
             a.comments_count as "commentsCount", a.views_count as "viewsCount", a.is_featured as "isFeatured",
             a.is_editor_pick as "isEditorPick", a.editor_pick_rank as "editorPickRank",
             a.status, a.tags, a.published_at as "publishedAt",
+            a.seo_title as "seoTitle", a.seo_description as "seoDescription", a.canonical_url as "canonicalUrl",
+            a.og_image as "ogImage", a.scheduled_at as "scheduledAt", a.is_unlisted as "isUnlisted",
+            a.series_name as "seriesName", a.updated_at as "updatedAt",
             json_build_object(
               'id', u.id,
               'name', u.name,
@@ -202,9 +314,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ) as author
           FROM verdict_articles a
           LEFT JOIN verdict_users u ON a.author_id = u.id
-          ORDER BY a.published_at DESC;
-        `);
+          WHERE 1=1
+        `;
+        const params: any[] = [];
 
+        if (statusFilter) {
+          params.push(statusFilter);
+          query += ` AND a.status = $${params.length}`;
+        }
+
+        if (authorFilter) {
+          params.push(authorFilter);
+          query += ` AND a.author_id = $${params.length}`;
+        }
+
+        query += ` ORDER BY COALESCE(a.updated_at, a.published_at) DESC;`;
+
+        const result = await client.query(query, params);
         return res.status(200).json({ success: true, data: result.rows });
       }
 

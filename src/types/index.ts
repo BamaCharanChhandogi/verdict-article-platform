@@ -37,11 +37,20 @@ export interface Article {
   readingTime: number; // in minutes
   likesCount: number;
   commentsCount: number;
+  viewsCount?: number;
   isFeatured?: boolean;
   isEditorPick?: boolean;
   editorPickRank?: number;
   tags: string[];
   status?: 'published' | 'draft';
+  seoTitle?: string;
+  seoDescription?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  scheduledAt?: string;
+  isUnlisted?: boolean;
+  seriesName?: string;
+  updatedAt?: string;
 }
 
 export type Category = 
@@ -57,11 +66,14 @@ export type Category =
 
 export type NavTab = 
   | 'home'
+  | 'feed'
   | 'explore'
   | 'topics'
   | 'authors'
   | 'bookmarks'
   | 'newsletter'
   | 'mystories'
+  | 'drafts'
+  | 'submissions'
   | 'analytics'
   | 'write';

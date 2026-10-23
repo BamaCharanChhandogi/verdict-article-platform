@@ -13,8 +13,9 @@ import {
   FileText, 
   BarChart3, 
   User, 
-  Clock, 
-  Play 
+  Clock,
+  ArrowRight,
+  Globe
 } from 'lucide-react';
 import { Article } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +28,7 @@ interface AuthorDashboardProps {
   onDeleteArticle: (id: string | number) => void;
   onResumeDraft: (draft: Article) => void;
   onOpenAuth: () => void;
+  onNavigateDrafts?: () => void;
 }
 
 export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
@@ -36,14 +38,31 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
   onDeleteArticle,
   onResumeDraft,
   onOpenAuth,
+  onNavigateDrafts,
 }) => {
   const { user, token, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<'published' | 'drafts' | 'analytics' | 'profile'>('published');
+  const [activeTab, setActiveTab] = useState<'home' | 'analytics' | 'profile'>('home');
   const [bioText, setBioText] = useState(user?.bio || 'Writing at the intersection of architecture, systems engineering, and modern editorial aesthetics.');
   const [authorName, setAuthorName] = useState(user?.name || 'Elena Rostova');
   const [savedSettings, setSavedSettings] = useState(false);
 
-  // Filter articles belonging to author or show recent editorial stories
+  // Dynamic Time Greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return { text: 'Good morning', emoji: '🌅' };
+    if (hour < 18) return { text: 'Good afternoon', emoji: '☀️' };
+    return { text: 'Good evening', emoji: '🌙' };
+  };
+
+  const formattedDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const greeting = getGreeting();
+
+  // Filter articles belonging to author or editorial roster
   const authorStories = articles.filter(a => 
     a.author.id === user?.id || 
     a.author.name === user?.name || 
@@ -54,7 +73,6 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
   );
 
   const displayStories = authorStories.length > 0 ? authorStories : articles;
-
   const publishedStories = displayStories.filter(s => s.status !== 'draft');
   const draftStories = displayStories.filter(s => s.status === 'draft');
 
@@ -89,7 +107,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
         </p>
         <button
           onClick={onOpenAuth}
-          className="bg-[#2E4A3E] hover:bg-[#233a30] text-white text-xs font-semibold px-6 py-3 rounded-full transition-all shadow-md cursor-pointer"
+          className="bg-[#141416] hover:bg-black text-white text-xs font-semibold px-6 py-3 rounded-full transition-all shadow-md cursor-pointer"
         >
           Sign In to Access Studio
         </button>
@@ -97,280 +115,248 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
     );
   }
 
+  const displayName = user?.name ? user.name.split(' ')[0] : 'Author';
+
   return (
-    <div className="py-8 max-w-7xl mx-auto px-4 sm:px-8">
-      {/* Studio Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-[#EAE4D9]">
-        <div className="flex items-center space-x-4">
-          <img
-            src={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
-            alt={user?.name || 'Author'}
-            className="w-16 h-16 rounded-full object-cover ring-2 ring-[#2E4A3E]/20"
-          />
-          <div>
-            <div className="flex items-center space-x-2">
-              <h2 className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416]">
-                {authorName}
-              </h2>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#2E4A3E] text-white px-2 py-0.5 rounded-full">
-                {user?.role || 'Staff Author'}
-              </span>
-            </div>
-            <p className="text-xs text-zinc-500 mt-1 max-w-md line-clamp-1">
-              {bioText}
-            </p>
-          </div>
+    <div className="py-8 max-w-6xl mx-auto px-4 sm:px-8">
+      {/* 1. HASHNODE-STYLE PERSONALIZED GREETING BANNER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <p className="text-xs font-medium text-zinc-500 mb-1">
+            {formattedDate}
+          </p>
+          <h1 className="font-editorial text-3xl sm:text-4xl font-bold text-[#141416] flex items-center gap-2">
+            <span>{greeting.text}, {displayName}</span>
+            <span>{greeting.emoji}</span>
+          </h1>
         </div>
 
-        {/* Single Primary Action: Launch Dedicated Writer Studio */}
-        <button
-          onClick={onOpenEditor}
-          className="inline-flex items-center justify-center space-x-2 bg-[#2E4A3E] hover:bg-[#233a30] text-white text-xs font-semibold px-5 py-2.5 rounded-full transition-all shadow-sm cursor-pointer self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>New Essay</span>
-        </button>
-      </div>
-
-      {/* KPI Performance Metrics (Real Data from Neon PostgreSQL) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-        <div className="bg-white rounded-2xl p-5 border border-[#EAE4D9] shadow-2xs">
-          <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Stories</span>
-            <FileText className="w-4 h-4 text-[#2E4A3E]" />
-          </div>
-          <p className="font-editorial text-3xl font-bold text-[#141416]">
-            {publishedStories.length}
-          </p>
-          <span className="text-[11px] text-emerald-600 font-medium">Published in catalogue</span>
-        </div>
-
-        <div className="bg-white rounded-2xl p-5 border border-[#EAE4D9] shadow-2xs">
-          <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Estimated Views</span>
-            <Eye className="w-4 h-4 text-[#9E5A38]" />
-          </div>
-          <p className="font-editorial text-3xl font-bold text-[#141416]">
-            {estimatedViews}
-          </p>
-          <span className="text-[11px] text-zinc-500 font-medium">Across all readers</span>
-        </div>
-
-        <div className="bg-white rounded-2xl p-5 border border-[#EAE4D9] shadow-2xs">
-          <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Reader Claps</span>
-            <Heart className="w-4 h-4 text-rose-500" />
-          </div>
-          <p className="font-editorial text-3xl font-bold text-[#141416]">
-            {totalLikes.toLocaleString()}
-          </p>
-          <span className="text-[11px] text-rose-600 font-medium">Positive responses</span>
-        </div>
-
-        <div className="bg-white rounded-2xl p-5 border border-[#EAE4D9] shadow-2xs">
-          <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Drafts In Progress</span>
-            <Clock className="w-4 h-4 text-amber-500" />
-          </div>
-          <p className="font-editorial text-3xl font-bold text-[#141416]">
-            {draftStories.length}
-          </p>
-          <span className="text-[11px] text-amber-600 font-medium">Saved in PostgreSQL</span>
+        {/* Action Controls */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={onOpenEditor}
+            className="inline-flex items-center justify-center space-x-2 bg-[#141416] hover:bg-black text-white text-xs font-semibold px-5 py-2.5 rounded-full transition-all shadow-sm cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Write New Story</span>
+          </button>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex items-center space-x-2 border-b border-[#EAE4D9] mb-6">
+      {/* 2. SUB-NAVIGATION TABS */}
+      <div className="flex items-center space-x-2 border-b border-[#EAE4D9] mb-8">
         <button
-          onClick={() => setActiveTab('published')}
+          onClick={() => setActiveTab('home')}
           className={`flex items-center space-x-2 pb-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'published'
-              ? 'border-[#2E4A3E] text-[#2E4A3E]'
-              : 'border-transparent text-zinc-500 hover:text-zinc-900'
+            activeTab === 'home'
+              ? 'border-[#141416] text-[#141416]'
+              : 'border-transparent text-zinc-400 hover:text-zinc-700'
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>Published Essays ({publishedStories.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('drafts')}
-          className={`flex items-center space-x-2 pb-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'drafts'
-              ? 'border-[#2E4A3E] text-[#2E4A3E]'
-              : 'border-transparent text-zinc-500 hover:text-zinc-900'
-          }`}
-        >
-          <Clock className="w-4 h-4" />
-          <span>Drafts ({draftStories.length})</span>
+          <span>Overview</span>
         </button>
 
         <button
           onClick={() => setActiveTab('analytics')}
           className={`flex items-center space-x-2 pb-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
             activeTab === 'analytics'
-              ? 'border-[#2E4A3E] text-[#2E4A3E]'
-              : 'border-transparent text-zinc-500 hover:text-zinc-900'
+              ? 'border-[#141416] text-[#141416]'
+              : 'border-transparent text-zinc-400 hover:text-zinc-700'
           }`}
         >
           <BarChart3 className="w-4 h-4" />
-          <span>Audience Analytics</span>
+          <span>Analytics</span>
         </button>
 
         <button
           onClick={() => setActiveTab('profile')}
           className={`flex items-center space-x-2 pb-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
             activeTab === 'profile'
-              ? 'border-[#2E4A3E] text-[#2E4A3E]'
-              : 'border-transparent text-zinc-500 hover:text-zinc-900'
+              ? 'border-[#141416] text-[#141416]'
+              : 'border-transparent text-zinc-400 hover:text-zinc-700'
           }`}
         >
           <User className="w-4 h-4" />
-          <span>Author Profile</span>
+          <span>Profile Settings</span>
         </button>
       </div>
 
-      {/* TAB 1: Published Stories */}
-      {activeTab === 'published' && (
-        <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-[#EAE4D9] overflow-hidden divide-y divide-[#EAE4D9] shadow-xs">
-            {publishedStories.map((story) => (
-              <div key={story.id} className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#FAF7F2]/50 transition-colors">
-                <div className="flex items-start space-x-4 min-w-0">
-                  <img
-                    src={story.coverImage}
-                    alt={story.title}
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E5A38] bg-[#9E5A38]/10 px-2 py-0.5 rounded-full">
-                      {story.category}
-                    </span>
-                    <h3 
-                      onClick={() => onSelectArticle(story)}
-                      className="font-editorial text-lg sm:text-xl font-bold text-[#141416] hover:text-[#2E4A3E] cursor-pointer mt-1 truncate"
-                    >
-                      {story.title}
-                    </h3>
-                    <p className="text-xs text-zinc-500 line-clamp-1 mt-0.5">
-                      {story.description}
-                    </p>
-                    <div className="flex items-center space-x-3 text-[11px] text-zinc-400 mt-2">
-                      <span>{story.publishedAt}</span>
-                      <span>&bull;</span>
-                      <span>{story.readingTime} min read</span>
-                      <span>&bull;</span>
-                      <span className="flex items-center space-x-1 text-rose-600 font-semibold">
-                        <Heart className="w-3 h-3" />
-                        <span>{story.likesCount}</span>
+      {activeTab === 'home' && (
+        <div className="space-y-8">
+          {/* 3. RECENTLY PUBLISHED SECTION (Direct Hashnode Pattern) */}
+          <section className="bg-white rounded-2xl border border-[#EAE4D9] p-6 shadow-2xs">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EAE4D9]/70">
+              <h2 className="font-editorial text-xl font-bold text-[#141416]">
+                Recently published
+              </h2>
+              <span className="text-xs font-semibold text-zinc-500">
+                {publishedStories.length} published stories
+              </span>
+            </div>
+
+            {publishedStories.length === 0 ? (
+              <p className="text-xs text-zinc-400 py-6 text-center">
+                No articles published yet. Click "Write New Story" to publish your first essay.
+              </p>
+            ) : (
+              <div className="divide-y divide-[#EAE4D9]/60">
+                {publishedStories.slice(0, 6).map((story) => (
+                  <div 
+                    key={story.id} 
+                    className="py-3.5 flex items-center justify-between gap-4 hover:bg-[#FAF7F2]/60 px-2 rounded-xl transition-colors group"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                        <h3 
+                          onClick={() => onSelectArticle(story)}
+                          className="text-xs sm:text-sm font-semibold text-[#141416] hover:text-[#2E4A3E] cursor-pointer truncate"
+                        >
+                          {story.title}
+                        </h3>
+                      </div>
+                      <div className="flex items-center space-x-3 text-[11px] text-zinc-400 pl-4">
+                        <span>{story.author.name}</span>
+                        <span>&bull;</span>
+                        <span>{story.category}</span>
+                        <span>&bull;</span>
+                        <span>{story.readingTime} min read</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 shrink-0">
+                      <span className="text-xs text-zinc-400 hidden sm:inline">
+                        {story.publishedAt}
                       </span>
+                      <button
+                        onClick={() => onSelectArticle(story)}
+                        className="p-1.5 text-zinc-400 hover:text-black hover:bg-zinc-100 rounded-lg transition-colors cursor-pointer"
+                        title="View Published Article"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => onResumeDraft(story)}
+                        className="p-1.5 text-zinc-400 hover:text-[#2E4A3E] hover:bg-[#2E4A3E]/10 rounded-lg transition-colors cursor-pointer"
+                        title="Edit Article"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(story.id, story.title)}
+                        className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        title="Delete Article"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center space-x-2 self-end sm:self-auto shrink-0">
-                  <button
-                    onClick={() => onSelectArticle(story)}
-                    className="inline-flex items-center space-x-1 text-xs font-semibold text-zinc-700 hover:text-black bg-[#FAF7F2] hover:bg-zinc-200 border border-[#EAE4D9] px-3 py-1.5 rounded-full transition-colors cursor-pointer"
-                    title="Read live preview"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>View</span>
-                  </button>
-
-                  <button
-                    onClick={() => onResumeDraft(story)}
-                    className="inline-flex items-center space-x-1 text-xs font-semibold text-[#2E4A3E] bg-[#2E4A3E]/10 hover:bg-[#2E4A3E]/20 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
-                    title="Edit article"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>Edit</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(story.id, story.title)}
-                    className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
-                    title="Delete story"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
+          </section>
+
+          {/* 4. ACTIVE DRAFTS IN PROGRESS */}
+          <section className="bg-white rounded-2xl border border-[#EAE4D9] p-6 shadow-2xs">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EAE4D9]/70">
+              <div className="flex items-center space-x-2">
+                <Clock className="w-4 h-4 text-amber-600" />
+                <h2 className="font-editorial text-xl font-bold text-[#141416]">
+                  Drafts in progress ({draftStories.length})
+                </h2>
+              </div>
+              {onNavigateDrafts && (
+                <button
+                  onClick={onNavigateDrafts}
+                  className="text-xs font-semibold text-[#9E5A38] hover:text-[#7d4428] flex items-center space-x-1 cursor-pointer"
+                >
+                  <span>View all drafts</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {draftStories.length === 0 ? (
+              <p className="text-xs text-zinc-400 py-6 text-center">
+                No active drafts. Ideas you begin writing will automatically auto-save here.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {draftStories.map((draft) => (
+                  <div 
+                    key={draft.id}
+                    className="p-4 rounded-xl border border-[#EAE4D9] bg-[#FAF7F2]/40 hover:bg-[#FAF7F2] transition-colors flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                          Draft
+                        </span>
+                        <span className="text-[11px] text-zinc-400">
+                          {draft.category}
+                        </span>
+                      </div>
+                      <h4 className="font-editorial text-base font-bold text-[#141416] mb-1 truncate">
+                        {draft.title || 'Untitled Draft'}
+                      </h4>
+                      <p className="text-xs text-zinc-500 line-clamp-2">
+                        {draft.description || 'No description yet.'}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-[#EAE4D9]/60 flex items-center justify-between">
+                      <span className="text-[11px] text-zinc-400">
+                        {draft.readingTime} min estimated
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => onResumeDraft(draft)}
+                          className="text-xs font-semibold text-white bg-[#141416] hover:bg-black px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
+                        >
+                          Resume
+                        </button>
+                        <button
+                          onClick={() => handleDelete(draft.id, draft.title)}
+                          className="p-1.5 text-zinc-400 hover:text-rose-600 rounded-lg cursor-pointer"
+                          title="Delete draft"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* 5. QUICK METRICS ROW */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-white rounded-2xl p-4 border border-[#EAE4D9] shadow-2xs">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Stories</span>
+              <p className="font-editorial text-2xl font-bold text-[#141416] mt-1">{publishedStories.length}</p>
+              <span className="text-[10px] text-emerald-600 font-medium">Published in catalogue</span>
+            </div>
+            <div className="bg-white rounded-2xl p-4 border border-[#EAE4D9] shadow-2xs">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Estimated Views</span>
+              <p className="font-editorial text-2xl font-bold text-[#141416] mt-1">{estimatedViews}</p>
+              <span className="text-[10px] text-zinc-500 font-medium">Across all readers</span>
+            </div>
+            <div className="bg-white rounded-2xl p-4 border border-[#EAE4D9] shadow-2xs">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Reader Claps</span>
+              <p className="font-editorial text-2xl font-bold text-[#141416] mt-1">{totalLikes.toLocaleString()}</p>
+              <span className="text-[10px] text-rose-600 font-medium">Positive responses</span>
+            </div>
+            <div className="bg-white rounded-2xl p-4 border border-[#EAE4D9] shadow-2xs">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Drafts</span>
+              <p className="font-editorial text-2xl font-bold text-[#141416] mt-1">{draftStories.length}</p>
+              <span className="text-[10px] text-amber-600 font-medium">In PostgreSQL</span>
+            </div>
           </div>
         </div>
       )}
 
-      {/* TAB 2: Drafts State */}
-      {activeTab === 'drafts' && (
-        <div className="space-y-4">
-          {draftStories.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-2xl border border-[#EAE4D9] p-8">
-              <Clock className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
-              <p className="font-editorial text-xl font-bold text-[#141416]">No active drafts</p>
-              <p className="text-xs text-zinc-500 mt-1 mb-4">Start drafting an essay in the dedicated Writer Studio.</p>
-              <button
-                onClick={onOpenEditor}
-                className="bg-[#2E4A3E] text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#233a30] transition-colors cursor-pointer"
-              >
-                Write New Draft
-              </button>
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl border border-[#EAE4D9] overflow-hidden divide-y divide-[#EAE4D9] shadow-xs">
-              {draftStories.map((draft) => (
-                <div key={draft.id} className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#FAF7F2]/50 transition-colors">
-                  <div className="flex items-start space-x-4 min-w-0">
-                    <img
-                      src={draft.coverImage}
-                      alt={draft.title}
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0 opacity-75"
-                    />
-                    <div className="min-w-0">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                        Draft
-                      </span>
-                      <h3 className="font-editorial text-lg sm:text-xl font-bold text-[#141416] mt-1 truncate">
-                        {draft.title}
-                      </h3>
-                      <p className="text-xs text-zinc-500 line-clamp-1 mt-0.5">
-                        {draft.description}
-                      </p>
-                      <div className="flex items-center space-x-3 text-[11px] text-zinc-400 mt-2">
-                        <span>Saved to Database</span>
-                        <span>&bull;</span>
-                        <span>{draft.readingTime} min estimated</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center space-x-2 self-end sm:self-auto shrink-0">
-                    <button
-                      onClick={() => onResumeDraft(draft)}
-                      className="inline-flex items-center space-x-1.5 text-xs font-semibold text-white bg-[#2E4A3E] hover:bg-[#233a30] px-4 py-2 rounded-full transition-colors cursor-pointer shadow-2xs"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      <span>Resume Writing</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(draft.id, draft.title)}
-                      className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
-                      title="Delete draft"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB 3: Audience Analytics */}
       {activeTab === 'analytics' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -385,7 +371,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                     <span>54%</span>
                   </div>
                   <div className="w-full bg-zinc-100 rounded-full h-2">
-                    <div className="bg-[#2E4A3E] h-2 rounded-full" style={{ width: '54%' }}></div>
+                    <div className="bg-[#141416] h-2 rounded-full" style={{ width: '54%' }}></div>
                   </div>
                 </div>
                 <div>
@@ -414,7 +400,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                 Reader Demographics
               </h3>
               <p className="text-xs text-zinc-600 leading-relaxed mb-4">
-                Your essays have reached readers in 42 countries, with the strongest engagement from engineering teams, typography designers, and founders.
+                Your essays have reached readers in 42 countries, with strongest engagement from engineering teams, typography designers, and founders.
               </p>
               <div className="grid grid-cols-2 gap-3 text-center">
                 <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE4D9]">
@@ -431,7 +417,6 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 4: Author Profile Settings */}
       {activeTab === 'profile' && (
         <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#EAE4D9] shadow-xs max-w-2xl">
           <h3 className="font-editorial text-2xl font-bold text-[#141416] mb-2">
@@ -450,7 +435,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                 type="text"
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
-                className="w-full bg-[#FAF7F2] border border-[#EAE4D9] rounded-xl px-4 py-2.5 text-xs text-[#141416] focus:bg-white focus:outline-hidden focus:border-[#2E4A3E]"
+                className="w-full bg-[#FAF7F2] border border-[#EAE4D9] rounded-xl px-4 py-2.5 text-xs text-[#141416] focus:bg-white focus:outline-hidden focus:border-[#141416]"
               />
             </div>
 
@@ -462,14 +447,14 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                 rows={3}
                 value={bioText}
                 onChange={(e) => setBioText(e.target.value)}
-                className="w-full bg-[#FAF7F2] border border-[#EAE4D9] rounded-xl px-4 py-2.5 text-xs text-[#141416] focus:bg-white focus:outline-hidden focus:border-[#2E4A3E]"
+                className="w-full bg-[#FAF7F2] border border-[#EAE4D9] rounded-xl px-4 py-2.5 text-xs text-[#141416] focus:bg-white focus:outline-hidden focus:border-[#141416]"
               />
             </div>
 
             <div className="pt-2 flex items-center justify-between">
               <button
                 type="submit"
-                className="bg-[#2E4A3E] hover:bg-[#233a30] text-white text-xs font-semibold px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer"
+                className="bg-[#141416] hover:bg-black text-white text-xs font-semibold px-6 py-2.5 rounded-full transition-all shadow-xs cursor-pointer"
               >
                 Save Profile Changes
               </button>
