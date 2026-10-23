@@ -8,6 +8,8 @@ import { CategoryPills } from './components/CategoryPills';
 import { ArticleGrid } from './components/ArticleGrid';
 import { ArticleDetail } from './components/ArticleDetail';
 import { BookmarksDrawer } from './components/BookmarksDrawer';
+import { AuthModal } from './components/AuthModal';
+import { ArticleEditor } from './components/ArticleEditor';
 import { HeroSkeleton, ArticleCardSkeleton, EditorsPicksSkeleton } from './components/Skeletons';
 import { Article, Category, NavTab } from './types';
 import { fetchArticles } from './services/api';
@@ -34,6 +36,8 @@ export function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
 
   // LocalStorage Bookmarks Persistence
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
@@ -128,6 +132,8 @@ export function App() {
           onOpenBookmarks={() => setIsBookmarksOpen(true)}
           bookmarksCount={bookmarkedIds.length}
           onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+          onOpenAuth={() => setIsAuthOpen(true)}
+          onOpenEditor={() => setIsEditorOpen(true)}
         />
 
         {/* Dynamic View: Article Detail vs. Home Editorial Feed */}
@@ -262,6 +268,23 @@ export function App() {
         onSelectArticle={setSelectedArticle}
         onRemoveBookmark={handleBookmarkToggle}
         onClearAll={() => setBookmarkedIds([])}
+      />
+
+      {/* 4. Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
+
+      {/* 5. Article Publishing Studio */}
+      <ArticleEditor
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        onArticleCreated={(newArticle) => {
+          setArticles((prev) => [newArticle, ...prev]);
+          setSelectedArticle(newArticle);
+          setIsEditorOpen(false);
+        }}
       />
     </div>
   );
