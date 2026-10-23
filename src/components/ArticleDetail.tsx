@@ -234,7 +234,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       </div>
 
       {/* LEFT FROSTED GLASS CAPSULE: HOME & SOCIAL INTERACTIONS */}
-      <aside className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center bg-white/45 dark:bg-[#141824]/60 backdrop-blur-2xl py-5 px-2.5 rounded-full border border-white/60 dark:border-white/15 shadow-[0_12px_40px_0_rgba(0,0,0,0.14)] space-y-4 w-16 transition-all">
+      <aside className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-5 px-2.5 rounded-full space-y-4 w-16 transition-all">
         {/* Home / Return to Feed */}
         <div className="relative group flex items-center justify-center">
           <button
@@ -299,7 +299,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
       {/* RIGHT FROSTED GLASS CAPSULE: AUDIO NARRATION & READING ENGINE (Matches Left Symmetrically) */}
       {audioSupported && (
-        <aside className="fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center bg-white/45 dark:bg-[#141824]/60 backdrop-blur-2xl py-5 px-2.5 rounded-full border border-white/60 dark:border-white/15 shadow-[0_12px_40px_0_rgba(0,0,0,0.14)] space-y-4 w-16 transition-all">
+        <aside className="fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-5 px-2.5 rounded-full space-y-4 w-16 transition-all">
           {/* Audio Play / Pause */}
           <div className="relative group flex items-center justify-center">
             <button

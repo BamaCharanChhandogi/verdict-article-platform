@@ -151,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </aside>
 
       {/* DESKTOP FROSTED GLASS CAPSULE DOCK (Matches User Provided Image 2) */}
-      <aside className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center bg-white/45 dark:bg-[#141824]/60 backdrop-blur-2xl py-4 px-2 rounded-full border border-white/60 dark:border-white/15 shadow-[0_12px_40px_0_rgba(0,0,0,0.14)] space-y-3.5 transition-all">
+      <aside className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-4 px-2 rounded-full space-y-3.5 transition-all">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeNav === item.id;

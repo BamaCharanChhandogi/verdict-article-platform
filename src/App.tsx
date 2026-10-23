@@ -194,7 +194,14 @@ export function App() {
         {/* 2. LAYOUT-WRAPPED ROUTES (Sidebar + Header + Content Outlet) */}
         <Route
           element={
-            <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] text-[#141416] dark:text-[#F1F3F5] flex transition-colors">
+            <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] text-[#141416] dark:text-[#F1F3F5] flex transition-colors relative overflow-x-hidden">
+              {/* Ambient Glow Backdrop for Frosted Glassmorphism Refraction */}
+              <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute top-[30%] -left-16 w-80 h-80 bg-amber-400/20 dark:bg-emerald-500/15 rounded-full blur-[90px]"></div>
+                <div className="absolute top-[60%] -left-12 w-80 h-80 bg-rose-400/20 dark:bg-indigo-500/15 rounded-full blur-[90px]"></div>
+                <div className="absolute top-[20%] -right-16 w-96 h-96 bg-teal-400/15 dark:bg-violet-500/15 rounded-full blur-[90px]"></div>
+              </div>
+
               {!isArticlePage && (
                 <Sidebar
                   activeNav={activeNav}
