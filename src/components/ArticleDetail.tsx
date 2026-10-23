@@ -74,8 +74,11 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   // Audio Speech Synthesis Player State
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [speechRate, setSpeechRate] = useState<number>(1);
+  const speechRateRef = useRef<number>(1);
   const [audioSupported, setAudioSupported] = useState(true);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const spokenCharOffsetRef = useRef<number>(0);
+  const fullTextRef = useRef<string>('');
 
   // Reading Experience Preferences (Defaults to Verdict's Editorial Serif)
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xlarge'>('normal');
@@ -136,8 +139,8 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     };
   }, [article.id]);
 
-  // Audio Player Handlers (Interactive Web Speech API)
-  const startAudioNarration = (rate: number) => {
+  // Audio Player Handlers (Interactive Web Speech API with Real-time Rate Support)
+  const startAudioNarration = (rate: number, fromOffset: number = 0) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     try {
       window.speechSynthesis.cancel();
@@ -149,20 +152,38 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       const cleanContent = article.content
         ? article.content.replace(/<[^>]*>/g, ' ').replace(/[#*`_>]/g, ' ').replace(/\s+/g, ' ').trim()
         : article.description;
-      const cleanText = `${article.title}. By ${article.author.name}. ${article.description}. ${cleanContent}`;
+      const fullText = `${article.title}. By ${article.author.name}. ${article.description}. ${cleanContent}`;
+      fullTextRef.current = fullText;
 
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.rate = rate;
+      const safeOffset = Math.max(0, Math.min(fromOffset, fullText.length - 1));
+      const textToSpeak = safeOffset > 0 ? fullText.slice(safeOffset) : fullText;
+
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      // Guarantee rate is a valid float number
+      utterance.rate = Number(rate);
       utterance.pitch = 1.0;
 
-      // Assign natural voice if available
+      // Select system voice: Prioritize localService voices (Microsoft David, Zira, Mark, Apple voices)
+      // because remote network voices (Google US English) do NOT support utterance.rate scaling!
       const voices = window.speechSynthesis.getVoices();
       if (voices && voices.length > 0) {
-        const preferredVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('David') || v.name.includes('Zira') || v.name.includes('Samantha'))) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+        const preferredVoice = 
+          voices.find(v => v.lang.startsWith('en') && v.localService) ||
+          voices.find(v => (v.name.includes('David') || v.name.includes('Zira') || v.name.includes('Natural')) && !v.name.includes('Google')) ||
+          voices.find(v => v.lang.startsWith('en')) ||
+          voices[0];
+
         if (preferredVoice) {
           utterance.voice = preferredVoice;
         }
       }
+
+      // Track speech progress so speed changes can seamlessly continue without starting over
+      utterance.onboundary = (event) => {
+        if (event.charIndex !== undefined) {
+          spokenCharOffsetRef.current = safeOffset + event.charIndex;
+        }
+      };
 
       utterance.onstart = () => {
         setIsPlayingAudio(true);
@@ -170,6 +191,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       utterance.onend = () => {
         setIsPlayingAudio(false);
         speechUtteranceRef.current = null;
+        spokenCharOffsetRef.current = 0;
       };
       utterance.onerror = () => {
         setIsPlayingAudio(false);
@@ -177,8 +199,16 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       };
 
       speechUtteranceRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
-      setIsPlayingAudio(true);
+
+      // Asynchronous buffer flush: Chromium drops speak() if invoked synchronously immediately after cancel()
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          window.speechSynthesis.resume();
+          window.speechSynthesis.speak(utterance);
+          setIsPlayingAudio(true);
+        }
+      }, 50);
+
     } catch (err) {
       console.warn('Speech synthesis error:', err);
       setIsPlayingAudio(false);
@@ -193,14 +223,16 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       setIsPlayingAudio(false);
       speechUtteranceRef.current = null;
     } else {
-      startAudioNarration(speechRate);
+      startAudioNarration(speechRateRef.current, spokenCharOffsetRef.current);
     }
   };
 
   const handleChangeRate = (newRate: number) => {
     setSpeechRate(newRate);
+    speechRateRef.current = newRate;
     if (isPlayingAudio) {
-      startAudioNarration(newRate);
+      // In-place rate update: restart speech at the new tempo from the current reading position
+      startAudioNarration(newRate, spokenCharOffsetRef.current);
     }
   };
 
