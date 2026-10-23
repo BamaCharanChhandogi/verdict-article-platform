@@ -134,7 +134,7 @@ export async function deleteRealArticle(id: string | number, token?: string | nu
 }
 
 /**
- * Service 2: Fetch Enriched Authors from Public API (DummyJSON Users)
+ * Service 2: Fetch Real Authors & Fellows directly from PostgreSQL Database
  */
 export async function fetchAuthors(): Promise<Author[]> {
   const cacheKey = 'authors_feed';
@@ -142,24 +142,14 @@ export async function fetchAuthors(): Promise<Author[]> {
   if (cached) return cached;
 
   try {
-    const res = await axios.get(DUMMY_USERS_API, { timeout: 3500 });
-    const remoteAuthors: Author[] = res.data.users.map((u: any, idx: number) => ({
-      id: `author-api-${u.id}`,
-      name: `${u.firstName} ${u.lastName}`,
-      avatar: u.image || fallbackAuthors[idx % fallbackAuthors.length].avatar,
-      role: u.company?.title || 'Senior Fellow & Essayist',
-      bio: `Investigating digital culture, humane technology, and cognitive philosophy at ${u.company?.name || 'Verdict Media'}.`,
-      followers: 8500 + u.id * 410,
-      articlesCount: 15 + u.id * 2,
-      twitter: `@${u.firstName.toLowerCase()}_${u.lastName.toLowerCase()}`,
-    }));
-
-    const allAuthors = [...fallbackAuthors, ...remoteAuthors];
-    appCache.set(cacheKey, allAuthors);
-    return allAuthors;
+    const res = await axios.get('/api/authors', { timeout: 3500 });
+    if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+      appCache.set(cacheKey, res.data.data);
+      return res.data.data;
+    }
+    return fallbackAuthors;
   } catch (err) {
-    console.warn('API 2 (DummyJSON Users) unreachable; utilizing local author dataset.');
-    appCache.set(cacheKey, fallbackAuthors);
+    console.warn('Real DB authors endpoint unavailable, using local fallback.');
     return fallbackAuthors;
   }
 }

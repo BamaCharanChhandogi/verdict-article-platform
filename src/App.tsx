@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, Navigate, Outlet } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
@@ -148,253 +148,245 @@ export function App() {
   }, [articles, selectedCategory, searchQuery]);
 
   return (
-    <Routes>
-      {/* 1. DEDICATED FULL-SCREEN WRITER STUDIO ROUTE (/write) */}
-      <Route
-        path="/write"
-        element={
-          <DedicatedWriterStudio
-            onBack={() => {
-              setEditingDraft(null);
-              navigate('/studio');
-            }}
-            onArticlePublished={handleArticlePublished}
-            initialDraft={editingDraft}
-          />
-        }
-      />
+    <>
+      <Routes>
+        {/* 1. DEDICATED FULL-SCREEN WRITER STUDIO ROUTE (/write) */}
+        <Route
+          path="/write"
+          element={
+            <DedicatedWriterStudio
+              onBack={() => {
+                setEditingDraft(null);
+                navigate('/studio');
+              }}
+              onArticlePublished={handleArticlePublished}
+              initialDraft={editingDraft}
+            />
+          }
+        />
 
-      {/* 2. ALL LAYOUT-WRAPPED PAGES */}
-      <Route
-        path="*"
-        element={
-          <div className="min-h-screen bg-[#FAF7F2] text-[#141416] flex">
-            {/* Fixed Left Vertical Navigation Rail (Single source of truth) */}
-            <Sidebar
-              activeNav={activeNav}
-              setActiveNav={(nav) => {
-                if (nav === 'home') navigate('/');
-                else if (nav === 'authors') navigate('/authors');
-                else if (nav === 'mystories') navigate('/studio');
-                else if (nav === 'explore') navigate('/explore');
-                else if (nav === 'write') {
+        {/* 2. LAYOUT-WRAPPED ROUTES (Sidebar + Header + Content Outlet) */}
+        <Route
+          element={
+            <div className="min-h-screen bg-[#FAF7F2] text-[#141416] flex">
+              <Sidebar
+                activeNav={activeNav}
+                setActiveNav={(nav) => {
+                  if (nav === 'home') navigate('/');
+                  else if (nav === 'authors') navigate('/authors');
+                  else if (nav === 'mystories') navigate('/studio');
+                  else if (nav === 'explore') navigate('/explore');
+                  else if (nav === 'write') {
+                    setEditingDraft(null);
+                    navigate('/write');
+                  }
+                }}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                bookmarksCount={bookmarkedIds.length}
+                isOpenMobile={isMobileSidebarOpen}
+                setIsOpenMobile={setIsMobileSidebarOpen}
+                onOpenBookmarks={() => setIsBookmarksOpen(true)}
+                onOpenAuth={() => setIsAuthOpen(true)}
+                onOpenEditor={() => {
                   setEditingDraft(null);
                   navigate('/write');
-                }
-              }}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              bookmarksCount={bookmarkedIds.length}
-              isOpenMobile={isMobileSidebarOpen}
-              setIsOpenMobile={setIsMobileSidebarOpen}
-              onOpenBookmarks={() => setIsBookmarksOpen(true)}
-              onOpenAuth={() => setIsAuthOpen(true)}
-              onOpenEditor={() => {
-                setEditingDraft(null);
-                navigate('/write');
-              }}
-            />
-
-            {/* Main Content Canvas */}
-            <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
-              
-              {/* Sticky Utility Header */}
-              <Header
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
-                onOpenAuth={() => setIsAuthOpen(true)}
+                }}
               />
 
-              <Routes>
-                {/* ARTICLE DETAIL READER ROUTE (/article/:slug) */}
-                <Route
-                  path="/article/:slug"
-                  element={
-                    <main className="flex-1">
-                      <ArticleDetail
-                        onBack={() => navigate('/')}
-                        onBookmarkToggle={handleBookmarkToggle}
-                        isBookmarked={isBookmarked}
-                        allArticles={articles}
-                      />
-                    </main>
-                  }
+              <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
+                <Header
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+                  onOpenAuth={() => setIsAuthOpen(true)}
                 />
 
-                {/* AUTHORS & FELLOWS DIRECTORY ROUTE (/authors) */}
-                <Route
-                  path="/authors"
-                  element={
-                    <main className="flex-1">
-                      <AuthorDirectory
-                        onSelectAuthorArticles={(authorName) => {
-                          setSearchQuery(authorName);
-                          setSelectedCategory('All');
-                          navigate('/');
-                        }}
-                      />
-                    </main>
-                  }
+                <Outlet />
+              </div>
+            </div>
+          }
+        >
+          {/* ARTICLE DETAIL READER ROUTE (/article/:slug) */}
+          <Route
+            path="/article/:slug"
+            element={
+              <main className="flex-1">
+                <ArticleDetail
+                  onBack={() => navigate('/')}
+                  onBookmarkToggle={handleBookmarkToggle}
+                  isBookmarked={isBookmarked}
+                  allArticles={articles}
                 />
+              </main>
+            }
+          />
 
-                {/* AUTHOR HUB & CREATOR STUDIO ROUTE (/studio or /mystories) */}
-                <Route
-                  path="/studio"
-                  element={
-                    <main className="flex-1">
-                      <AuthorDashboard
-                        articles={articles}
-                        onOpenEditor={() => {
-                          setEditingDraft(null);
-                          navigate('/write');
-                        }}
-                        onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
-                        onDeleteArticle={handleDeleteArticle}
-                        onResumeDraft={(draft) => {
-                          setEditingDraft(draft);
-                          navigate('/write');
-                        }}
-                        onOpenAuth={() => setIsAuthOpen(true)}
-                      />
-                    </main>
-                  }
+          {/* AUTHORS & FELLOWS DIRECTORY ROUTE (/authors) */}
+          <Route
+            path="/authors"
+            element={
+              <main className="flex-1">
+                <AuthorDirectory
+                  onSelectAuthorArticles={(authorName) => {
+                    setSearchQuery(authorName);
+                    setSelectedCategory('All');
+                    navigate('/');
+                  }}
                 />
-                <Route path="/mystories" element={<Navigate to="/studio" replace />} />
+              </main>
+            }
+          />
 
-                {/* EDITORIAL HOME & EXPLORE FEED (/) */}
-                <Route
-                  path="*"
-                  element={
-                    <main className="flex-1 px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full">
-                      {/* Active Search Mode */}
-                      {searchQuery ? (
-                        <div className="pt-6">
-                          <div className="mb-6 flex items-center justify-between">
-                            <h2 className="font-editorial text-2xl font-bold text-[#141416]">
-                              Search Results for "{searchQuery}"
-                            </h2>
-                            <span className="text-xs text-zinc-500 font-semibold">
-                              {filteredArticles.length} {filteredArticles.length === 1 ? 'result' : 'results'} found
-                            </span>
-                          </div>
-                          <ArticleGrid
+          {/* AUTHOR HUB & CREATOR STUDIO ROUTE (/studio or /mystories) */}
+          <Route
+            path="/studio"
+            element={
+              <main className="flex-1">
+                <AuthorDashboard
+                  articles={articles}
+                  onOpenEditor={() => {
+                    setEditingDraft(null);
+                    navigate('/write');
+                  }}
+                  onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                  onDeleteArticle={handleDeleteArticle}
+                  onResumeDraft={(draft) => {
+                    setEditingDraft(draft);
+                    navigate('/write');
+                  }}
+                  onOpenAuth={() => setIsAuthOpen(true)}
+                />
+              </main>
+            }
+          />
+          <Route path="/mystories" element={<Navigate to="/studio" replace />} />
+
+          {/* EDITORIAL HOME & EXPLORE FEED (/) */}
+          <Route
+            path="/"
+            element={
+              <main className="flex-1 px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full">
+                {searchQuery ? (
+                  <div className="pt-6">
+                    <div className="mb-6 flex items-center justify-between">
+                      <h2 className="font-editorial text-2xl font-bold text-[#141416]">
+                        Search Results for "{searchQuery}"
+                      </h2>
+                      <span className="text-xs text-zinc-500 font-semibold">
+                        {filteredArticles.length} {filteredArticles.length === 1 ? 'result' : 'results'} found
+                      </span>
+                    </div>
+                    <ArticleGrid
+                      articles={filteredArticles}
+                      onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                      onBookmarkToggle={handleBookmarkToggle}
+                      isBookmarked={isBookmarked}
+                      onResetFilters={() => {
+                        setSearchQuery('');
+                        setSelectedCategory('All');
+                      }}
+                      activeFilterName={selectedCategory}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {isLoading ? (
+                      <HeroSkeleton />
+                    ) : (
+                      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+                        <div className="xl:col-span-9 space-y-6">
+                          <HeroSection onExploreClick={() => {
+                            const el = document.getElementById('latest-articles-section');
+                            el?.scrollIntoView({ behavior: 'smooth' });
+                          }} />
+
+                          <FeaturedCarousel
+                            articles={filteredArticles}
+                            onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                          />
+                        </div>
+
+                        <div className="xl:col-span-3 pt-4 xl:pt-8 xl:border-l xl:border-[#EAE4D9] xl:pl-6">
+                          <EditorsPicks
                             articles={filteredArticles}
                             onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
                             onBookmarkToggle={handleBookmarkToggle}
                             isBookmarked={isBookmarked}
-                            onResetFilters={() => {
-                              setSearchQuery('');
-                              setSelectedCategory('All');
-                            }}
-                            activeFilterName={selectedCategory}
+                            onSeeAllClick={() => setSelectedCategory('All')}
                           />
                         </div>
+                      </div>
+                    )}
+
+                    <div className="mt-8">
+                      <CategoryPills
+                        categories={ALL_CATEGORIES}
+                        selectedCategory={selectedCategory}
+                        onSelectCategory={setSelectedCategory}
+                      />
+                    </div>
+
+                    <div id="latest-articles-section">
+                      {isLoading ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
+                          {[1, 2, 3, 4].map(i => <ArticleCardSkeleton key={i} />)}
+                        </div>
                       ) : (
-                        <>
-                          {/* Hero Section & Organic Editorial Block */}
-                          {isLoading ? (
-                            <HeroSkeleton />
-                          ) : (
-                            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-                              <div className="xl:col-span-9 space-y-6">
-                                <HeroSection onExploreClick={() => {
-                                  const el = document.getElementById('latest-articles-section');
-                                  el?.scrollIntoView({ behavior: 'smooth' });
-                                }} />
-
-                                {/* Featured This Week (3 Horizontal Glass Cards) */}
-                                <FeaturedCarousel
-                                  articles={filteredArticles}
-                                  onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
-                                />
-                              </div>
-
-                              {/* Right Rail: Editor's Picks (Numbered 01-04) */}
-                              <div className="xl:col-span-3 pt-4 xl:pt-8 xl:border-l xl:border-[#EAE4D9] xl:pl-6">
-                                <EditorsPicks
-                                  articles={filteredArticles}
-                                  onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
-                                  onBookmarkToggle={handleBookmarkToggle}
-                                  isBookmarked={isBookmarked}
-                                  onSeeAllClick={() => setSelectedCategory('All')}
-                                />
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Horizontal Category Pill Filter Bar */}
-                          <div className="mt-8">
-                            <CategoryPills
-                              categories={ALL_CATEGORIES}
-                              selectedCategory={selectedCategory}
-                              onSelectCategory={setSelectedCategory}
-                            />
-                          </div>
-
-                          {/* Latest Articles Grid & Newsletter Callout */}
-                          <div id="latest-articles-section">
-                            {isLoading ? (
-                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
-                                {[1, 2, 3, 4].map(i => <ArticleCardSkeleton key={i} />)}
-                              </div>
-                            ) : (
-                              <ArticleGrid
-                                articles={filteredArticles}
-                                onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
-                                onBookmarkToggle={handleBookmarkToggle}
-                                isBookmarked={isBookmarked}
-                                onResetFilters={() => setSelectedCategory('All')}
-                                activeFilterName={selectedCategory}
-                              />
-                            )}
-                          </div>
-                        </>
+                        <ArticleGrid
+                          articles={filteredArticles}
+                          onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                          onBookmarkToggle={handleBookmarkToggle}
+                          isBookmarked={isBookmarked}
+                          onResetFilters={() => setSelectedCategory('All')}
+                          activeFilterName={selectedCategory}
+                        />
                       )}
+                    </div>
+                  </>
+                )}
 
-                      {/* Editorial Footer */}
-                      <footer className="mt-20 pt-8 pb-12 border-t border-[#EAE4D9] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-editorial text-base font-bold text-[#141416]">Verdict<span className="text-[#9E5A38]">.</span></span>
-                          <span>&bull;</span>
-                          <span>Curated for curious minds worldwide</span>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <span>Architecture: Multi-API &amp; PostgreSQL Orchestrated</span>
-                          <span>&bull;</span>
-                          <span>Typography: Cormorant Garamond &amp; Manrope</span>
-                          <span>&bull;</span>
-                          <span>&copy; {new Date().getFullYear()} Verdict Media</span>
-                        </div>
-                      </footer>
-                    </main>
-                  }
-                />
-              </Routes>
-            </div>
+                <footer className="mt-20 pt-8 pb-12 border-t border-[#EAE4D9] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-editorial text-base font-bold text-[#141416]">Verdict<span className="text-[#9E5A38]">.</span></span>
+                    <span>&bull;</span>
+                    <span>Curated for curious minds worldwide</span>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span>Architecture: PostgreSQL Database &amp; TipTap Studio</span>
+                    <span>&bull;</span>
+                    <span>Typography: Cormorant Garamond &amp; Manrope</span>
+                    <span>&bull;</span>
+                    <span>&copy; {new Date().getFullYear()} Verdict Media</span>
+                  </div>
+                </footer>
+              </main>
+            }
+          />
+          <Route path="/explore" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
 
-            {/* Slide-Over Reading List / Bookmarks Drawer */}
-            <BookmarksDrawer
-              isOpen={isBookmarksOpen}
-              onClose={() => setIsBookmarksOpen(false)}
-              bookmarkedArticles={bookmarkedArticles}
-              onSelectArticle={(article) => {
-                navigate(`/article/${article.slug}`);
-                setIsBookmarksOpen(false);
-              }}
-              onRemoveBookmark={handleBookmarkToggle}
-              onClearAll={() => setBookmarkedIds([])}
-            />
-
-            {/* Authentication Modal */}
-            <AuthModal
-              isOpen={isAuthOpen}
-              onClose={() => setIsAuthOpen(false)}
-            />
-          </div>
-        }
+      {/* Slide-Over Reading List / Bookmarks Drawer */}
+      <BookmarksDrawer
+        isOpen={isBookmarksOpen}
+        onClose={() => setIsBookmarksOpen(false)}
+        bookmarkedArticles={bookmarkedArticles}
+        onSelectArticle={(article) => {
+          navigate(`/article/${article.slug}`);
+          setIsBookmarksOpen(false);
+        }}
+        onRemoveBookmark={handleBookmarkToggle}
+        onClearAll={() => setBookmarkedIds([])}
       />
-    </Routes>
+
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
+    </>
   );
 }
 

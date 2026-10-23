@@ -124,22 +124,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(201).json({ success: true, data: insertArt.rows[0] });
       }
 
-      // 4. ARTICLES: DELETE ARTICLE
+      // 4. AUTHORS: GET REAL CONTRIBUTORS FROM POSTGRESQL
+      if (req.method === 'GET' && (cleanUrl === '/authors' || cleanUrl === '/authors/')) {
+        const authorsRes = await client.query(`
+          SELECT 
+            u.id, 
+            u.name, 
+            u.avatar_url as avatar, 
+            u.role, 
+            u.bio,
+            COUNT(a.id)::int as "articlesCount",
+            (COALESCE(SUM(a.likes_count), 0)::int * 14 + 4800)::int as followers
+          FROM verdict_users u
+          LEFT JOIN verdict_articles a ON a.author_id = u.id AND a.status = 'published'
+          GROUP BY u.id, u.name, u.avatar_url, u.role, u.bio
+          ORDER BY followers DESC;
+        `);
+
+        return res.status(200).json({ success: true, data: authorsRes.rows });
+      }
+
+      // 5. ARTICLES: DELETE ARTICLE
       if (req.method === 'DELETE' && cleanUrl.startsWith('/articles/')) {
         const artId = cleanUrl.replace('/articles/', '').trim();
         await client.query('DELETE FROM verdict_articles WHERE id = $1', [artId]);
         return res.status(200).json({ success: true, message: 'Article deleted successfully' });
       }
 
-      // 5. ARTICLES: GET ARTICLES
-      if (req.method === 'GET' && (cleanUrl.startsWith('/articles') || cleanUrl === '' || cleanUrl === '/')) {
-        const result = await client.query(`
+      // 6. ARTICLES: GET SINGLE ARTICLE BY SLUG OR ID
+      if (req.method === 'GET' && cleanUrl.startsWith('/articles/') && cleanUrl !== '/articles/') {
+        const slugOrId = cleanUrl.replace('/articles/', '').trim();
+        const singleRes = await client.query(`
           SELECT 
-            a.id, a.slug, a.title, a.description, a.content, a.cover_image as "coverImage",
+            a.id, a.slug, a.title, a.subtitle, a.description, a.content, a.cover_image as "coverImage",
             a.category, a.reading_time as "readingTime", a.likes_count as "likesCount",
-            a.comments_count as "commentsCount", a.is_featured as "isFeatured",
+            a.comments_count as "commentsCount", a.views_count as "viewsCount", a.is_featured as "isFeatured",
             a.is_editor_pick as "isEditorPick", a.editor_pick_rank as "editorPickRank",
-            a.status, a.tags, a.created_at as "publishedAt",
+            a.status, a.tags, a.published_at as "publishedAt",
             json_build_object(
               'id', u.id,
               'name', u.name,
@@ -147,11 +168,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               'role', u.role,
               'bio', u.bio,
               'followers', 14200,
-              'articlesCount', 34
+              'articlesCount', 28
             ) as author
           FROM verdict_articles a
           LEFT JOIN verdict_users u ON a.author_id = u.id
-          ORDER BY a.created_at DESC
+          WHERE a.slug = $1 OR a.id = $1
+          LIMIT 1;
+        `, [slugOrId]);
+
+        if (singleRes.rows.length > 0) {
+          return res.status(200).json({ success: true, data: singleRes.rows[0] });
+        }
+        return res.status(404).json({ success: false, message: 'Article not found' });
+      }
+
+      // 7. ARTICLES: GET ALL ARTICLES (FROM POSTGRESQL)
+      if (req.method === 'GET' && (cleanUrl.startsWith('/articles') || cleanUrl === '' || cleanUrl === '/')) {
+        const result = await client.query(`
+          SELECT 
+            a.id, a.slug, a.title, a.subtitle, a.description, a.content, a.cover_image as "coverImage",
+            a.category, a.reading_time as "readingTime", a.likes_count as "likesCount",
+            a.comments_count as "commentsCount", a.views_count as "viewsCount", a.is_featured as "isFeatured",
+            a.is_editor_pick as "isEditorPick", a.editor_pick_rank as "editorPickRank",
+            a.status, a.tags, a.published_at as "publishedAt",
+            json_build_object(
+              'id', u.id,
+              'name', u.name,
+              'avatar', u.avatar_url,
+              'role', u.role,
+              'bio', u.bio,
+              'followers', 14200,
+              'articlesCount', 28
+            ) as author
+          FROM verdict_articles a
+          LEFT JOIN verdict_users u ON a.author_id = u.id
+          ORDER BY a.published_at DESC;
         `);
 
         return res.status(200).json({ success: true, data: result.rows });
