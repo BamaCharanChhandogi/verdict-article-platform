@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RefreshCw, Loader2 } from 'lucide-react';
-import { Article } from '../types';
+import { RefreshCw, Loader2, List, LayoutGrid } from 'lucide-react';
+import { Article, Category } from '../types';
 import { ArticleCard } from './ArticleCard';
+import { ArticleRow } from './ArticleRow';
+import { TrendingSidebar } from './TrendingSidebar';
 
 interface ArticleGridProps {
   articles: Article[];
@@ -10,6 +12,9 @@ interface ArticleGridProps {
   isBookmarked: (id: string | number) => boolean;
   onResetFilters: () => void;
   activeFilterName?: string;
+  onSelectCategory?: (category: Category) => void;
+  onOpenAuthors?: () => void;
+  onOpenAuth?: () => void;
 }
 
 const BATCH_SIZE = 8;
@@ -22,9 +27,13 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
   isBookmarked,
   onResetFilters,
   activeFilterName,
+  onSelectCategory,
+  onOpenAuthors,
+  onOpenAuth,
 }) => {
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [viewMode, setViewMode] = useState<'feed' | 'grid'>('feed');
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const lastLoadTimeRef = useRef<number>(0);
   const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -119,13 +128,16 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
   return (
     <div className="py-8" id="latest-articles-section">
       {/* Editorial Title Block */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 pb-4 border-b border-[#EAE4D9]/70 dark:border-[#262C3A]/70">
         <div>
-          <h3 className="font-editorial text-3xl font-semibold text-[#141416] dark:text-white tracking-tight">
+          <div className="inline-flex items-center space-x-2 text-[10px] font-bold uppercase tracking-widest text-[#9E5A38] dark:text-[#E05A30] mb-1">
+            <span>The Daily Dispatch</span>
+          </div>
+          <h3 className="font-editorial text-3xl font-bold text-[#141416] dark:text-white tracking-tight">
             Latest Articles
           </h3>
           <p className="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm mt-1">
-            Fresh perspectives to keep you inspired every day.
+            Carefully curated perspectives, deep dives, and ideas from around the globe.
             {activeFilterName && activeFilterName !== 'All' && (
               <span className="font-semibold text-[#9E5A38] dark:text-[#E05A30] ml-2">
                 &bull; Filtered by {activeFilterName}
@@ -135,7 +147,37 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
         </div>
 
         <div className="flex items-center space-x-3">
-          <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium hidden sm:inline">
+          {/* View Mode Toggle: Single-row Feed (Default) vs Gallery Grid */}
+          <div className="inline-flex items-center p-1 rounded-full bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setViewMode('feed')}
+              className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                viewMode === 'feed'
+                  ? 'bg-[#141416] text-white dark:bg-white dark:text-[#141416] shadow-xs'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white'
+              }`}
+              title="Feed view (single row per story)"
+            >
+              <List className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Feed</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                viewMode === 'grid'
+                  ? 'bg-[#141416] text-white dark:bg-white dark:text-[#141416] shadow-xs'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white'
+              }`}
+              title="Grid view"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Grid</span>
+            </button>
+          </div>
+
+          <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium hidden md:inline">
             Showing {Math.min(visibleCount, articles.length)} of {articles.length} stories
           </span>
 
@@ -173,18 +215,46 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
         </div>
       ) : (
         <>
-          {/* Grid Layout */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {visibleArticles.map((article) => (
-              <ArticleCard
-                key={article.id}
-                article={article}
-                onSelect={onSelectArticle}
-                onBookmarkToggle={onBookmarkToggle}
-                isBookmarked={isBookmarked(article.id)}
-              />
-            ))}
-          </div>
+          {/* Main Feed + Trending Sidebar Layout */}
+          {viewMode === 'feed' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Left Column: Vertical Single-Row Feed (Hashnode style) */}
+              <div className="lg:col-span-8 space-y-4">
+                {visibleArticles.map((article) => (
+                  <ArticleRow
+                    key={article.id}
+                    article={article}
+                    onSelect={onSelectArticle}
+                    onBookmarkToggle={onBookmarkToggle}
+                    isBookmarked={isBookmarked(article.id)}
+                    onOpenAuth={onOpenAuth}
+                  />
+                ))}
+              </div>
+
+              {/* Right Column: Sticky Trending Tags & Top Writers Sidebar */}
+              <div className="lg:col-span-4 sticky top-24 hidden lg:block">
+                <TrendingSidebar
+                  onSelectTag={onSelectCategory || (() => {})}
+                  selectedTag={activeFilterName as Category}
+                  onOpenAuthors={onOpenAuthors}
+                />
+              </div>
+            </div>
+          ) : (
+            /* Traditional Card Grid Layout */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {visibleArticles.map((article) => (
+                <ArticleCard
+                  key={article.id}
+                  article={article}
+                  onSelect={onSelectArticle}
+                  onBookmarkToggle={onBookmarkToggle}
+                  isBookmarked={isBookmarked(article.id)}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Throttled Bottom Sentinel & Smooth Auto-Loading Indicator */}
           {hasMore && (

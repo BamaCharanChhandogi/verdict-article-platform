@@ -454,6 +454,9 @@ export function App() {
                     isBookmarked={isBookmarked}
                     onResetFilters={() => setSelectedCategory('All')}
                     activeFilterName={selectedCategory}
+                    onSelectCategory={setSelectedCategory}
+                    onOpenAuthors={() => navigate('/authors')}
+                    onOpenAuth={() => setIsAuthOpen(true)}
                   />
                 </main>
               )
@@ -488,6 +491,9 @@ export function App() {
                         setSelectedCategory('All');
                       }}
                       activeFilterName={selectedCategory}
+                      onSelectCategory={setSelectedCategory}
+                      onOpenAuthors={() => navigate('/authors')}
+                      onOpenAuth={() => setIsAuthOpen(true)}
                     />
                   </div>
                 ) : (
@@ -532,6 +538,9 @@ export function App() {
                         isBookmarked={isBookmarked}
                         onResetFilters={() => setSelectedCategory('All')}
                         activeFilterName={selectedCategory}
+                        onSelectCategory={setSelectedCategory}
+                        onOpenAuthors={() => navigate('/authors')}
+                        onOpenAuth={() => setIsAuthOpen(true)}
                       />
                     </div>
                   </>
