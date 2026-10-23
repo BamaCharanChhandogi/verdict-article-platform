@@ -170,48 +170,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
             })}
           </nav>
 
-          {/* WRITING SECTION (Hashnode Hierarchy) */}
-          <div className="pt-4 border-t border-[#EAE4D9]/80">
-            <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2 px-3">
-              Writing
-            </h2>
-            <div className="space-y-1">
-              {writingNavItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeNav === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      if (!isAuthenticated) {
-                        onOpenAuth();
-                      } else {
+          {/* WRITING SECTION (Only shown when logged in) */}
+          {isAuthenticated && (
+            <div className="pt-4 border-t border-[#EAE4D9]/80">
+              <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2 px-3">
+                Writing
+              </h2>
+              <div className="space-y-1">
+                {writingNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeNav === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
                         setActiveNav(item.id as NavTab);
-                      }
-                      setIsOpenMobile(false);
-                    }}
-                    className={`
-                      w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer
-                      ${isActive 
-                        ? 'bg-[#EAE4D9] text-[#141416] font-semibold shadow-2xs' 
-                        : 'text-zinc-600 hover:text-[#141416] hover:bg-[#FAF7F2]'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-[#141416]' : 'text-zinc-400'}`} />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.count !== undefined && item.count > 0 && (
-                      <span className="px-1.5 py-0.2 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-800">
-                        {item.count}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+                        setIsOpenMobile(false);
+                      }}
+                      className={`
+                        w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer
+                        ${isActive 
+                          ? 'bg-[#EAE4D9] text-[#141416] font-semibold shadow-2xs' 
+                          : 'text-zinc-600 hover:text-[#141416] hover:bg-[#FAF7F2]'
+                        }
+                      `}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-[#141416]' : 'text-zinc-400'}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.count !== undefined && item.count > 0 && (
+                        <span className="px-1.5 py-0.2 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-800">
+                          {item.count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Curated Editorial Topics */}
           <div className="pt-4 border-t border-[#EAE4D9]/80">

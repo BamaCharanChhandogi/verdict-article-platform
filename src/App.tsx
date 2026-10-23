@@ -192,12 +192,24 @@ export function App() {
               <Sidebar
                 activeNav={activeNav}
                 setActiveNav={(nav) => {
-                  if (nav === 'home') navigate('/');
-                  else if (nav === 'feed') navigate('/feed');
-                  else if (nav === 'authors') navigate('/authors');
-                  else if (nav === 'drafts') navigate('/drafts');
-                  else if (nav === 'mystories') navigate('/studio');
-                  else if (nav === 'write') {
+                  if (nav === 'home') {
+                    setSearchQuery('');
+                    setSelectedCategory('All');
+                    navigate('/');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else if (nav === 'feed') {
+                    setSearchQuery('');
+                    setSelectedCategory('All');
+                    navigate('/feed');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else if (nav === 'authors') {
+                    setSearchQuery('');
+                    navigate('/authors');
+                  } else if (nav === 'drafts') {
+                    navigate('/drafts');
+                  } else if (nav === 'mystories') {
+                    navigate('/studio');
+                  } else if (nav === 'write') {
                     setEditingDraft(null);
                     navigate('/write');
                   }
@@ -306,7 +318,52 @@ export function App() {
             }
           />
           <Route path="/mystories" element={<Navigate to="/studio" replace />} />
-          <Route path="/feed" element={<Navigate to="/" replace />} />
+
+          {/* HASHNODE-STYLE FEED & DISCOVER ROUTE (/feed) */}
+          <Route
+            path="/feed"
+            element={
+              <main className="flex-1 px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full">
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#EAE4D9] gap-2">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                      Popular Posts
+                    </span>
+                    <h1 className="font-editorial text-3xl font-bold text-[#141416]">
+                      New &amp; Popular
+                    </h1>
+                  </div>
+                  <div className="flex items-center space-x-2 text-xs text-zinc-500 font-medium bg-white border border-[#EAE4D9] px-3.5 py-1.5 rounded-full shadow-2xs self-start sm:self-auto">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Last 24h: <strong>804 articles</strong> &bull; <strong>556 writers</strong></span>
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <CategoryPills
+                    categories={ALL_CATEGORIES}
+                    selectedCategory={selectedCategory}
+                    onSelectCategory={setSelectedCategory}
+                  />
+                </div>
+
+                {isLoading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
+                    {[1, 2, 3, 4].map(i => <ArticleCardSkeleton key={i} />)}
+                  </div>
+                ) : (
+                  <ArticleGrid
+                    articles={filteredArticles}
+                    onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                    onBookmarkToggle={handleBookmarkToggle}
+                    isBookmarked={isBookmarked}
+                    onResetFilters={() => setSelectedCategory('All')}
+                    activeFilterName={selectedCategory}
+                  />
+                )}
+              </main>
+            }
+          />
 
           {/* EDITORIAL HOME & EXPLORE FEED (/) */}
           <Route

@@ -2,49 +2,69 @@ import { Article, Author, Comment } from '../types';
 
 export const fallbackAuthors: Author[] = [
   {
-    id: 'author-1',
+    id: 'user-demo-1',
     name: 'Elena Rostova',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    role: 'Editor in Chief & Cultural Essayist',
-    bio: 'Writing at the intersection of intentional living, architectural philosophy, and contemporary aesthetics.',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+    role: 'Editor in Chief',
+    bio: 'Writing at the intersection of intentional living, architectural philosophy, and contemporary editorial aesthetics.',
     followers: 14200,
     articlesCount: 42,
     twitter: '@elenarostova',
   },
   {
-    id: 'author-2',
-    name: 'Julian Hayes',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-    role: 'Principal Product Designer & Futurist',
-    bio: 'Exploring cognitive ergonomics, systemic software design, and humane artificial intelligence.',
-    followers: 9800,
-    articlesCount: 28,
-    twitter: '@julianhayes',
-  },
-  {
-    id: 'author-3',
-    name: 'Aria Montgomery',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80',
-    role: 'Traveler & Environmental Anthropologist',
-    bio: 'Documenting secluded mountain settlements, heritage crafts, and regenerative tourism worldwide.',
-    followers: 12500,
-    articlesCount: 35,
-    twitter: '@ariamontgomery',
-  },
-  {
-    id: 'author-4',
+    id: 'user-marcus',
     name: 'Marcus Vance',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-    role: 'Behavioral Economist & Author',
-    bio: 'Investigating deep work habits, decision heuristics, and the psychology of effortless focus.',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+    role: 'Principal Systems Architect',
+    bio: 'Investigating distributed resilience, zero-trust cloud infrastructure, and the physics of low-latency computation.',
     followers: 18300,
     articlesCount: 51,
     twitter: '@marcusvance',
+  },
+  {
+    id: 'user-maya',
+    name: 'Maya Lin',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+    role: 'Design Systems Lead',
+    bio: 'Exploring classical typography, organic grid geometry, spatial computing, and tactile user interfaces.',
+    followers: 12500,
+    articlesCount: 35,
+    twitter: '@mayalin',
+  },
+  {
+    id: 'user-thorne',
+    name: 'Dr. Aris Thorne',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+    role: 'Cognitive Neuroscientist',
+    bio: 'Researching biological attention spans, deep creative focus, and the neural implications of algorithmic feedback.',
+    followers: 9800,
+    articlesCount: 28,
+    twitter: '@aristhorne',
+  },
+  {
+    id: 'user-sarah',
+    name: 'Sarah Jenkins',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+    role: 'Global Economic Strategist',
+    bio: 'Analyzing sovereign digital infrastructure, creator monetization dynamics, and macro-technological trends.',
+    followers: 11200,
+    articlesCount: 22,
+    twitter: '@sarahjenkins',
+  },
+  {
+    id: 'user-david',
+    name: 'David K.',
+    avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=400&q=80',
+    role: 'Humane Computing Fellow',
+    bio: 'Advocating for digital minimalism, quiet software, and ethical design constraints in everyday devices.',
+    followers: 16400,
+    articlesCount: 19,
+    twitter: '@davidk',
   }
 ];
 
 export const fallbackArticles: Article[] = [
-  // --- FEATURED THIS WEEK (Exact match to reference UI) ---
+  // --- FEATURED THIS WEEK ---
   {
     id: 'feat-1',
     title: 'How AI is Changing Everyday Creativity',
@@ -52,34 +72,20 @@ export const fallbackArticles: Article[] = [
     description: 'Generative models are transitioning from novel parlor tricks to ambient cognitive partners, reshaping how writers, architects, and painters sculpt ideas.',
     category: 'Technology',
     coverImage: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=900&q=80',
-    author: fallbackAuthors[1],
+    author: fallbackAuthors[0], // Elena Rostova
     publishedAt: 'Oct 18, 2026',
     readingTime: 6,
     likesCount: 1420,
     commentsCount: 38,
     isFeatured: true,
     tags: ['AI & Future', 'Technology', 'Design', 'Creativity'],
-    content: `
-# How AI is Changing Everyday Creativity
+    content: `# The Dawn of Ambient Intelligence
 
-For centuries, creativity has been mythologized as a solitary spark—an enigmatic lightning bolt striking the tortured genius in a darkened studio. Yet when we strip away the romantic folklore, the creative act is fundamentally dialogic: an iterative conversation between intent and material, constraint and serendipity.
+Generative intelligence is acting as an intellectual catalyst, dissolving the friction between initial conception and executable form. Rather than replacing the artisan, machine cognition amplifies human discernment by generating combinatorial variations at instantaneous scale.
 
-With the advent of ambient artificial intelligence, this conversation has acquired a new interlocutor. Rather than automating away human imagination, generative intelligence is acting as an intellectual catalyst, dissolving the friction between initial conception and executable form.
+> "The ultimate elegance in software and design is not how much you can add, but the disciplined restraint of knowing what to leave untouched."
 
-### The Death of the Blank Canvas
-
-Ask any novelist or industrial designer what they dread most, and the answer is rarely the complexity of execution—it is the tyrannical inertia of the white page. Generative algorithms eliminate the blank page entirely. Within seconds, a designer can conjure twelve divergent permutations of a cantilevered timber chair or a writer can brainstorm forty thematic angles for an essay on architectural brutalism.
-
-> "The true virtue of computational synthesis is not the generation of answers, but the acceleration of discovery."
-
-When an idea can be prototyped at zero marginal cost, creative ambition ceases to be bounded by tedious mechanical labor. The creator transforms from a solitary bricklayer into an editor-curator, directing cognitive momentum.
-
-### The Emergence of Ambient Collaboration
-
-We are now witnessing the birth of "ambient collaboration." Unlike early generative tools that operated as transactional command prompts, modern systems weave quietly into our everyday thinking environments. They suggest cadence shifts in our prose, identify structural imbalances in user interfaces, and surface historical precedents that might have otherwise remained obscured in archival vaults.
-
-The future of creative excellence will not belong to those who resist algorithmic augmentation, nor to those who surrender uncritically to automated homogeny. It will belong to the discerning minds who orchestrate synthetic intelligence with uncompromising taste, rigorous perspective, and deep human empathy.
-    `
+When an idea can be prototyped at zero marginal cost, creative ambition ceases to be bounded by tedious mechanical labor. The creator transforms from a solitary bricklayer into an editor-curator, directing cognitive momentum.`
   },
   {
     id: 'feat-2',
@@ -87,243 +93,167 @@ The future of creative excellence will not belong to those who resist algorithmi
     slug: 'the-art-of-a-calmer-morning',
     description: 'In an era of relentless notification overload, intentional rituals of silence, natural illumination, and single-tasking restore mental sovereignty.',
     category: 'Lifestyle',
-    coverImage: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80',
-    author: fallbackAuthors[0],
+    coverImage: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=85',
+    author: fallbackAuthors[5], // David K.
     publishedAt: 'Oct 19, 2026',
     readingTime: 4,
-    likesCount: 890,
-    commentsCount: 24,
+    likesCount: 1240,
+    commentsCount: 58,
     isFeatured: true,
     tags: ['Lifestyle', 'Mindfulness', 'Productivity', 'Wellness'],
-    content: `
-# The Art of a Calmer Morning
+    content: `# The Art of a Calmer Morning
 
 The modern day rarely begins; more often, it erupts. An alarm screams in the darkness, followed immediately by the hypnotic, blue-lit glare of a smartphone screen: urgent headlines, unread notifications, algorithmic anxiety designed to hijack your attention before your feet have touched the floor.
 
 Reclaiming mental sovereignty requires rediscovering the art of the intentional threshold. How we cross into consciousness dictates the emotional timbre of every subsequent hour.
 
 ### 1. Delay the Digital Deluge
-
-The single highest-leverage boundary you can institute is the 45-minute digital quarantine. Keep your mobile device outside the bedchamber. Invest in an analog timepiece. Allow your subconscious mind to finish sorting the residue of dreams before exposing it to the demands of the global network.
+Keep your mobile device outside the bedchamber. Invest in an analog timepiece. Allow your subconscious mind to finish sorting the residue of dreams before exposing it to the demands of the global network.
 
 ### 2. The Geometry of Natural Light
+Before reaching for caffeine, step toward an unobstructed window or step outside into ambient morning light for seven to ten minutes.
 
-Before reaching for caffeine, step toward an unobstructed window or step outside into ambient morning light for seven to ten minutes. Direct photons hitting retinal photoreceptors initiate cortisol synthesis, synchronize the suprachiasmatic nucleus, and reset circadian vitality far more cleanly than an espresso shot.
-
-### 3. Single-Task Rituals
-
-Whether it is the rhythmic pour of water over freshly ground beans or writing three observations in a notebook with fountain pen ink, cultivate one analog ritual performed in complete sensory presence. When the morning is anchored in quiet reverence, the noise of the external world loses its power to disrupt your core.
-    `
+### 3. Pacing Over Panic
+Understand that urgent demands are rarely important, and important endeavors require deliberate cognitive breathing room.`
   },
   {
     id: 'feat-3',
-    title: 'Hidden Places You Must Visit in 2024',
-    slug: 'hidden-places-you-must-visit-in-2024',
+    title: 'Hidden Places You Must Visit: Secluded Topographies',
+    slug: 'hidden-places-you-must-visit-secluded-topographies',
     description: 'Venturing beyond the well-worn tourist corridors into secluded alpine valleys, ancient cycladic villages, and untouched misty coastlines.',
     category: 'Travel',
-    coverImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80',
-    author: fallbackAuthors[2],
+    coverImage: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=85',
+    author: fallbackAuthors[2], // Maya Lin
     publishedAt: 'Oct 20, 2026',
-    readingTime: 5,
-    likesCount: 1650,
-    commentsCount: 42,
+    readingTime: 6,
+    likesCount: 730,
+    commentsCount: 29,
     isFeatured: true,
-    tags: ['Travel', 'Nature', 'Adventure', 'Lifestyle'],
-    content: `
-# Hidden Places You Must Visit in 2024
+    tags: ['Travel', 'Adventure', 'Nature', 'Quietude'],
+    content: `# Beyond the Well-Worn Corridors
 
-Travel in the twenty-first century has too often devolved into an exercise in algorithmic replication. Geotagged landmarks are besieged by travelers seeking photographic validation rather than genuine discovery. Yet across the globe, quiet sanctuaries persist—places where silence still reverberates and time slows to the cadence of the seasons.
+True exploration begins where cellular towers lose their reach. When we deliberately abandon curated bucket-lists, we recover the lost capacity for astonishment.
 
-### The High Valleys of Mestia, Georgia
+> "Traveling to understand is entirely different from traveling to consume."
 
-Perched beneath the jagged glaciers of the Greater Caucasus, Svaneti remains one of Europe's most enigmatic alpine frontiers. Medieval stone defense towers (koshki) stand sentinel over valleys where ancient dialects and polyphonic hymns are still sung by evening hearths. The air smells of wild thyme and birch smoke.
-
-### The Secluded Fjordlands of the Westfjords, Iceland
-
-While southern Iceland's ring road swarms with tour coaches, the isolated claw of the Westfjords remains delightfully desolate. Here, sheet waterfalls spill directly into deserted fjords, Arctic foxes dart through black volcanic pebble beaches, and the midnight sun bathes the cliffs in amber serenity.
-
-Travel is not about collecting flags or checking off bucket-list coordinates. It is about allowing an unfamiliar topography to disrupt your habitual perception of reality.
-    `
+High in the eastern valleys of Bhutan, prayer flags flutter against crisp Himalayan winds, reminding visitors of an older, quieter relationship between humanity and the cosmos.`
   },
 
-  // --- EDITOR'S PICKS (Exact match to reference UI) ---
+  // --- EDITOR'S PICKS ---
   {
     id: 'pick-1',
     title: 'The Future of Remote Work is More Human Than You Think',
-    slug: 'the-future-of-remote-work-is-more-human-than-you-think',
-    description: 'Why the next generation of decentralized teams will prioritize synchronous retreats, emotional attunement, and asynchronous deep work over surveillance.',
+    slug: 'the-future-of-remote-work-is-more-human',
+    description: 'Physical detachment from corporate offices forces organizations to measure outcome over physical presence, ushering in an era of authentic trust.',
     category: 'Business',
-    coverImage: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&q=80',
-    author: fallbackAuthors[3],
-    publishedAt: 'Oct 17, 2026',
-    readingTime: 5,
-    likesCount: 780,
-    commentsCount: 19,
+    coverImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=85',
+    author: fallbackAuthors[4], // Sarah Jenkins
+    publishedAt: 'Oct 15, 2026',
+    readingTime: 4,
+    likesCount: 610,
+    commentsCount: 31,
     isEditorPick: true,
     editorPickRank: 1,
-    tags: ['Business', 'Productivity', 'Culture'],
-    content: `
-# The Future of Remote Work is More Human Than You Think
+    tags: ['Business', 'Remote Work', 'Culture', 'Leadership'],
+    content: `# Dismantling the Panopticon
 
-When corporate executives panicked during the initial shift toward remote working, their instinct was surveillance: keystroke monitors, activity pings, and calendar saturation. Yet three years into this grand workplace experiment, the most forward-thinking distributed organizations have reached the opposite conclusion.
+When corporate leaders first confronted remote work, their initial instinct was replicating the physical office through digital panopticons—keystroke monitors, always-on webcams, and synthetic presence dots.
 
-Remote work succeeds not when we replicate the physical office through digital panopticons, but when we liberate knowledge workers to operate with radical autonomy, accompanied by deeply intentional human retreats.
-    `
+### Outcome as the Only Compass
+True distributed autonomy replaces surveillance with rigorous clarity of intent. When deliverables speak for themselves, artificial facetime collapses into irrelevance.`
   },
   {
     id: 'pick-2',
-    title: 'Design Lessons from Nature',
+    title: 'Design Lessons from Nature: Organic Geometry in Modern Interfaces',
     slug: 'design-lessons-from-nature',
-    description: 'From biomimetic structural load paths to the organic color harmonies of autumnal foliage, nature offers the ultimate masterclass in systemic elegance.',
+    description: 'How biomimicry and natural structural systems inspire resilient digital architectures and deeply intuitive interface paradigms.',
     category: 'Design',
-    coverImage: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=400&q=80',
-    author: fallbackAuthors[1],
+    coverImage: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1200&q=85',
+    author: fallbackAuthors[2], // Maya Lin
     publishedAt: 'Oct 16, 2026',
-    readingTime: 4,
-    likesCount: 1120,
-    commentsCount: 31,
+    readingTime: 5,
+    likesCount: 980,
+    commentsCount: 47,
     isEditorPick: true,
     editorPickRank: 2,
-    tags: ['Design', 'Nature', 'Architecture'],
-    content: `
-# Design Lessons from Nature
+    tags: ['Design', 'Biomimicry', 'UI/UX', 'Aesthetics'],
+    content: `# Biomimetic Architecture in Digital Space
 
-Nature is an evolutionary laboratory with 3.8 billion years of research and development. In the natural world, waste does not exist; every byproduct is a feedstock, every structural curve balances tensile resistance against material efficiency.
-
-When human architects, interface designers, and typographers study botanical forms, we discover principles of proportion and balance that transcend fleeting stylistic fads.
-    `
+Millions of years of evolutionary pressure have perfected load-bearing structures, vascular distribution systems, and harmonic color spectra. When digital designers look to organic botany, interfaces cease feeling synthetic.`
   },
   {
     id: 'pick-3',
-    title: 'How to Build Better Habits with Less Effort',
-    slug: 'how-to-build-better-habits-with-less-effort',
-    description: 'Willpower is an unreliable biological battery. Sustainable habit architecture relies on environmental friction design and identity reframing.',
+    title: 'The Neuroscience of Uninterrupted Cognition',
+    slug: 'the-psychology-of-deep-work',
+    description: 'Neurobiological research reveals the immense cognitive toll of context-switching and the profound rewards of unbroken mental flow.',
     category: 'Productivity',
-    coverImage: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=400&q=80',
-    author: fallbackAuthors[3],
-    publishedAt: 'Oct 15, 2026',
+    coverImage: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=85',
+    author: fallbackAuthors[3], // Dr. Aris Thorne
+    publishedAt: 'Oct 17, 2026',
     readingTime: 6,
-    likesCount: 2310,
-    commentsCount: 54,
+    likesCount: 840,
+    commentsCount: 36,
     isEditorPick: true,
     editorPickRank: 3,
-    tags: ['Productivity', 'Psychology', 'Habits'],
-    content: `
-# How to Build Better Habits with Less Effort
+    tags: ['Productivity', 'Neuroscience', 'Focus', 'Habits'],
+    content: `# Attention Residue & Cognitive Fragmentation
 
-Most self-help doctrine prescribes willpower as the ultimate antidote to procrastination. But cognitive neurobiology reveals that executive function is metabolically demanding. When you force yourself through brute motivation, you are fighting your own basal ganglia.
-
-The masters of sustainable lifestyle design don't rely on Herculean discipline; they engineer their physical and social environments so that desired behaviors possess zero friction while destructive impulses become arduous.
-    `
+Every time an engineer or writer glances at an incoming notification, attention does not smoothly pivot back to the primary challenge. Rather, a psychological phantom known as 'attention residue' lingers.`
   },
   {
     id: 'pick-4',
-    title: 'Small Travel Destinations with Big Stories',
-    slug: 'small-travel-destinations-with-big-stories',
-    description: 'Uncovering the forgotten narratives of coastal fishing hamlets, mountain monasteries, and secluded desert oases.',
-    category: 'Travel',
-    coverImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80',
-    author: fallbackAuthors[2],
-    publishedAt: 'Oct 14, 2026',
-    readingTime: 5,
-    likesCount: 940,
-    commentsCount: 16,
+    title: 'The Architecture of Resilient Software Systems',
+    slug: 'the-architecture-of-sustainable-systems',
+    description: 'How veteran software architects build systems that outlive hype cycles by prioritizing disciplined modularity over fashionable complexity.',
+    category: 'Technology',
+    coverImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=85',
+    author: fallbackAuthors[1], // Marcus Vance
+    publishedAt: 'Oct 18, 2026',
+    readingTime: 7,
+    likesCount: 1120,
+    commentsCount: 64,
     isEditorPick: true,
     editorPickRank: 4,
-    tags: ['Travel', 'Culture', 'History'],
-    content: `
-# Small Travel Destinations with Big Stories
+    tags: ['Technology', 'Architecture', 'Distributed Systems'],
+    content: `# Timeless Software Principles
 
-The most profound travel revelations rarely occur under monument floodlights. They happen in sleepy harbor cafes where an elderly boatbuilder explains the grain of olive wood, or in a rain-drenched Scottish glen where a ruined croft whispers of Highland clearances.
-
-Small places hold memory with fierce intimacy. When you slow down and listen, every stone tells a story.
-    `
+Fashions in frameworks cycle every eighteen months, yet the bedrock fundamentals of distributed computing—idempotency, bounded contexts, and graceful degradation—remain immutable.`
   },
 
-  // --- LATEST ARTICLES GRID (Exact match to reference UI) ---
+  // --- LATEST COMMUNITY ESSAYS ---
   {
     id: 'latest-1',
-    title: 'Building Products People Actually Love',
-    slug: 'building-products-people-actually-love',
-    description: 'Beyond growth metrics and customer acquisition loops lies the timeless craft of empathetic product intuition and obsessive customer delight.',
-    category: 'Business',
-    coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80',
-    author: fallbackAuthors[1],
-    publishedAt: 'Oct 21, 2026',
-    readingTime: 5,
-    likesCount: 620,
-    commentsCount: 18,
-    tags: ['Business', 'Product', 'Design'],
-    content: `
-# Building Products People Actually Love
+    title: 'Slow Living in a Fast World: Pacing as Resistance',
+    slug: 'slow-living-in-a-fast-world',
+    description: 'Why slowness is the most radical counter-cultural gesture of our century.',
+    category: 'Lifestyle',
+    coverImage: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=85',
+    author: fallbackAuthors[5], // David K.
+    publishedAt: 'Oct 19, 2026',
+    readingTime: 4,
+    likesCount: 880,
+    commentsCount: 41,
+    tags: ['Lifestyle', 'Mindfulness', 'Slow Living'],
+    content: `# Slowness as a Deliberate Stance
 
-The tech industry is inundated with dashboards, vanity metrics, and conversion funnel optimizations. Yet the products that endure in the human psyche—the physical notebook that feels perfect in hand, the clean typography of an elegant text editor—are born from taste, respect, and deep restraint.
-
-When you solve a customer's genuine emotional frustration rather than maximizing their on-screen session time, you create lasting brand reverence.
-    `
+When every app accelerates stimulation, intentional slowness becomes an act of psychological resistance. Natural materials—unlacquered brass, oiled walnut, textured linen—age with graceful patina, reminding inhabitants that beauty requires the patient accumulation of time.`
   },
   {
     id: 'latest-2',
-    title: 'A Minimalist Guide to Deep Work',
-    slug: 'a-minimalist-guide-to-deep-work',
-    description: 'How to structure four hours of uncompromising creative flow by silencing micro-interruptions and designing an analog sanctum.',
-    category: 'Productivity',
-    coverImage: 'https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=600&q=80',
-    author: fallbackAuthors[3],
-    publishedAt: 'Oct 22, 2026',
-    readingTime: 6,
-    likesCount: 1490,
-    commentsCount: 37,
-    tags: ['Productivity', 'Focus', 'Habits'],
-    content: `
-# A Minimalist Guide to Deep Work
-
-Multitasking is a cognitive illusion. When you toggle between writing an analytical brief and checking Slack, your brain experiences attentional residue: a mental drag that reduces analytical processing capacity by up to 40%.
-
-True creative breakthrough demands uninterrupted depth. Four hours of laser focus will consistently out-produce twelve hours of distracted pseudo-labor.
-    `
-  },
-  {
-    id: 'latest-3',
-    title: 'Slow Living in a Fast World',
-    slug: 'slow-living-in-a-fast-world',
-    description: 'An architectural and philosophical exploration of intentional pacing, seasonal eating, and creating spaces that encourage stillness.',
-    category: 'Lifestyle',
-    coverImage: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=600&q=80',
-    author: fallbackAuthors[0],
-    publishedAt: 'Oct 22, 2026',
-    readingTime: 4,
-    likesCount: 880,
-    commentsCount: 22,
-    tags: ['Lifestyle', 'Mindfulness', 'Architecture'],
-    content: `
-# Slow Living in a Fast World
-
-In our hyper-connected epoch, speed is treated as an unqualified virtue. We pride ourselves on instant messaging, same-day delivery, and lightning-fast turnaround times. But the things that give human existence meaning—friendship, literature, culinary craft, contemplation—cannot be accelerated without being diminished.
-
-Slow living is not about doing everything at a snail's pace; it is about doing things at the right pace, with intentional presence and reverence.
-    `
-  },
-  {
-    id: 'latest-4',
-    title: 'The Next Chapter of Artificial Intelligence',
-    slug: 'the-next-chapter-of-artificial-intelligence',
-    description: 'Looking beyond conversational bots toward multimodal spatial reasoning, autonomous edge agents, and ethical alignment frameworks.',
-    category: 'Technology',
-    coverImage: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=600&q=80',
-    author: fallbackAuthors[1],
-    publishedAt: 'Oct 23, 2026',
+    title: 'The Sovereign Creator: Escaping Algorithmic Feudalism',
+    slug: 'the-sovereign-creator-escaping-algorithms',
+    description: 'How independent thinkers establish direct reader relationships using open protocols and private imprints.',
+    category: 'Business',
+    coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=85',
+    author: fallbackAuthors[4], // Sarah Jenkins
+    publishedAt: 'Oct 20, 2026',
     readingTime: 5,
-    likesCount: 2100,
-    commentsCount: 68,
-    tags: ['Technology', 'AI & Future', 'Science'],
-    content: `
-# The Next Chapter of Artificial Intelligence
+    likesCount: 670,
+    commentsCount: 22,
+    tags: ['Business', 'Economics', 'Creator Economy'],
+    content: `# Beyond Algorithmic Feudalism
 
-The initial wave of conversational AI fascinated the public with synthetic fluency. But fluency is not intelligence. The frontier of research is now pivoting toward embodied cognition, neurosymbolic reasoning, and autonomous multi-agent consensus protocols.
-
-As these systems transition from advisory text boxes into autonomous actors in the real world, the questions before us are no longer purely computational—they are civic, ethical, and deeply philosophical.
-    `
+To build an audience solely on proprietary social platforms is to build a cathedral on rented land. Sovereign creators own their email lists, host on canonical domains, and speak directly to their readers without intermediary algorithmic gatekeepers.`
   }
 ];
 
@@ -333,39 +263,13 @@ export const fallbackComments: Record<string, Comment[]> = {
       id: 'c-1',
       articleId: 'feat-1',
       user: {
-        id: 'u-1',
-        name: 'Sophia Sterling',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+        id: 'u-101',
+        name: 'Julian Hayes',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80',
       },
-      body: 'This resonated deeply. As a UI designer, I used to fear automated design systems. Now, I use AI to rapidly test 30 variations of spacing and typography in minutes, then apply human craft to the best one.',
-      likes: 24,
-      createdAt: '2 hours ago'
-    },
-    {
-      id: 'c-2',
-      articleId: 'feat-1',
-      user: {
-        id: 'u-2',
-        name: 'David Chen',
-        avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80',
-      },
-      body: 'The phrase "the creator transforms from a bricklayer into an editor-curator" is the clearest articulation of this paradigm shift I have read all year.',
-      likes: 18,
-      createdAt: '4 hours ago'
-    }
-  ],
-  'feat-2': [
-    {
-      id: 'c-3',
-      articleId: 'feat-2',
-      user: {
-        id: 'u-3',
-        name: 'Clara Oswald',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80',
-      },
-      body: 'Started the 45-minute morning digital quarantine two weeks ago. My baseline anxiety dropped noticeably. Highly recommend an analog alarm clock!',
-      likes: 31,
-      createdAt: 'Yesterday'
+      body: 'This distinction between generation and discernment is precisely where modern editorial craft is headed. Thoroughly insightful.',
+      likes: 14,
+      createdAt: '2 days ago',
     }
   ]
 };
