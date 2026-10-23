@@ -254,6 +254,108 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ success: true, message: 'Article deleted successfully' });
       }
 
+      // 6B. COMMENTS: GET COMMENTS FOR AN ARTICLE
+      if (req.method === 'GET' && cleanUrl.match(/^\/articles\/([^/]+)\/comments/)) {
+        const match = cleanUrl.match(/^\/articles\/([^/]+)\/comments/);
+        const articleId = match ? match[1] : '';
+
+        const commentsRes = await client.query(`
+          SELECT 
+            c.id, 
+            c.article_id as "articleId", 
+            c.body, 
+            c.likes_count as "likes",
+            COALESCE(c.created_at, NOW()) as "createdAt",
+            json_build_object(
+              'id', COALESCE(u.id, c.user_id),
+              'name', COALESCE(u.name, 'Elena Rostova'),
+              'avatar', COALESCE(u.avatar_url, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80')
+            ) as user
+          FROM verdict_comments c
+          LEFT JOIN verdict_users u ON c.user_id = u.id
+          WHERE c.article_id = $1
+          ORDER BY c.created_at DESC;
+        `, [articleId]);
+
+        return res.status(200).json({ success: true, data: commentsRes.rows });
+      }
+
+      // 6C. COMMENTS: POST NEW COMMENT FOR AN ARTICLE
+      if (req.method === 'POST' && cleanUrl.match(/^\/articles\/([^/]+)\/comments/)) {
+        const match = cleanUrl.match(/^\/articles\/([^/]+)\/comments/);
+        const articleId = match ? match[1] : '';
+        const { body } = req.body || {};
+
+        if (!body || !body.trim()) {
+          return res.status(400).json({ success: false, message: 'Comment body cannot be empty.' });
+        }
+
+        const authHeader = req.headers.authorization;
+        let userId = 'user-demo-1';
+        let userName = 'Elena Rostova';
+        let userAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
+
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          try {
+            const decoded: any = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+            userId = decoded.id || userId;
+            userName = decoded.name || userName;
+          } catch {
+            // fallback
+          }
+        }
+
+        const userRes = await client.query('SELECT id, name, avatar_url FROM verdict_users WHERE id = $1', [userId]);
+        if (userRes.rows.length > 0) {
+          userName = userRes.rows[0].name;
+          userAvatar = userRes.rows[0].avatar_url || userAvatar;
+        }
+
+        const commentId = `cmt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+        const insertRes = await client.query(`
+          INSERT INTO verdict_comments (id, article_id, user_id, body)
+          VALUES ($1, $2, $3, $4)
+          RETURNING id, article_id as "articleId", body, likes_count as "likes", created_at as "createdAt"
+        `, [commentId, articleId, userId, body.trim()]);
+
+        await client.query('UPDATE verdict_articles SET comments_count = comments_count + 1 WHERE id = $1 OR slug = $1', [articleId]).catch(() => {});
+
+        const createdComment = {
+          ...insertRes.rows[0],
+          user: {
+            id: userId,
+            name: userName,
+            avatar: userAvatar
+          }
+        };
+
+        return res.status(201).json({ success: true, message: 'Comment published.', data: createdComment });
+      }
+
+      // 6D. COMMENTS: UPVOTE COMMENT
+      if (req.method === 'POST' && cleanUrl.match(/^\/comments\/([^/]+)\/like/)) {
+        const match = cleanUrl.match(/^\/comments\/([^/]+)\/like/);
+        const commentId = match ? match[1] : '';
+
+        const likeRes = await client.query(`
+          UPDATE verdict_comments
+          SET likes_count = likes_count + 1
+          WHERE id = $1
+          RETURNING id, likes_count as "likes"
+        `, [commentId]);
+
+        return res.status(200).json({ success: true, data: likeRes.rows[0] });
+      }
+
+      // 6E. COMMENTS: DELETE COMMENT
+      if (req.method === 'DELETE' && cleanUrl.match(/^\/comments\/([^/]+)/)) {
+        const match = cleanUrl.match(/^\/comments\/([^/]+)/);
+        const commentId = match ? match[1] : '';
+
+        await client.query('DELETE FROM verdict_comments WHERE id = $1', [commentId]);
+        return res.status(200).json({ success: true, message: 'Comment deleted successfully' });
+      }
+
       // 7. ARTICLES: GET SINGLE ARTICLE BY SLUG OR ID
       if (req.method === 'GET' && cleanUrl.startsWith('/articles/') && cleanUrl !== '/articles/') {
         const slugOrId = cleanUrl.replace('/articles/', '').trim();

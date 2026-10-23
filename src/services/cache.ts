@@ -30,6 +30,10 @@ class MemoryCache {
     return this.get(key) !== null;
   }
 
+  delete(key: string): void {
+    this.cache.delete(key);
+  }
+
   clear(): void {
     this.cache.clear();
   }

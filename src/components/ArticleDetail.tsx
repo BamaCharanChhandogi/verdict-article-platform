@@ -23,7 +23,7 @@ import {
 import { Article, Comment } from '../types';
 import { ReadingProgress } from './ReadingProgress';
 import { CommentsSection } from './CommentsSection';
-import { fetchCommentsForArticle } from '../services/api';
+import { fetchCommentsForArticle, createRealComment, deleteRealComment } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -46,7 +46,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   allArticles,
   onOpenAuth,
 }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, token } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -175,24 +175,28 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     setTimeout(() => setCopiedShare(false), 2500);
   };
 
-  const handleAddComment = (text: string) => {
+  const handleAddComment = async (text: string) => {
     if (!isAuthenticated || !user) {
       if (onOpenAuth) onOpenAuth();
       return;
     }
-    const newComment: Comment = {
-      id: `local-c-${Date.now()}`,
-      articleId: article.id,
-      user: {
-        id: user.id || 'current-user',
-        name: user.name || 'Author',
-        avatar: user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
+    const created = await createRealComment(
+      article.id,
+      text,
+      {
+        id: user.id || 'user-demo-1',
+        name: user.name || 'Elena Rostova',
+        avatar: user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+        role: user.role || 'Author'
       },
-      body: text,
-      likes: 1,
-      createdAt: 'Just now',
-    };
-    setComments(prev => [newComment, ...prev]);
+      token
+    );
+    setComments(prev => [created, ...prev.filter(c => c.id !== created.id)]);
+  };
+
+  const handleDeleteComment = async (commentId: string | number) => {
+    await deleteRealComment(article.id, commentId, token);
+    setComments(prev => prev.filter(c => String(c.id) !== String(commentId)));
   };
 
   const related = allArticles
@@ -719,6 +723,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           <CommentsSection
             comments={comments}
             onAddComment={handleAddComment}
+            onDeleteComment={handleDeleteComment}
             onOpenAuth={onOpenAuth}
             isLoading={commentsLoading}
           />
