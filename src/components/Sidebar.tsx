@@ -180,7 +180,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* DESKTOP FROSTED GLASS CAPSULE DOCK */}
       <aside 
         ref={dockRef}
-        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[52px] h-[348px] py-3.5 px-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.45)] border border-white/60 dark:border-white/10 relative"
+        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[52px] h-[348px] py-3.5 px-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.45)] border border-white/60 dark:border-white/10"
         style={{
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
