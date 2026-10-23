@@ -18,7 +18,8 @@ import {
   MessageSquare,
   MoreHorizontal,
   Sun,
-  Moon
+  Moon,
+  Home
 } from 'lucide-react';
 import { Article, Comment } from '../types';
 import { ReadingProgress } from './ReadingProgress';
@@ -222,20 +223,43 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   ];
 
   return (
-    <article className="min-h-screen pb-20">
+    <article className="min-h-screen pb-20 relative">
       {/* Scroll Reading Progress Bar at the top */}
       <ReadingProgress />
 
-      {/* FROSTED GLASS FLOATING ACTION CAPSULE (Matches User Provided Image 1) */}
-      <aside className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center bg-white/45 dark:bg-[#141824]/60 backdrop-blur-2xl py-6 px-3 rounded-full border border-white/60 dark:border-white/15 shadow-[0_12px_40px_0_rgba(0,0,0,0.14)] space-y-6 w-16 transition-all">
+      {/* Ambient Glow Backdrop for Frosted Glassmorphism Refraction */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[35%] -left-20 w-80 h-80 bg-amber-500/10 dark:bg-emerald-500/10 rounded-full blur-[90px]"></div>
+        <div className="absolute top-[45%] -right-20 w-80 h-80 bg-rose-500/10 dark:bg-indigo-500/10 rounded-full blur-[90px]"></div>
+      </div>
+
+      {/* LEFT FROSTED GLASS CAPSULE: HOME & SOCIAL INTERACTIONS */}
+      <aside className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center bg-white/45 dark:bg-[#141824]/60 backdrop-blur-2xl py-5 px-2.5 rounded-full border border-white/60 dark:border-white/15 shadow-[0_12px_40px_0_rgba(0,0,0,0.14)] space-y-4 w-16 transition-all">
+        {/* Home / Return to Feed */}
+        <div className="relative group flex items-center justify-center">
+          <button
+            onClick={() => navigate(isAuthenticated ? '/feed' : '/')}
+            className="w-11 h-11 rounded-full bg-white dark:bg-white text-black shadow-md flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
+            aria-label="Return to Home Feed"
+          >
+            <Home className="w-5 h-5 fill-current" />
+          </button>
+          <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+            {isAuthenticated ? 'Back to Feed' : 'Back to Home'}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="w-6 h-px bg-zinc-300/60 dark:bg-zinc-700/60 my-0.5"></div>
+
         {/* Like */}
         <button
           onClick={handleLike}
           className="flex flex-col items-center group cursor-pointer"
           title="Heart / React to Story"
         >
-          <Heart className={`w-6 h-6 stroke-[1.8] transition-transform group-hover:scale-115 ${hasLiked ? 'fill-rose-500 text-rose-500' : 'text-zinc-800 dark:text-zinc-100'}`} />
-          <span className="text-xs font-bold mt-1 text-zinc-800 dark:text-zinc-100">{likes}</span>
+          <Heart className={`w-5 h-5 stroke-[1.8] transition-transform group-hover:scale-115 ${hasLiked ? 'fill-rose-500 text-rose-500' : 'text-zinc-800 dark:text-zinc-100'}`} />
+          <span className="text-[11px] font-bold mt-1 text-zinc-800 dark:text-zinc-100">{likes}</span>
         </button>
 
         {/* Comment */}
@@ -244,37 +268,123 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           className="flex flex-col items-center group cursor-pointer"
           title="Jump to Discussion"
         >
-          <MessageSquare className="w-6 h-6 stroke-[1.8] text-zinc-800 dark:text-zinc-100 transition-transform group-hover:scale-115" />
-          <span className="text-xs font-bold mt-1 text-zinc-800 dark:text-zinc-100">{comments.length}</span>
+          <MessageSquare className="w-5 h-5 stroke-[1.8] text-zinc-800 dark:text-zinc-100 transition-transform group-hover:scale-115" />
+          <span className="text-[11px] font-bold mt-1 text-zinc-800 dark:text-zinc-100">{comments.length}</span>
         </button>
 
-        {/* Save / Bookmark */}
+        {/* Bookmark */}
         <button
           onClick={handleBookmarkClick}
           className="flex flex-col items-center group cursor-pointer"
           title={isBookmarked(article.id) ? "Remove from Reading List" : "Save to Reading List"}
         >
-          <Bookmark className={`w-6 h-6 stroke-[1.8] transition-transform group-hover:scale-115 ${isBookmarked(article.id) ? 'fill-current text-[#9E5A38] dark:text-[#E05A30]' : 'text-zinc-800 dark:text-zinc-100'}`} />
-          <span className="text-xs font-bold mt-1 text-zinc-800 dark:text-zinc-100">{isBookmarked(article.id) ? 1 : 0}</span>
+          <Bookmark className={`w-5 h-5 stroke-[1.8] transition-transform group-hover:scale-115 ${isBookmarked(article.id) ? 'fill-current text-[#9E5A38] dark:text-[#E05A30]' : 'text-zinc-800 dark:text-zinc-100'}`} />
+          <span className="text-[11px] font-bold mt-1 text-zinc-800 dark:text-zinc-100">{isBookmarked(article.id) ? 1 : 0}</span>
         </button>
 
         {/* Share */}
-        <button
-          onClick={handleShare}
-          className="flex flex-col items-center p-1 rounded-full text-zinc-800 dark:text-zinc-100 hover:text-black dark:hover:text-white transition-all cursor-pointer relative group"
-          title="Share Story"
-        >
-          {copiedShare ? <Check className="w-6 h-6 text-emerald-600 stroke-[2.2]" /> : <Share2 className="w-6 h-6 stroke-[1.8] group-hover:scale-115 transition-transform" />}
-          {copiedShare && (
-            <span className="absolute left-14 bg-[#141416] text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md pointer-events-none whitespace-nowrap animate-in fade-in">
-              Copied!
-            </span>
-          )}
-        </button>
+        <div className="relative group flex items-center justify-center">
+          <button
+            onClick={handleShare}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-800 dark:text-zinc-100 hover:bg-white/40 dark:hover:bg-white/10 transition-all cursor-pointer"
+            aria-label="Share Story"
+          >
+            {copiedShare ? <Check className="w-5 h-5 text-emerald-600 stroke-[2.2]" /> : <Share2 className="w-5 h-5 stroke-[1.8] group-hover:scale-115 transition-transform" />}
+          </button>
+          <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+            {copiedShare ? 'Copied Link!' : 'Share Story'}
+          </div>
+        </div>
       </aside>
+
+      {/* RIGHT FROSTED GLASS CAPSULE: AUDIO NARRATION & READING ENGINE (Matches Left Symmetrically) */}
+      {audioSupported && (
+        <aside className="fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center bg-white/45 dark:bg-[#141824]/60 backdrop-blur-2xl py-5 px-2.5 rounded-full border border-white/60 dark:border-white/15 shadow-[0_12px_40px_0_rgba(0,0,0,0.14)] space-y-4 w-16 transition-all">
+          {/* Audio Play / Pause */}
+          <div className="relative group flex items-center justify-center">
+            <button
+              onClick={handleToggleAudio}
+              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                isPlayingAudio 
+                  ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white animate-pulse' 
+                  : 'bg-white dark:bg-white text-black hover:scale-105'
+              }`}
+              aria-label={isPlayingAudio ? "Pause Audio" : "Listen to Story"}
+            >
+              {isPlayingAudio ? (
+                <Pause className="w-5 h-5 fill-current" />
+              ) : (
+                <Play className="w-5 h-5 fill-current ml-0.5" />
+              )}
+            </button>
+            <div className="absolute right-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              {isPlayingAudio ? 'Pause Narration' : 'Listen to Story'}
+            </div>
+          </div>
+
+          {/* Equalizer Visualizer when playing */}
+          {isPlayingAudio && (
+            <div className="flex items-end justify-center space-x-0.5 h-3">
+              <span className="w-1 bg-emerald-500 rounded-full animate-bounce h-2"></span>
+              <span className="w-1 bg-emerald-600 rounded-full animate-bounce h-3 delay-75"></span>
+              <span className="w-1 bg-emerald-500 rounded-full animate-bounce h-1.5 delay-150"></span>
+            </div>
+          )}
+
+          {/* Speed Toggle */}
+          <div className="relative group flex items-center justify-center">
+            <button
+              onClick={() => handleChangeRate(speechRate === 1 ? 1.25 : speechRate === 1.25 ? 1.5 : 1)}
+              className="px-2 py-0.5 rounded-full text-[11px] font-bold text-zinc-800 dark:text-zinc-100 bg-white/40 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 transition-all cursor-pointer"
+              aria-label="Playback Speed"
+            >
+              {speechRate}x
+            </button>
+            <div className="absolute right-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              Speed: {speechRate}x
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="w-6 h-px bg-zinc-300/60 dark:bg-zinc-700/60 my-0.5"></div>
+
+          {/* Font Size Toggle */}
+          <div className="relative group flex items-center justify-center">
+            <button
+              onClick={() => setFontSize(fontSize === 'normal' ? 'large' : fontSize === 'large' ? 'xlarge' : 'normal')}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-800 dark:text-zinc-100 hover:bg-white/40 dark:hover:bg-white/10 transition-all cursor-pointer font-bold"
+              aria-label="Font Size"
+            >
+              <span className={fontSize === 'normal' ? 'text-xs' : fontSize === 'large' ? 'text-sm' : 'text-base'}>
+                Aa
+              </span>
+            </button>
+            <div className="absolute right-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              Font: {fontSize}
+            </div>
+          </div>
+
+          {/* Serif / Sans Toggle */}
+          <div className="relative group flex items-center justify-center">
+            <button
+              onClick={() => setIsSerifFont(!isSerifFont)}
+              className="px-2 py-0.5 rounded-full text-[10px] font-bold text-[#9E5A38] dark:text-[#E05A30] hover:bg-white/40 dark:hover:bg-white/10 transition-all cursor-pointer"
+              aria-label="Toggle Font Style"
+            >
+              {isSerifFont ? 'Serif' : 'Sans'}
+            </button>
+            <div className="absolute right-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              Style: {isSerifFont ? 'Editorial Serif' : 'Clean Sans'}
+            </div>
+          </div>
+        </aside>
+      )}
 
       {/* DEV.TO STYLE MOBILE BOTTOM FLOATING ACTION BAR */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#0E1116]/95 backdrop-blur-md border-t border-[#EAE4D9] dark:border-[#262C3A] px-6 py-2.5 flex items-center justify-around shadow-lg">
+        <button onClick={() => navigate(isAuthenticated ? '/feed' : '/')} className="p-2 text-zinc-600 dark:text-zinc-300 cursor-pointer">
+          <Home className="w-4 h-4" />
+        </button>
         <button onClick={handleLike} className="flex items-center space-x-1.5 text-xs text-zinc-600 dark:text-zinc-300 cursor-pointer">
           <Heart className={`w-4 h-4 ${hasLiked ? 'fill-current text-rose-500' : ''}`} />
           <span className="font-bold">{likes}</span>
@@ -291,7 +401,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         </button>
       </div>
 
-      {/* Top Navigation & Breadcrumbs */}
+      {/* Top Navigation Bar */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 pb-4 flex items-center justify-between border-b border-[#EAE4D9] dark:border-[#262C3A]">
         <button
           onClick={() => {
@@ -304,92 +414,15 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           <span>{isAuthenticated ? 'Back to Feed' : 'Back to Stories'}</span>
         </button>
 
-        {/* Reading Controls Toolbar (Font Size & Typography) */}
-        <div className="flex items-center space-x-2">
-          <div className="hidden sm:flex items-center space-x-1 bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] rounded-full px-2 py-1 text-xs">
-            <button
-              onClick={() => setFontSize(fontSize === 'normal' ? 'large' : fontSize === 'large' ? 'xlarge' : 'normal')}
-              className="px-2 py-0.5 text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white font-semibold cursor-pointer"
-              title="Toggle font size"
-            >
-              <span className={fontSize === 'normal' ? 'text-xs' : fontSize === 'large' ? 'text-sm font-bold' : 'text-base font-black'}>
-                Aa
-              </span>
-            </button>
-            <span className="text-zinc-300 dark:text-zinc-600">|</span>
-            <button
-              onClick={() => setIsSerifFont(!isSerifFont)}
-              className={`px-2 py-0.5 rounded-full font-medium cursor-pointer ${isSerifFont ? 'text-[#9E5A38] dark:text-[#E05A30] font-bold' : 'text-zinc-500 dark:text-zinc-400'}`}
-              title="Toggle Serif/Sans font"
-            >
-              {isSerifFont ? 'Serif' : 'Sans'}
-            </button>
-          </div>
-
+        <div className="flex items-center space-x-2.5">
           <span className="text-[10px] uppercase font-bold tracking-widest text-[#2E4A3E] dark:text-emerald-400 bg-[#EBF1EE] dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
             {article.category}
           </span>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium hidden sm:inline">
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
             {article.readingTime} min read
           </span>
         </div>
       </div>
-
-      {/* Sticky Audio Narration Bar */}
-      {audioSupported && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 mt-4">
-          <div className="bg-white dark:bg-[#171B22] rounded-2xl border border-[#EAE4D9] dark:border-[#262C3A] p-3 sm:px-5 sm:py-3.5 shadow-2xs flex items-center justify-between gap-3">
-            <div className="flex items-center space-x-3 min-w-0">
-              <button
-                onClick={handleToggleAudio}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 ${
-                  isPlayingAudio 
-                    ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white shadow-sm' 
-                    : 'bg-[#FAF7F2] dark:bg-[#1F2430] hover:bg-zinc-200 dark:hover:bg-[#262C3A] text-[#141416] dark:text-white'
-                }`}
-                title={isPlayingAudio ? "Pause Audio" : "Listen to this article"}
-              >
-                {isPlayingAudio ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
-              </button>
-
-              <div className="min-w-0">
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs font-bold text-[#141416] dark:text-white">
-                    {isPlayingAudio ? 'Listening to Article...' : 'Listen to this Article'}
-                  </span>
-                  {isPlayingAudio && (
-                    <span className="flex items-end space-x-0.5 h-3">
-                      <span className="w-1 bg-emerald-500 rounded-full animate-bounce h-2"></span>
-                      <span className="w-1 bg-emerald-600 rounded-full animate-bounce h-3 delay-75"></span>
-                      <span className="w-1 bg-emerald-500 rounded-full animate-bounce h-1.5 delay-150"></span>
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-zinc-400 dark:text-zinc-500 truncate">
-                  AI Narration &bull; ~{article.readingTime} mins total
-                </p>
-              </div>
-            </div>
-
-            {/* Audio Speed Controls */}
-            <div className="flex items-center space-x-1.5 shrink-0">
-              {[1, 1.25, 1.5].map((rate) => (
-                <button
-                  key={rate}
-                  onClick={() => handleChangeRate(rate)}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg transition-colors cursor-pointer ${
-                    speechRate === rate 
-                      ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' 
-                      : 'bg-[#FAF7F2] dark:bg-[#1F2430] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-[#262C3A]'
-                  }`}
-                >
-                  {rate}x
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Article Header & Typography */}
       <header className="max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-6 text-center sm:text-left">
@@ -401,8 +434,8 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           {article.description}
         </p>
 
-        {/* Author Metadata Bar + Social Engagement Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 border-y border-[#EAE4D9] dark:border-[#262C3A] gap-4">
+        {/* Author Metadata Bar */}
+        <div className="flex items-center justify-between py-4 border-y border-[#EAE4D9] dark:border-[#262C3A]">
           {/* Author Info */}
           <div className="flex items-center space-x-3.5">
             <img
@@ -430,51 +463,6 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                 Published {article.publishedAt} &bull; {article.readingTime} min read
               </p>
             </div>
-          </div>
-
-          {/* Action Pills (Like, Bookmark, Share) */}
-          <div className="flex items-center space-x-2 self-end sm:self-auto">
-            <button
-              onClick={handleLike}
-              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
-                hasLiked
-                  ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60'
-                  : 'bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] text-zinc-700 dark:text-zinc-300 border border-[#EAE4D9] dark:border-[#262C3A]'
-              }`}
-            >
-              <Heart className={`w-3.5 h-3.5 ${hasLiked ? 'fill-current text-rose-600' : ''}`} />
-              <span>{likes}</span>
-            </button>
-
-            <button
-              onClick={() => onBookmarkToggle(article)}
-              className={`p-2 rounded-full border transition-colors cursor-pointer ${
-                isBookmarked(article.id)
-                  ? 'bg-[#F7EFE9] dark:bg-[#2A1D17] border-[#9E5A38] dark:border-[#D48360] text-[#9E5A38] dark:text-[#E05A30]'
-                  : 'bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] border-[#EAE4D9] dark:border-[#262C3A] text-zinc-700 dark:text-zinc-300'
-              }`}
-              title={isBookmarked(article.id) ? "Remove Bookmark" : "Save Bookmark"}
-            >
-              <Bookmark className={`w-3.5 h-3.5 ${isBookmarked(article.id) ? 'fill-current' : ''}`} />
-            </button>
-
-            <button
-              onClick={handleShare}
-              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] text-zinc-700 dark:text-zinc-300 border border-[#EAE4D9] dark:border-[#262C3A] transition-colors cursor-pointer"
-              title="Share article link"
-            >
-              {copiedShare ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span className="text-emerald-700 dark:text-emerald-400">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>Share</span>
-                </>
-              )}
-            </button>
           </div>
         </div>
       </header>
@@ -611,6 +599,49 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
               <span>&bull;</span>
               <span>{article.author.articlesCount} published essays</span>
             </div>
+          </div>
+        </div>
+
+        {/* First-Time Visitor Intent & Discovery Invitation Card */}
+        <div className="mt-12 p-6 sm:p-7 rounded-2xl bg-gradient-to-br from-[#FAF7F2] to-[#F5EFE6] dark:from-[#171B22] dark:to-[#12151B] border border-[#EAE4D9] dark:border-[#262C3A] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-5">
+          <div className="space-y-1 text-center sm:text-left">
+            <div className="inline-flex items-center space-x-1.5 text-[11px] font-bold uppercase tracking-wider text-[#9E5A38] dark:text-[#E05A30]">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{isAuthenticated ? 'Enjoying Verdict?' : 'First time on Verdict?'}</span>
+            </div>
+            <h4 className="font-editorial text-lg sm:text-xl font-bold text-[#141416] dark:text-white">
+              {isAuthenticated
+                ? 'Share your perspective or explore new dispatches.'
+                : 'A home for deep long-form essays, tech strategy & design.'}
+            </h4>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 max-w-lg">
+              {isAuthenticated
+                ? 'Write a new essay or bookmark pieces to your personal reading list.'
+                : 'Explore our curated feed of in-depth writing or join 12,000+ intellectual readers.'}
+            </p>
+          </div>
+          <div className="flex items-center space-x-2.5 shrink-0">
+            <button
+              onClick={() => navigate(isAuthenticated ? '/feed' : '/')}
+              className="px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-[#1F2430] border border-[#EAE4D9] dark:border-[#262C3A] text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-[#262C3A] transition-colors cursor-pointer"
+            >
+              Explore Feed
+            </button>
+            {isAuthenticated ? (
+              <button
+                onClick={() => navigate('/write')}
+                className="px-4 py-2 rounded-full text-xs font-semibold bg-[#2E4A3E] dark:bg-emerald-600 hover:bg-[#233a30] dark:hover:bg-emerald-700 text-white shadow-sm transition-all cursor-pointer"
+              >
+                Write Story
+              </button>
+            ) : (
+              <button
+                onClick={onOpenAuth}
+                className="px-4 py-2 rounded-full text-xs font-semibold bg-[#2E4A3E] dark:bg-emerald-600 hover:bg-[#233a30] dark:hover:bg-emerald-700 text-white shadow-sm transition-all cursor-pointer"
+              >
+                Join Free
+              </button>
+            )}
           </div>
         </div>
 
