@@ -77,10 +77,29 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   const [audioSupported, setAudioSupported] = useState(true);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Reading Experience Preferences
+  // Reading Experience Preferences (Defaults to Verdict's Editorial Serif)
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xlarge'>('normal');
-  const [isSerifFont, setIsSerifFont] = useState(false);
+  const [isSerifFont, setIsSerifFont] = useState(true);
   const [showExecutiveSummary, setShowExecutiveSummary] = useState(true);
+
+  // Dynamic Typography Styles applied across the entire article
+  const currentFontFamily = isSerifFont 
+    ? '"Cormorant Garamond", Georgia, serif' 
+    : '"Manrope", system-ui, -apple-system, sans-serif';
+
+  const titleFontSize = fontSize === 'normal' 
+    ? '2.5rem' 
+    : fontSize === 'large' 
+      ? '3.25rem' 
+      : '4rem';
+
+  const bodyFontSize = fontSize === 'normal' 
+    ? '1.125rem' 
+    : fontSize === 'large' 
+      ? '1.35rem' 
+      : '1.65rem';
+
+  const bodyLineHeight = fontSize === 'normal' ? '1.8' : fontSize === 'large' ? '1.85' : '1.9';
 
   // Scroll to top on mount
   useEffect(() => {
@@ -88,6 +107,9 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       setIsPlayingAudio(false);
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
     } else {
       setAudioSupported(false);
     }
@@ -116,30 +138,51 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
   // Audio Player Handlers (Interactive Web Speech API)
   const startAudioNarration = (rate: number) => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
 
-    // Prepare clean narrative text stripping markdown and HTML tags
-    const cleanContent = article.content
-      ? article.content.replace(/<[^>]*>/g, ' ').replace(/[#*`_>]/g, ' ').replace(/\s+/g, ' ').trim()
-      : article.description;
-    const cleanText = `${article.title}. By ${article.author.name}. ${article.description}. ${cleanContent}`;
+      // Prepare clean narrative text stripping markdown and HTML tags
+      const cleanContent = article.content
+        ? article.content.replace(/<[^>]*>/g, ' ').replace(/[#*`_>]/g, ' ').replace(/\s+/g, ' ').trim()
+        : article.description;
+      const cleanText = `${article.title}. By ${article.author.name}. ${article.description}. ${cleanContent}`;
 
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = rate;
-    utterance.pitch = 1.0;
-    utterance.onend = () => {
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.rate = rate;
+      utterance.pitch = 1.0;
+
+      // Assign natural voice if available
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        const preferredVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('David') || v.name.includes('Zira') || v.name.includes('Samantha'))) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+        }
+      }
+
+      utterance.onstart = () => {
+        setIsPlayingAudio(true);
+      };
+      utterance.onend = () => {
+        setIsPlayingAudio(false);
+        speechUtteranceRef.current = null;
+      };
+      utterance.onerror = () => {
+        setIsPlayingAudio(false);
+        speechUtteranceRef.current = null;
+      };
+
+      speechUtteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+      setIsPlayingAudio(true);
+    } catch (err) {
+      console.warn('Speech synthesis error:', err);
       setIsPlayingAudio(false);
-      speechUtteranceRef.current = null;
-    };
-    utterance.onerror = () => {
-      setIsPlayingAudio(false);
-      speechUtteranceRef.current = null;
-    };
-
-    speechUtteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-    setIsPlayingAudio(true);
+    }
   };
 
   const handleToggleAudio = () => {
@@ -471,11 +514,24 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
       {/* Article Header & Typography */}
       <header className="max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-6 text-center sm:text-left">
-        <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-medium text-[#141416] dark:text-white leading-[1.12] tracking-tight mb-5">
+        <h1 
+          className="font-medium text-[#141416] dark:text-white leading-[1.12] tracking-tight mb-5 transition-all duration-200"
+          style={{
+            fontFamily: currentFontFamily,
+            fontSize: titleFontSize,
+          }}
+        >
           {article.title}
         </h1>
 
-        <p className="font-sans text-base sm:text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed mb-6">
+        <p 
+          className="text-zinc-600 dark:text-zinc-300 leading-relaxed mb-6 transition-all duration-200"
+          style={{
+            fontFamily: currentFontFamily,
+            fontSize: bodyFontSize,
+            lineHeight: bodyLineHeight,
+          }}
+        >
           {article.description}
         </p>
 
@@ -555,9 +611,9 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <div 
           className="max-w-none text-zinc-800 dark:text-zinc-200 space-y-6 transition-all duration-200"
           style={{
-            fontSize: fontSize === 'normal' ? '1.125rem' : fontSize === 'large' ? '1.35rem' : '1.65rem',
-            lineHeight: fontSize === 'normal' ? '1.8' : fontSize === 'large' ? '1.85' : '1.9',
-            fontFamily: isSerifFont ? '"Cormorant Garamond", Georgia, serif' : '"Manrope", system-ui, -apple-system, sans-serif',
+            fontSize: bodyFontSize,
+            lineHeight: bodyLineHeight,
+            fontFamily: currentFontFamily,
           }}
         >
           {paragraphs.length > 0 ? (
