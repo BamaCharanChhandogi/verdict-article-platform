@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Home, 
   LayoutGrid, 
@@ -57,6 +57,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { id: 'bookmarks', label: 'Reading List', icon: Bookmark, badge: bookmarksCount },
         { id: 'mystories', label: 'Creator Studio', icon: FileText },
       ];
+
+  // Floating sliding active indicator coordinates
+  const dockRef = useRef<HTMLElement | null>(null);
+  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [indicatorTop, setIndicatorTop] = useState<number | null>(null);
+
+  useEffect(() => {
+    const updatePosition = () => {
+      const activeKey = activeNav === 'drafts' ? 'mystories' : activeNav;
+      const activeEl = itemRefs.current[activeKey];
+      const dockEl = dockRef.current;
+      if (activeEl && dockEl) {
+        const activeRect = activeEl.getBoundingClientRect();
+        const dockRect = dockEl.getBoundingClientRect();
+        setIndicatorTop(activeRect.top - dockRect.top);
+      }
+    };
+
+    updatePosition();
+    const frameId = requestAnimationFrame(updatePosition);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      cancelAnimationFrame(frameId);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [activeNav, navItems, isAuthenticated]);
 
   return (
     <>
@@ -153,18 +179,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* DESKTOP FROSTED GLASS CAPSULE DOCK */}
       <aside 
-        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[52px] h-[348px] py-3.5 px-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.45)] border border-white/60 dark:border-white/10"
+        ref={dockRef}
+        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[52px] h-[348px] py-3.5 px-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.45)] border border-white/60 dark:border-white/10 relative"
         style={{
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
         }}
       >
+        {/* Smooth Sliding Active Spotlight / Pill Indicator */}
+        <div
+          className="absolute left-1/2 top-0 w-9 h-9 rounded-full bg-[#141416] dark:bg-white shadow-sm pointer-events-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-0"
+          style={{
+            transform: indicatorTop !== null 
+              ? `translate3d(-50%, ${indicatorTop}px, 0)` 
+              : 'translate3d(-50%, 0, 0)',
+            opacity: indicatorTop !== null ? 1 : 0,
+          }}
+        />
+
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeNav === item.id;
+          const isActive = activeNav === item.id || (item.id === 'mystories' && activeNav === 'drafts');
 
           return (
-            <div key={item.id} className="relative group flex items-center justify-center">
+            <div 
+              key={item.id} 
+              ref={(el) => { itemRefs.current[item.id] = el; }}
+              className="relative group flex items-center justify-center z-10"
+            >
               <button
                 onClick={() => {
                   if (item.id === 'mystories' && !isAuthenticated) {
@@ -174,14 +216,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   setActiveNav(item.id as NavTab);
                   setSelectedCategory('All');
                 }}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors duration-200 cursor-pointer ${
                   isActive
-                    ? 'bg-[#141416] text-white dark:bg-white dark:text-[#141416] shadow-sm'
+                    ? 'text-white dark:text-[#141416]'
                     : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10'
                 }`}
                 aria-label={item.label}
               >
-                <Icon className={`w-[18px] h-[18px] ${isActive ? 'stroke-[2.1]' : 'stroke-[1.75]'}`} />
+                <Icon className={`w-[18px] h-[18px] transition-transform duration-200 ${isActive ? 'stroke-[2.1] scale-105' : 'stroke-[1.75]'}`} />
               </button>
 
               {/* Floating Tooltip Pill */}
