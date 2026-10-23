@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
   ArrowRight,
+  Home,
   Upload, 
   Send, 
   Eye, 
@@ -127,7 +128,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
     content: initialContent,
     editorProps: {
       attributes: {
-        class: 'prose prose-zinc dark:prose-invert max-w-none focus:outline-none min-h-[420px] text-zinc-800 dark:text-zinc-200 font-sans text-base sm:text-lg leading-[1.8]',
+        class: 'prose prose-zinc dark:prose-invert max-w-none focus:outline-none min-h-[420px] text-zinc-800 dark:text-zinc-200 font-editorial text-xl sm:text-2xl leading-[1.8]',
       },
     },
     onUpdate: () => {
@@ -459,6 +460,30 @@ const processImageFile = (file: File): Promise<string> => {
           </button>
         </div>
       </header>
+
+      {/* DESKTOP FROSTED GLASS CAPSULE DOCK */}
+      <aside 
+        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-4 px-2 rounded-full space-y-3.5"
+        style={{
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
+      >
+        <button
+          onClick={() => navigate('/')}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 border border-zinc-300/80 dark:border-zinc-700/80 transition-all cursor-pointer"
+          title="Return to Feed"
+        >
+          <Home className="w-4.5 h-4.5 stroke-[1.8]" />
+        </button>
+        <button
+          onClick={onBack}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 border border-zinc-300/80 dark:border-zinc-700/80 transition-all cursor-pointer"
+          title="Back to Creator Studio"
+        >
+          <ArrowLeft className="w-4.5 h-4.5 stroke-[1.8]" />
+        </button>
+      </aside>
 
       {/* ERROR NOTICE */}
       {errorMessage && (

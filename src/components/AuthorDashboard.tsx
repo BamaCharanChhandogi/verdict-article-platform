@@ -119,23 +119,26 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
 
   return (
     <div className="py-8 max-w-6xl mx-auto px-4 sm:px-8">
-      {/* 1. HASHNODE-STYLE PERSONALIZED GREETING BANNER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      {/* 1. LITERARY EDITORIAL HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 pb-6 border-b border-[#EAE4D9] dark:border-[#262C3A]">
         <div>
-          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-            {formattedDate}
-          </p>
-          <h1 className="font-editorial text-3xl sm:text-4xl font-bold text-[#141416] dark:text-[#F1F3F5] flex items-center gap-2">
-            <span>{greeting.text}, {displayName}</span>
-            <span>{greeting.emoji}</span>
+          <div className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-[#9E5A38] dark:text-[#E05A30] mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Creator Studio &bull; {formattedDate}</span>
+          </div>
+          <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-bold text-[#141416] dark:text-white">
+            Writer's Desk &mdash; {displayName}
           </h1>
+          <p className="font-sans text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2">
+            Manage your long-form dispatches, monitor reader resonance, and review draft revisions.
+          </p>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 shrink-0">
           <button
             onClick={onOpenEditor}
-            className="inline-flex items-center justify-center space-x-2 bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white text-white dark:text-[#0E1116] text-xs font-semibold px-5 py-2.5 rounded-full transition-all shadow-sm cursor-pointer"
+            className="inline-flex items-center justify-center space-x-2 bg-[#2E4A3E] dark:bg-emerald-600 hover:bg-[#233a30] dark:hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 rounded-full transition-all shadow-sm cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Write New Story</span>
@@ -143,41 +146,41 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
         </div>
       </div>
 
-      {/* 2. SUB-NAVIGATION TABS */}
-      <div className="flex items-center space-x-2 border-b border-[#EAE4D9] dark:border-[#222733] mb-8">
+      {/* 2. SUB-NAVIGATION PILL TABS */}
+      <div className="flex items-center space-x-2 mb-8 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => setActiveTab('home')}
-          className={`flex items-center space-x-2 pb-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
             activeTab === 'home'
-              ? 'border-[#141416] dark:border-[#F1F3F5] text-[#141416] dark:text-[#F1F3F5]'
-              : 'border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+              ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] shadow-xs'
+              : 'bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
           }`}
         >
-          <FileText className="w-4 h-4" />
+          <FileText className="w-3.5 h-3.5" />
           <span>Overview</span>
         </button>
 
         <button
           onClick={() => setActiveTab('analytics')}
-          className={`flex items-center space-x-2 pb-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
             activeTab === 'analytics'
-              ? 'border-[#141416] dark:border-[#F1F3F5] text-[#141416] dark:text-[#F1F3F5]'
-              : 'border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+              ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] shadow-xs'
+              : 'bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
           }`}
         >
-          <BarChart3 className="w-4 h-4" />
+          <BarChart3 className="w-3.5 h-3.5" />
           <span>Analytics</span>
         </button>
 
         <button
           onClick={() => setActiveTab('profile')}
-          className={`flex items-center space-x-2 pb-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
             activeTab === 'profile'
-              ? 'border-[#141416] dark:border-[#F1F3F5] text-[#141416] dark:text-[#F1F3F5]'
-              : 'border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+              ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] shadow-xs'
+              : 'bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
           }`}
         >
-          <User className="w-4 h-4" />
+          <User className="w-3.5 h-3.5" />
           <span>Profile Settings</span>
         </button>
       </div>
