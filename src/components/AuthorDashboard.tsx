@@ -380,7 +380,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
             <div className="bg-white dark:bg-[#171B22] rounded-2xl p-4 border border-[#EAE4D9] dark:border-[#262C3A] shadow-2xs">
               <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Drafts</span>
               <p className="font-editorial text-2xl font-bold text-[#141416] dark:text-[#F1F3F5] mt-1">{draftStories.length}</p>
-              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">In PostgreSQL</span>
+              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">Saved in progress</span>
             </div>
           </div>
         </div>

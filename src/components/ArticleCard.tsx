@@ -68,7 +68,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
         <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
           {article.readingTime} min read
         </span>
-        <div className="w-7 h-7 rounded-full bg-[#FAF7F2] dark:bg-[#1E232B] group-hover:bg-[#141416] dark:group-hover:bg-[#F1F3F5] text-zinc-700 dark:text-zinc-300 dark:group-hover:text-black flex items-center justify-center transition-colors">
+        <div className="w-7 h-7 rounded-full bg-[#FAF7F2] dark:bg-[#1E232B] group-hover:bg-[#141416] group-hover:text-white dark:group-hover:bg-[#F1F3F5] dark:group-hover:text-black text-zinc-700 dark:text-zinc-300 flex items-center justify-center transition-colors">
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </div>
       </div>

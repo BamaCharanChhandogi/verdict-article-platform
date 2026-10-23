@@ -520,7 +520,7 @@ export function App() {
                     <span>Curated for curious minds worldwide</span>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <span>Architecture: PostgreSQL Database &amp; TipTap Studio</span>
+                    <span>Independent Editorial &amp; Long-form Journalism</span>
                     <span>&bull;</span>
                     <span>Typography: Cormorant Garamond &amp; Manrope</span>
                     <span>&bull;</span>

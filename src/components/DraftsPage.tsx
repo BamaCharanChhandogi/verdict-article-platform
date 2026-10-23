@@ -91,7 +91,7 @@ export const DraftsPage: React.FC<DraftsPageProps> = ({
             No active drafts
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">
-            All your ideas and essays in progress are automatically saved directly to PostgreSQL. Start your next story now.
+            All your ideas and essays in progress are automatically saved to your account. Start your next story now.
           </p>
           <button
             onClick={onOpenNewDraft}
@@ -129,13 +129,13 @@ export const DraftsPage: React.FC<DraftsPageProps> = ({
                 </h3>
 
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
-                  {draft.subtitle || draft.description || 'Draft content saved in database...'}
+                  {draft.subtitle || draft.description || 'Draft content saved in progress...'}
                 </p>
 
                 <div className="flex items-center space-x-3 text-[11px] text-zinc-400 dark:text-zinc-500 mt-2">
                   <span>Last updated: {draft.updatedAt || 'Recently'}</span>
                   <span>&bull;</span>
-                  <span>Database: Neon PostgreSQL</span>
+                  <span>Cloud Synchronized</span>
                 </div>
               </div>
 

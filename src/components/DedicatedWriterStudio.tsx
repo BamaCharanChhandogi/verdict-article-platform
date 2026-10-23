@@ -464,7 +464,7 @@ const processImageFile = (file: File): Promise<string> => {
             {saveStatus === 'saving' ? (
               <span className="flex items-center space-x-1 text-amber-600 dark:text-amber-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                <span>Saving to PostgreSQL...</span>
+                <span>Saving draft...</span>
               </span>
             ) : (
               <span className="flex items-center space-x-1 text-zinc-400 dark:text-zinc-500">
