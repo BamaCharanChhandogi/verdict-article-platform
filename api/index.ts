@@ -101,7 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
 
-        const { title, description, content, cover_image, category, tags = [] } = req.body || {};
+        const { title, description, content, cover_image, category, tags = [], status = 'published' } = req.body || {};
         if (!title || !content) {
           return res.status(400).json({ success: false, message: 'Title and content required.' });
         }
@@ -116,15 +116,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const insertArt = await client.query(`
           INSERT INTO verdict_articles (
-            id, slug, title, description, content, cover_image, category, author_id, reading_time, tags
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            id, slug, title, description, content, cover_image, category, author_id, reading_time, tags, status
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
           RETURNING *
-        `, [id, slug, title.trim(), desc.trim(), content, cover, category || 'Technology', authorId, readingTime, tags]);
+        `, [id, slug, title.trim(), desc.trim(), content, cover, category || 'Technology', authorId, readingTime, tags, status]);
 
         return res.status(201).json({ success: true, data: insertArt.rows[0] });
       }
 
-      // 4. ARTICLES: GET ARTICLES
+      // 4. ARTICLES: DELETE ARTICLE
+      if (req.method === 'DELETE' && cleanUrl.startsWith('/articles/')) {
+        const artId = cleanUrl.replace('/articles/', '').trim();
+        await client.query('DELETE FROM verdict_articles WHERE id = $1', [artId]);
+        return res.status(200).json({ success: true, message: 'Article deleted successfully' });
+      }
+
+      // 5. ARTICLES: GET ARTICLES
       if (req.method === 'GET' && (cleanUrl.startsWith('/articles') || cleanUrl === '' || cleanUrl === '/')) {
         const result = await client.query(`
           SELECT 
@@ -132,7 +139,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             a.category, a.reading_time as "readingTime", a.likes_count as "likesCount",
             a.comments_count as "commentsCount", a.is_featured as "isFeatured",
             a.is_editor_pick as "isEditorPick", a.editor_pick_rank as "editorPickRank",
-            a.tags, a.created_at as "publishedAt",
+            a.status, a.tags, a.created_at as "publishedAt",
             json_build_object(
               'id', u.id,
               'name', u.name,

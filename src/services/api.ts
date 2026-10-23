@@ -9,7 +9,7 @@ const DUMMY_USERS_API = 'https://dummyjson.com/users?limit=8&select=id,firstName
 const DUMMY_COMMENTS_API = 'https://dummyjson.com/comments?limit=15';
 
 /**
- * Service 1: Fetch Editorial Articles from Public API (Dev.to) with Seamless Fallback
+ * Service 1: Fetch Real Articles from PostgreSQL Database & Live Dev.to API
  */
 export async function fetchArticles(): Promise<Article[]> {
   const cacheKey = 'articles_feed';
@@ -17,72 +17,119 @@ export async function fetchArticles(): Promise<Article[]> {
   if (cached) return cached;
 
   try {
-    const res = await axios.get(DEVTO_API, { timeout: 4000 });
-    const remoteArticles: Article[] = res.data.map((item: any, idx: number) => {
-      // Map tags to our editorial categories
-      const tagMap: Record<string, string> = {
-        react: 'Technology',
-        javascript: 'Technology',
-        webdev: 'Technology',
-        ai: 'AI & Future',
-        productivity: 'Productivity',
-        design: 'Design',
-        career: 'Business',
-        life: 'Lifestyle',
-      };
-      const category = item.tag_list?.find((t: string) => tagMap[t.toLowerCase()]) 
-        ? tagMap[item.tag_list.find((t: string) => tagMap[t.toLowerCase()]).toLowerCase()] 
-        : (idx % 2 === 0 ? 'Design' : 'Productivity');
+    // 1. Fetch real articles and drafts directly from PostgreSQL REST API
+    const dbRes = await axios.get('/api/articles', { timeout: 3500 }).catch(() => null);
+    let dbArticles: Article[] = [];
+    if (dbRes?.data?.data && Array.isArray(dbRes.data.data)) {
+      dbArticles = dbRes.data.data.map((item: any) => ({
+        ...item,
+        status: item.status || 'published',
+      }));
+    }
 
-      return {
-        id: `devto-${item.id}`,
-        title: item.title,
-        slug: item.slug || `article-${item.id}`,
-        description: item.description || item.title,
-        content: `
-# ${item.title}
+    // 2. Fetch live multi-API articles from Dev.to
+    const devRes = await axios.get(DEVTO_API, { timeout: 4000 }).catch(() => null);
+    let remoteArticles: Article[] = [];
+    if (devRes?.data && Array.isArray(devRes.data)) {
+      remoteArticles = devRes.data.map((item: any, idx: number) => {
+        const tagMap: Record<string, string> = {
+          react: 'Technology',
+          javascript: 'Technology',
+          webdev: 'Technology',
+          ai: 'AI & Future',
+          productivity: 'Productivity',
+          design: 'Design',
+          career: 'Business',
+          life: 'Lifestyle',
+        };
+        const category = item.tag_list?.find((t: string) => tagMap[t.toLowerCase()]) 
+          ? tagMap[item.tag_list.find((t: string) => tagMap[t.toLowerCase()]).toLowerCase()] 
+          : (idx % 2 === 0 ? 'Design' : 'Productivity');
 
-${item.description}
+        return {
+          id: `devto-${item.id}`,
+          title: item.title,
+          slug: item.slug || `article-${item.id}`,
+          description: item.description || item.title,
+          content: item.body_markdown || `# ${item.title}\n\n${item.description || ''}\n\nEvery breakthrough begins with the courage to question consensus. In an age saturated by instant algorithmic validation, true depth emerges not from consuming more, but from thinking more rigorously about what is essential.`,
+          coverImage: item.cover_image || fallbackArticles[idx % fallbackArticles.length].coverImage,
+          category,
+          status: 'published' as const,
+          author: {
+            id: `author-${item.user.user_id || idx}`,
+            name: item.user.name || item.user.username,
+            avatar: item.user.profile_image || fallbackAuthors[0].avatar,
+            role: 'Contributing Writer & Researcher',
+            bio: 'Writing on systems architecture, design patterns, and humane computing.',
+            followers: 4500 + idx * 320,
+            articlesCount: 12 + idx * 3,
+            twitter: item.user.twitter_username ? `@${item.user.twitter_username}` : undefined,
+          },
+          publishedAt: new Date(item.published_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          readingTime: item.reading_time_minutes || Math.max(3, Math.ceil(item.title.length / 10)),
+          likesCount: item.positive_reactions_count || 120 + idx * 45,
+          commentsCount: item.comments_count || 14 + idx * 2,
+          tags: item.tag_list?.length ? item.tag_list : ['Technology', 'Ideas'],
+        };
+      });
+    }
 
-### Deep Dive & Strategic Perspectives
+    // Merge: PostgreSQL real database articles first, then live multi-API articles
+    const combined = dbArticles.length > 0 
+      ? [...dbArticles, ...remoteArticles] 
+      : (remoteArticles.length > 0 ? remoteArticles : fallbackArticles);
 
-Modern digital craftsmanship requires balancing architectural velocity with long-term systemic stability. As technology evolves at an unprecedented pace, creators and engineers must cultivate intellectual discernment rather than chasing fleeting hype cycles.
-
-> "The ultimate elegance in software and design is not how much you can add, but the disciplined restraint of knowing what to leave out."
-
-### Core Architectural Principles
-1. **Clarity of Intent**: Every line of code or pixel placed on screen must serve a concrete human need.
-2. **Resilient Systems**: Engineering for edge cases and failures before they manifest in production.
-3. **Continuous Curiosity**: Embracing lifelong iteration with humble intellectual rigor.
-        `,
-        coverImage: item.cover_image || fallbackArticles[idx % fallbackArticles.length].coverImage,
-        category,
-        author: {
-          id: `author-${item.user.user_id || idx}`,
-          name: item.user.name || item.user.username,
-          avatar: item.user.profile_image || fallbackAuthors[0].avatar,
-          role: 'Contributing Writer & Researcher',
-          bio: 'Writing on systems architecture, design patterns, and humane computing.',
-          followers: 4500 + idx * 320,
-          articlesCount: 12 + idx * 3,
-          twitter: item.user.twitter_username ? `@${item.user.twitter_username}` : undefined,
-        },
-        publishedAt: new Date(item.published_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        readingTime: item.reading_time_minutes || Math.max(3, Math.ceil(item.title.length / 10)),
-        likesCount: item.positive_reactions_count || 120 + idx * 45,
-        commentsCount: item.comments_count || 14 + idx * 2,
-        tags: item.tag_list?.length ? item.tag_list : ['Technology', 'Ideas'],
-      };
-    });
-
-    // Merge high-polish reference articles at the top to preserve exact visual fidelity from reference UI
-    const combined = [...fallbackArticles, ...remoteArticles];
     appCache.set(cacheKey, combined);
     return combined;
   } catch (err) {
-    console.warn('API 1 (Dev.to) unreachable or rate-limited; utilizing high-availability local fallback.');
+    console.warn('Backend or remote API unreachable; utilizing local fallback.');
     appCache.set(cacheKey, fallbackArticles);
     return fallbackArticles;
+  }
+}
+
+/**
+ * Service 1B: Create Real Article in PostgreSQL Database
+ */
+export async function createRealArticle(articleData: {
+  title: string;
+  description: string;
+  content: string;
+  cover_image: string;
+  category: string;
+  tags?: string[];
+  status?: 'published' | 'draft';
+}, token?: string | null): Promise<Article | null> {
+  try {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.post('/api/articles', articleData, { headers });
+    if (res.data?.success && res.data?.data) {
+      appCache.clear();
+      return res.data.data;
+    }
+    return null;
+  } catch (err) {
+    console.warn('Real DB POST failed, using client state fallback', err);
+    return null;
+  }
+}
+
+/**
+ * Service 1C: Delete Real Article from PostgreSQL Database
+ */
+export async function deleteRealArticle(id: string | number, token?: string | null): Promise<boolean> {
+  try {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.delete(`/api/articles/${id}`, { headers });
+    appCache.clear();
+    return res.data?.success === true;
+  } catch (err) {
+    console.warn('Real DB DELETE failed', err);
+    return false;
   }
 }
 

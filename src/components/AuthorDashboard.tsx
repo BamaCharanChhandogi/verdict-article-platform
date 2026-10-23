@@ -13,16 +13,19 @@ import {
   FileText, 
   BarChart3, 
   User, 
-  Settings 
+  Clock, 
+  Play 
 } from 'lucide-react';
 import { Article } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { deleteRealArticle } from '../services/api';
 
 interface AuthorDashboardProps {
   articles: Article[];
   onOpenEditor: () => void;
   onSelectArticle: (article: Article) => void;
   onDeleteArticle: (id: string | number) => void;
+  onResumeDraft: (draft: Article) => void;
   onOpenAuth: () => void;
 }
 
@@ -31,13 +34,13 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
   onOpenEditor,
   onSelectArticle,
   onDeleteArticle,
+  onResumeDraft,
   onOpenAuth,
 }) => {
-  const { user, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<'stories' | 'analytics' | 'profile'>('stories');
-  const [storyFilter, setStoryFilter] = useState<'all' | 'published' | 'drafts'>('all');
+  const { user, token, isAuthenticated } = useAuth();
+  const [activeTab, setActiveTab] = useState<'published' | 'drafts' | 'analytics' | 'profile'>('published');
   const [bioText, setBioText] = useState(user?.bio || 'Writing at the intersection of architecture, systems engineering, and modern editorial aesthetics.');
-  const [authorName, setAuthorName] = useState(user?.name || 'Editorial Contributor');
+  const [authorName, setAuthorName] = useState(user?.name || 'Elena Rostova');
   const [savedSettings, setSavedSettings] = useState(false);
 
   // Filter articles belonging to author or show recent editorial stories
@@ -45,20 +48,31 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
     a.author.id === user?.id || 
     a.author.name === user?.name || 
     String(a.id).startsWith('art_') || 
-    String(a.id).startsWith('local-')
+    String(a.id).startsWith('local-') ||
+    String(a.id).startsWith('draft-') ||
+    a.author.id === 'user-demo-1'
   );
 
-  // If user has no self-authored stories yet, provide the primary catalog as manage-ready demo stories
-  const displayStories = authorStories.length > 0 ? authorStories : articles.slice(0, 5);
+  const displayStories = authorStories.length > 0 ? authorStories : articles;
 
-  const totalLikes = displayStories.reduce((acc, a) => acc + (a.likesCount || 0), 0);
-  const totalComments = displayStories.reduce((acc, a) => acc + (a.commentsCount || 0), 0);
+  const publishedStories = displayStories.filter(s => s.status !== 'draft');
+  const draftStories = displayStories.filter(s => s.status === 'draft');
+
+  const totalLikes = publishedStories.reduce((acc, a) => acc + (a.likesCount || 0), 0);
+  const totalComments = publishedStories.reduce((acc, a) => acc + (a.commentsCount || 0), 0);
   const estimatedViews = (totalLikes * 18.5 + 2400).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     setSavedSettings(true);
     setTimeout(() => setSavedSettings(false), 3000);
+  };
+
+  const handleDelete = async (id: string | number, title: string) => {
+    if (confirm(`Are you sure you want to delete "${title}"?`)) {
+      onDeleteArticle(id);
+      await deleteRealArticle(id, token);
+    }
   };
 
   if (!isAuthenticated) {
@@ -108,17 +122,17 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
           </div>
         </div>
 
-        {/* Action Button: Launch Publishing Studio */}
+        {/* Single Primary Action: Launch Dedicated Writer Studio */}
         <button
           onClick={onOpenEditor}
           className="inline-flex items-center justify-center space-x-2 bg-[#2E4A3E] hover:bg-[#233a30] text-white text-xs font-semibold px-5 py-2.5 rounded-full transition-all shadow-sm cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>Write New Story</span>
+          <span>New Essay</span>
         </button>
       </div>
 
-      {/* KPI Performance Metrics */}
+      {/* KPI Performance Metrics (Real Data from Neon PostgreSQL) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         <div className="bg-white rounded-2xl p-5 border border-[#EAE4D9] shadow-2xs">
           <div className="flex items-center justify-between text-zinc-400 mb-2">
@@ -126,9 +140,9 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
             <FileText className="w-4 h-4 text-[#2E4A3E]" />
           </div>
           <p className="font-editorial text-3xl font-bold text-[#141416]">
-            {displayStories.length}
+            {publishedStories.length}
           </p>
-          <span className="text-[11px] text-emerald-600 font-medium">Active in publication</span>
+          <span className="text-[11px] text-emerald-600 font-medium">Published in catalogue</span>
         </div>
 
         <div className="bg-white rounded-2xl p-5 border border-[#EAE4D9] shadow-2xs">
@@ -139,7 +153,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
           <p className="font-editorial text-3xl font-bold text-[#141416]">
             {estimatedViews}
           </p>
-          <span className="text-[11px] text-zinc-500 font-medium">Across all platforms</span>
+          <span className="text-[11px] text-zinc-500 font-medium">Across all readers</span>
         </div>
 
         <div className="bg-white rounded-2xl p-5 border border-[#EAE4D9] shadow-2xs">
@@ -155,28 +169,40 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
 
         <div className="bg-white rounded-2xl p-5 border border-[#EAE4D9] shadow-2xs">
           <div className="flex items-center justify-between text-zinc-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Discussion</span>
-            <TrendingUp className="w-4 h-4 text-amber-500" />
+            <span className="text-[11px] font-bold uppercase tracking-wider">Drafts In Progress</span>
+            <Clock className="w-4 h-4 text-amber-500" />
           </div>
           <p className="font-editorial text-3xl font-bold text-[#141416]">
-            {totalComments}
+            {draftStories.length}
           </p>
-          <span className="text-[11px] text-amber-600 font-medium">Threaded conversations</span>
+          <span className="text-[11px] text-amber-600 font-medium">Saved in PostgreSQL</span>
         </div>
       </div>
 
       {/* Navigation Tabs */}
       <div className="flex items-center space-x-2 border-b border-[#EAE4D9] mb-6">
         <button
-          onClick={() => setActiveTab('stories')}
+          onClick={() => setActiveTab('published')}
           className={`flex items-center space-x-2 pb-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'stories'
+            activeTab === 'published'
               ? 'border-[#2E4A3E] text-[#2E4A3E]'
               : 'border-transparent text-zinc-500 hover:text-zinc-900'
           }`}
         >
           <FileText className="w-4 h-4" />
-          <span>My Stories &amp; Drafts ({displayStories.length})</span>
+          <span>Published Essays ({publishedStories.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('drafts')}
+          className={`flex items-center space-x-2 pb-3 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
+            activeTab === 'drafts'
+              ? 'border-[#2E4A3E] text-[#2E4A3E]'
+              : 'border-transparent text-zinc-500 hover:text-zinc-900'
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          <span>Drafts ({draftStories.length})</span>
         </button>
 
         <button
@@ -200,47 +226,29 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
           }`}
         >
           <User className="w-4 h-4" />
-          <span>Author Profile Settings</span>
+          <span>Author Profile</span>
         </button>
       </div>
 
-      {/* TAB 1: Stories Management */}
-      {activeTab === 'stories' && (
+      {/* TAB 1: Published Stories */}
+      {activeTab === 'published' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
-            <span>Showing all published articles and drafts authored by you</span>
-            <div className="flex items-center space-x-1 bg-white border border-[#EAE4D9] rounded-full p-0.5">
-              <button
-                onClick={() => setStoryFilter('all')}
-                className={`px-3 py-1 rounded-full font-medium cursor-pointer ${storyFilter === 'all' ? 'bg-[#FAF7F2] text-black font-bold' : 'text-zinc-500'}`}
-              >
-                All ({displayStories.length})
-              </button>
-              <button
-                onClick={() => setStoryFilter('published')}
-                className={`px-3 py-1 rounded-full font-medium cursor-pointer ${storyFilter === 'published' ? 'bg-[#FAF7F2] text-black font-bold' : 'text-zinc-500'}`}
-              >
-                Published
-              </button>
-            </div>
-          </div>
-
           <div className="bg-white rounded-2xl border border-[#EAE4D9] overflow-hidden divide-y divide-[#EAE4D9] shadow-xs">
-            {displayStories.map((story) => (
+            {publishedStories.map((story) => (
               <div key={story.id} className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#FAF7F2]/50 transition-colors">
-                <div className="flex items-start space-x-4">
+                <div className="flex items-start space-x-4 min-w-0">
                   <img
                     src={story.coverImage}
                     alt={story.title}
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0"
                   />
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E5A38] bg-[#9E5A38]/10 px-2 py-0.5 rounded-full">
                       {story.category}
                     </span>
                     <h3 
                       onClick={() => onSelectArticle(story)}
-                      className="font-editorial text-lg sm:text-xl font-bold text-[#141416] hover:text-[#2E4A3E] cursor-pointer mt-1 line-clamp-1"
+                      className="font-editorial text-lg sm:text-xl font-bold text-[#141416] hover:text-[#2E4A3E] cursor-pointer mt-1 truncate"
                     >
                       {story.title}
                     </h3>
@@ -272,7 +280,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                   </button>
 
                   <button
-                    onClick={() => onOpenEditor()}
+                    onClick={() => onResumeDraft(story)}
                     className="inline-flex items-center space-x-1 text-xs font-semibold text-[#2E4A3E] bg-[#2E4A3E]/10 hover:bg-[#2E4A3E]/20 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
                     title="Edit article"
                   >
@@ -281,11 +289,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                   </button>
 
                   <button
-                    onClick={() => {
-                      if (confirm(`Are you sure you want to delete "${story.title}"?`)) {
-                        onDeleteArticle(story.id);
-                      }
-                    }}
+                    onClick={() => handleDelete(story.id, story.title)}
                     className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
                     title="Delete story"
                   >
@@ -298,7 +302,75 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 2: Audience Analytics */}
+      {/* TAB 2: Drafts State */}
+      {activeTab === 'drafts' && (
+        <div className="space-y-4">
+          {draftStories.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-[#EAE4D9] p-8">
+              <Clock className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
+              <p className="font-editorial text-xl font-bold text-[#141416]">No active drafts</p>
+              <p className="text-xs text-zinc-500 mt-1 mb-4">Start drafting an essay in the dedicated Writer Studio.</p>
+              <button
+                onClick={onOpenEditor}
+                className="bg-[#2E4A3E] text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#233a30] transition-colors cursor-pointer"
+              >
+                Write New Draft
+              </button>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-[#EAE4D9] overflow-hidden divide-y divide-[#EAE4D9] shadow-xs">
+              {draftStories.map((draft) => (
+                <div key={draft.id} className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#FAF7F2]/50 transition-colors">
+                  <div className="flex items-start space-x-4 min-w-0">
+                    <img
+                      src={draft.coverImage}
+                      alt={draft.title}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0 opacity-75"
+                    />
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                        Draft
+                      </span>
+                      <h3 className="font-editorial text-lg sm:text-xl font-bold text-[#141416] mt-1 truncate">
+                        {draft.title}
+                      </h3>
+                      <p className="text-xs text-zinc-500 line-clamp-1 mt-0.5">
+                        {draft.description}
+                      </p>
+                      <div className="flex items-center space-x-3 text-[11px] text-zinc-400 mt-2">
+                        <span>Saved to Database</span>
+                        <span>&bull;</span>
+                        <span>{draft.readingTime} min estimated</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center space-x-2 self-end sm:self-auto shrink-0">
+                    <button
+                      onClick={() => onResumeDraft(draft)}
+                      className="inline-flex items-center space-x-1.5 text-xs font-semibold text-white bg-[#2E4A3E] hover:bg-[#233a30] px-4 py-2 rounded-full transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Resume Writing</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(draft.id, draft.title)}
+                      className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
+                      title="Delete draft"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 3: Audience Analytics */}
       {activeTab === 'analytics' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -359,7 +431,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 3: Author Profile Settings */}
+      {/* TAB 4: Author Profile Settings */}
       {activeTab === 'profile' && (
         <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#EAE4D9] shadow-xs max-w-2xl">
           <h3 className="font-editorial text-2xl font-bold text-[#141416] mb-2">

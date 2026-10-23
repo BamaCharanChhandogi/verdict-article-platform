@@ -9,7 +9,7 @@ import { ArticleGrid } from './components/ArticleGrid';
 import { ArticleDetail } from './components/ArticleDetail';
 import { BookmarksDrawer } from './components/BookmarksDrawer';
 import { AuthModal } from './components/AuthModal';
-import { ArticleEditor } from './components/ArticleEditor';
+import { DedicatedWriterStudio } from './components/DedicatedWriterStudio';
 import { AuthorDirectory } from './components/AuthorDirectory';
 import { AuthorDashboard } from './components/AuthorDashboard';
 import { HeroSkeleton, ArticleCardSkeleton, EditorsPicksSkeleton } from './components/Skeletons';
@@ -39,7 +39,7 @@ export function App() {
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingDraft, setEditingDraft] = useState<Partial<Article> | null>(null);
 
   // LocalStorage Bookmarks Persistence
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
@@ -59,7 +59,7 @@ export function App() {
     }
   }, [bookmarkedIds]);
 
-  // Multi-API Fetch on Mount with caching & performance timing
+  // Real Multi-API & PostgreSQL Fetch on Mount
   useEffect(() => {
     let isMounted = true;
     setIsLoading(true);
@@ -90,34 +90,69 @@ export function App() {
     return articles.filter(a => bookmarkedIds.includes(String(a.id)));
   }, [articles, bookmarkedIds]);
 
-  // Delete article handler (for Author Studio)
+  // Delete article handler (real database sync)
   const handleDeleteArticle = (id: string | number) => {
     setArticles((prev) => prev.filter((a) => a.id !== id));
   };
 
-  // Debounced Search & Filter Logic
-  const filteredArticles = useMemo(() => {
-    return articles.filter((a) => {
-      // Category filter
-      const matchesCategory = selectedCategory === 'All' || a.category.toLowerCase() === selectedCategory.toLowerCase();
-
-      // Search query filter
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch = !q || (
-        a.title.toLowerCase().includes(q) ||
-        a.description.toLowerCase().includes(q) ||
-        a.author.name.toLowerCase().includes(q) ||
-        a.category.toLowerCase().includes(q) ||
-        a.tags.some(t => t.toLowerCase().includes(q))
-      );
-
-      return matchesCategory && matchesSearch;
+  // Article published or saved in Dedicated Studio
+  const handleArticlePublished = (newArticle: Article) => {
+    setArticles((prev) => {
+      const exists = prev.some(a => a.id === newArticle.id);
+      if (exists) {
+        return prev.map(a => a.id === newArticle.id ? newArticle : a);
+      }
+      return [newArticle, ...prev];
     });
+
+    if (newArticle.status === 'draft') {
+      setActiveNav('mystories');
+    } else {
+      setSelectedArticle(newArticle);
+      setActiveNav('home');
+    }
+    setEditingDraft(null);
+  };
+
+  // Debounced Search & Filter Logic (Only show published articles on public feed)
+  const filteredArticles = useMemo(() => {
+    return articles
+      .filter(a => a.status !== 'draft')
+      .filter((a) => {
+        // Category filter
+        const matchesCategory = selectedCategory === 'All' || a.category.toLowerCase() === selectedCategory.toLowerCase();
+
+        // Search query filter
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch = !q || (
+          a.title.toLowerCase().includes(q) ||
+          a.description.toLowerCase().includes(q) ||
+          a.author.name.toLowerCase().includes(q) ||
+          a.category.toLowerCase().includes(q) ||
+          a.tags.some(t => t.toLowerCase().includes(q))
+        );
+
+        return matchesCategory && matchesSearch;
+      });
   }, [articles, selectedCategory, searchQuery]);
+
+  // IF IN DEDICATED FULL-SCREEN WRITER STUDIO: Render distraction-free without layout clutter
+  if (activeNav === 'write') {
+    return (
+      <DedicatedWriterStudio
+        onBack={() => {
+          setActiveNav('mystories');
+          setEditingDraft(null);
+        }}
+        onArticlePublished={handleArticlePublished}
+        initialDraft={editingDraft}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#141416] flex">
-      {/* 1. Fixed Left Vertical Navigation Rail */}
+      {/* 1. Fixed Left Vertical Navigation Rail (Single source of truth) */}
       <Sidebar
         activeNav={activeNav}
         setActiveNav={(nav) => {
@@ -131,28 +166,24 @@ export function App() {
         setIsOpenMobile={setIsMobileSidebarOpen}
         onOpenBookmarks={() => setIsBookmarksOpen(true)}
         onOpenAuth={() => setIsAuthOpen(true)}
-        onOpenEditor={() => setIsEditorOpen(true)}
+        onOpenEditor={() => {
+          setEditingDraft(null);
+          setActiveNav('write');
+        }}
       />
 
-      {/* 2. Main Content Canvas (offset by sidebar width on desktop) */}
+      {/* 2. Main Content Canvas */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
         
-        {/* Sticky Header with Search & Actions */}
+        {/* Sticky Utility Header (Clean search only, zero duplicate buttons) */}
         <Header
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          onOpenBookmarks={() => setIsBookmarksOpen(true)}
-          bookmarksCount={bookmarkedIds.length}
           onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
           onOpenAuth={() => setIsAuthOpen(true)}
-          onOpenEditor={() => setIsEditorOpen(true)}
-          onNavigateStudio={() => {
-            setActiveNav('mystories');
-            setSelectedArticle(null);
-          }}
         />
 
-        {/* Dynamic View: Article Detail vs. Authors Directory vs. Author Studio vs. Home Editorial Feed */}
+        {/* Dynamic View: Article Reader vs. Authors Directory vs. Author Studio vs. Home Feed */}
         {selectedArticle ? (
           <main className="flex-1">
             <ArticleDetail
@@ -178,16 +209,23 @@ export function App() {
           <main className="flex-1">
             <AuthorDashboard
               articles={articles}
-              onOpenEditor={() => setIsEditorOpen(true)}
+              onOpenEditor={() => {
+                setEditingDraft(null);
+                setActiveNav('write');
+              }}
               onSelectArticle={setSelectedArticle}
               onDeleteArticle={handleDeleteArticle}
+              onResumeDraft={(draft) => {
+                setEditingDraft(draft);
+                setActiveNav('write');
+              }}
               onOpenAuth={() => setIsAuthOpen(true)}
             />
           </main>
         ) : (
           <main className="flex-1 px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full">
             
-            {/* If user is actively searching or filtering, skip hero and show matching results directly */}
+            {/* Active Search & Filter Mode */}
             {searchQuery ? (
               <div className="pt-6">
                 <div className="mb-6 flex items-center justify-between">
@@ -212,13 +250,13 @@ export function App() {
               </div>
             ) : (
               <>
-                {/* Hero Section & Asymmetric Organic Image Block */}
+                {/* Hero Section & Organic Editorial Block */}
                 {isLoading ? (
                   <HeroSkeleton />
                 ) : (
                   <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
                     
-                    {/* Left & Center Hero Area (9 cols on xl) */}
+                    {/* Left & Center Hero Area */}
                     <div className="xl:col-span-9 space-y-6">
                       <HeroSection onExploreClick={() => {
                         const el = document.getElementById('latest-articles-section');
@@ -227,15 +265,15 @@ export function App() {
 
                       {/* Featured This Week (3 Horizontal Glass Cards) */}
                       <FeaturedCarousel
-                        articles={articles}
+                        articles={filteredArticles}
                         onSelectArticle={setSelectedArticle}
                       />
                     </div>
 
-                    {/* Right Rail: Editor's Picks (3 cols on xl) */}
+                    {/* Right Rail: Editor's Picks (Numbered 01-04) */}
                     <div className="xl:col-span-3 pt-4 xl:pt-8 xl:border-l xl:border-[#EAE4D9] xl:pl-6">
                       <EditorsPicks
-                        articles={articles}
+                        articles={filteredArticles}
                         onSelectArticle={setSelectedArticle}
                         onBookmarkToggle={handleBookmarkToggle}
                         isBookmarked={isBookmarked}
@@ -283,7 +321,7 @@ export function App() {
                 <span>Curated for curious minds worldwide</span>
               </div>
               <div className="flex items-center space-x-4">
-                <span>Architecture: Multi-API Orchestrated</span>
+                <span>Architecture: Multi-API &amp; PostgreSQL Orchestrated</span>
                 <span>&bull;</span>
                 <span>Typography: Cormorant Garamond &amp; Manrope</span>
                 <span>&bull;</span>
@@ -310,17 +348,6 @@ export function App() {
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
-      />
-
-      {/* 5. Article Publishing Studio */}
-      <ArticleEditor
-        isOpen={isEditorOpen}
-        onClose={() => setIsEditorOpen(false)}
-        onArticleCreated={(newArticle) => {
-          setArticles((prev) => [newArticle, ...prev]);
-          setSelectedArticle(newArticle);
-          setIsEditorOpen(false);
-        }}
       />
     </div>
   );

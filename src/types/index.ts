@@ -28,6 +28,7 @@ export interface Article {
   title: string;
   slug: string;
   description: string;
+  subtitle?: string;
   content: string;
   coverImage: string;
   category: string;
@@ -40,6 +41,7 @@ export interface Article {
   isEditorPick?: boolean;
   editorPickRank?: number;
   tags: string[];
+  status?: 'published' | 'draft';
 }
 
 export type Category = 
@@ -61,4 +63,5 @@ export type NavTab =
   | 'bookmarks'
   | 'newsletter'
   | 'mystories'
-  | 'analytics';
+  | 'analytics'
+  | 'write';
