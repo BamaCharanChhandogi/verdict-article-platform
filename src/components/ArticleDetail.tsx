@@ -364,29 +364,36 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           <div className="relative group flex items-center justify-center">
             <button
               onClick={() => setFontSize(fontSize === 'normal' ? 'large' : fontSize === 'large' ? 'xlarge' : 'normal')}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-800 dark:text-zinc-100 hover:bg-white/40 dark:hover:bg-white/10 transition-all cursor-pointer font-bold"
+              className="w-10 h-10 rounded-full flex flex-col items-center justify-center text-zinc-800 dark:text-zinc-100 hover:bg-white/40 dark:hover:bg-white/10 transition-all cursor-pointer font-bold"
               aria-label="Font Size"
             >
-              <span className={fontSize === 'normal' ? 'text-xs' : fontSize === 'large' ? 'text-sm' : 'text-base'}>
+              <span className={`transition-all font-bold ${fontSize === 'normal' ? 'text-xs' : fontSize === 'large' ? 'text-sm scale-110' : 'text-base scale-125'}`}>
                 Aa
+              </span>
+              <span className="text-[8px] font-sans text-zinc-400 dark:text-zinc-500 uppercase -mt-0.5 tracking-tighter">
+                {fontSize === 'normal' ? '1x' : fontSize === 'large' ? '1.2x' : '1.5x'}
               </span>
             </button>
             <div className="absolute right-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-              Font: {fontSize}
+              Font Size: {fontSize === 'normal' ? 'Standard (18px)' : fontSize === 'large' ? 'Large (22px)' : 'Extra Large (26px)'}
             </div>
           </div>
 
           {/* Serif / Sans Toggle */}
           <div className="relative group flex items-center justify-center">
             <button
-              onClick={() => setIsSerifFont(!isSerifFont)}
-              className="px-2 py-0.5 rounded-full text-[10px] font-bold text-[#9E5A38] dark:text-[#E05A30] hover:bg-white/40 dark:hover:bg-white/10 transition-all cursor-pointer"
+              onClick={() => setIsSerifFont(prev => !prev)}
+              className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all cursor-pointer border ${
+                isSerifFont 
+                  ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] border-[#141416] dark:border-white shadow-xs font-serif' 
+                  : 'bg-white/50 dark:bg-zinc-800/50 text-[#9E5A38] dark:text-[#E05A30] border-zinc-300 dark:border-zinc-700 font-sans'
+              }`}
               aria-label="Toggle Font Style"
             >
               {isSerifFont ? 'Serif' : 'Sans'}
             </button>
             <div className="absolute right-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-              Style: {isSerifFont ? 'Editorial Serif' : 'Clean Sans'}
+              Font: {isSerifFont ? 'Editorial Serif (Cormorant Garamond)' : 'Clean Sans (Manrope)'}
             </div>
           </div>
         </aside>
@@ -519,21 +526,40 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         </div>
 
         {/* Dynamic Content Typography Engine */}
-        <div className={`prose prose-zinc dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-[1.8] space-y-6 ${
-          fontSize === 'large' ? 'text-lg sm:text-xl' : fontSize === 'xlarge' ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg'
-        } ${isSerifFont ? 'font-editorial' : 'font-sans'}`}>
+        <div 
+          className="max-w-none text-zinc-800 dark:text-zinc-200 space-y-6 transition-all duration-200"
+          style={{
+            fontSize: fontSize === 'normal' ? '1.125rem' : fontSize === 'large' ? '1.35rem' : '1.65rem',
+            lineHeight: fontSize === 'normal' ? '1.8' : fontSize === 'large' ? '1.85' : '1.9',
+            fontFamily: isSerifFont ? '"Cormorant Garamond", Georgia, serif' : '"Manrope", system-ui, -apple-system, sans-serif',
+          }}
+        >
           {paragraphs.length > 0 ? (
             paragraphs.map((p, idx) => {
               if (p.startsWith('# ')) {
                 return (
-                  <h2 key={idx} className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] dark:text-white pt-4">
+                  <h2 
+                    key={idx} 
+                    className="font-bold text-[#141416] dark:text-white pt-4 transition-all"
+                    style={{ 
+                      fontSize: fontSize === 'normal' ? '1.875rem' : fontSize === 'large' ? '2.25rem' : '2.65rem',
+                      fontFamily: isSerifFont ? '"Cormorant Garamond", Georgia, serif' : 'inherit'
+                    }}
+                  >
                     {p.replace(/^#\s*/, '')}
                   </h2>
                 );
               }
               if (p.startsWith('## ') || p.startsWith('### ')) {
                 return (
-                  <h3 key={idx} className="font-editorial text-xl sm:text-2xl font-bold text-[#141416] dark:text-white pt-3">
+                  <h3 
+                    key={idx} 
+                    className="font-bold text-[#141416] dark:text-white pt-3 transition-all"
+                    style={{ 
+                      fontSize: fontSize === 'normal' ? '1.5rem' : fontSize === 'large' ? '1.75rem' : '2.1rem',
+                      fontFamily: isSerifFont ? '"Cormorant Garamond", Georgia, serif' : 'inherit'
+                    }}
+                  >
                     {p.replace(/^###?\s*/, '')}
                   </h3>
                 );
@@ -541,7 +567,13 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
               if (p.startsWith('>')) {
                 return (
                   <blockquote key={idx} className="my-8 py-4 px-6 border-y border-[#EAE4D9] dark:border-[#262C3A] text-center">
-                    <p className="font-editorial text-xl sm:text-2xl text-[#141416] dark:text-white italic font-normal leading-snug">
+                    <p 
+                      className="text-[#141416] dark:text-white italic font-normal leading-snug transition-all"
+                      style={{ 
+                        fontSize: fontSize === 'normal' ? '1.5rem' : fontSize === 'large' ? '1.75rem' : '2.1rem',
+                        fontFamily: isSerifFont ? '"Cormorant Garamond", Georgia, serif' : 'inherit'
+                      }}
+                    >
                       "{p.replace(/^>\s*/, '')}"
                     </p>
                   </blockquote>
@@ -550,14 +582,22 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
               return (
                 <p 
                   key={idx}
-                  className={idx === 0 ? "first-letter:font-editorial first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-[#141416] dark:first-letter:text-white leading-relaxed" : "leading-relaxed"}
+                  className={`leading-relaxed transition-all ${idx === 0 ? "first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-[#141416] dark:first-letter:text-white" : ""}`}
+                  style={{
+                    fontSize: 'inherit',
+                    fontFamily: 'inherit',
+                    lineHeight: 'inherit',
+                  }}
                 >
                   {p}
                 </p>
               );
             })
           ) : (
-            <p className="leading-relaxed">
+            <p 
+              className="leading-relaxed transition-all"
+              style={{ fontSize: 'inherit', fontFamily: 'inherit', lineHeight: 'inherit' }}
+            >
               {article.description}
             </p>
           )}
