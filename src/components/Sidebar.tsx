@@ -130,11 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => {
-                    if (item.id === 'bookmarks') {
-                      onOpenBookmarks();
-                    } else {
-                      setActiveNav(item.id as NavTab);
-                    }
+                    setActiveNav(item.id as NavTab);
                     setIsOpenMobile(false);
                   }}
                   className={`

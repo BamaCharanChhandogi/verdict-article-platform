@@ -9,7 +9,7 @@ import { EditorsPicks } from './components/EditorsPicks';
 import { CategoryPills } from './components/CategoryPills';
 import { ArticleGrid } from './components/ArticleGrid';
 import { ArticleDetail } from './components/ArticleDetail';
-import { BookmarksDrawer } from './components/BookmarksDrawer';
+import { ReadingListPage } from './components/ReadingListPage';
 import { AuthModal } from './components/AuthModal';
 import { DedicatedWriterStudio } from './components/DedicatedWriterStudio';
 import { DraftsPage } from './components/DraftsPage';
@@ -56,6 +56,7 @@ export function App() {
     if (path === '/drafts') return 'drafts';
     if (path === '/studio' || path === '/mystories') return 'mystories';
     if (path === '/feed' || path === '/explore') return 'feed';
+    if (path === '/reading-list' || path === '/bookmarks') return 'bookmarks';
     if (path.startsWith('/write')) return 'write';
     return isAuthenticated ? 'feed' : 'home';
   }, [location.pathname, isAuthenticated]);
@@ -215,6 +216,8 @@ export function App() {
                       navigate('/drafts');
                     } else if (nav === 'mystories') {
                       navigate('/studio');
+                    } else if (nav === 'bookmarks') {
+                      navigate('/reading-list');
                     } else if (nav === 'write') {
                       setEditingDraft(null);
                       navigate('/write');
@@ -226,7 +229,7 @@ export function App() {
                   draftsCount={draftsList.length}
                   isOpenMobile={isMobileSidebarOpen}
                   setIsOpenMobile={setIsMobileSidebarOpen}
-                  onOpenBookmarks={() => setIsBookmarksOpen(true)}
+                  onOpenBookmarks={() => navigate('/reading-list')}
                   onOpenAuth={() => setIsAuthOpen(true)}
                   onOpenEditor={() => {
                     setEditingDraft(null);
@@ -235,19 +238,17 @@ export function App() {
                 />
               )}
 
-              <div className={`flex-1 flex flex-col min-w-0 ${!isArticlePage ? 'lg:pl-64' : 'lg:pl-16'}`}>
-                {!isArticlePage && (
-                  <Header
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
-                    onOpenAuth={() => setIsAuthOpen(true)}
-                    onOpenEditor={() => {
-                      setEditingDraft(null);
-                      navigate('/write');
-                    }}
-                  />
-                )}
+              <div className={`flex-1 flex flex-col min-w-0 ${!isArticlePage ? 'lg:pl-64' : ''}`}>
+                <Header
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+                  onOpenAuth={() => setIsAuthOpen(true)}
+                  onOpenEditor={() => {
+                    setEditingDraft(null);
+                    navigate('/write');
+                  }}
+                />
 
                 <Outlet />
               </div>
@@ -332,6 +333,21 @@ export function App() {
             }
           />
           <Route path="/mystories" element={<Navigate to="/studio" replace />} />
+
+          {/* DEDICATED READING LIST ROUTE (/reading-list) */}
+          <Route
+            path="/reading-list"
+            element={
+              <main className="flex-1">
+                <ReadingListPage
+                  bookmarkedArticles={bookmarkedArticles}
+                  onRemoveBookmark={handleBookmarkToggle}
+                  onOpenAuth={() => setIsAuthOpen(true)}
+                />
+              </main>
+            }
+          />
+          <Route path="/bookmarks" element={<Navigate to="/reading-list" replace />} />
 
           {/* HASHNODE-STYLE FEED & DISCOVER ROUTE (/feed) */}
           <Route
@@ -492,19 +508,6 @@ export function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
-
-      {/* Slide-Over Reading List / Bookmarks Drawer */}
-      <BookmarksDrawer
-        isOpen={isBookmarksOpen}
-        onClose={() => setIsBookmarksOpen(false)}
-        bookmarkedArticles={bookmarkedArticles}
-        onSelectArticle={(article) => {
-          navigate(`/article/${article.slug}`);
-          setIsBookmarksOpen(false);
-        }}
-        onRemoveBookmark={handleBookmarkToggle}
-        onClearAll={() => setBookmarkedIds([])}
-      />
 
       {/* Authentication Modal */}
       <AuthModal

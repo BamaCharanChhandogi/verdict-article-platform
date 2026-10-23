@@ -226,150 +226,71 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       {/* Scroll Reading Progress Bar at the top */}
       <ReadingProgress />
 
-      {/* DEV.TO STYLE COLLAPSED VERTICAL ACTION RAIL (Desktop) */}
-      <aside className="fixed left-0 top-0 bottom-0 w-16 hidden lg:flex flex-col items-center justify-between py-6 bg-[#FBF9F5] dark:bg-[#12151B] border-r border-[#EAE4D9] dark:border-[#222733] z-40 transition-colors shadow-2xs">
-        {/* Top: Back Navigation */}
-        <div className="flex flex-col items-center space-y-3">
-          <button
-            onClick={() => {
-              if (onBack) onBack();
-              navigate(isAuthenticated ? '/feed' : '/');
-            }}
-            className="w-10 h-10 rounded-xl bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#1F2430] flex items-center justify-center transition-all cursor-pointer shadow-2xs group"
-            title={isAuthenticated ? "Back to Feed" : "Back to Stories"}
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-          </button>
-        </div>
-
-        {/* Middle: Action Stack (Heart, Comment, Bookmark, Audio, Share, Options) */}
-        <div className="flex flex-col items-center space-y-4">
-          {/* Like */}
-          <button
-            onClick={handleLike}
-            className="flex flex-col items-center space-y-1 group cursor-pointer"
-            title="Heart / React to Story"
-          >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-              hasLiked
-                ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 scale-105 shadow-xs'
-                : 'text-zinc-500 dark:text-zinc-400 hover:bg-rose-50/80 dark:hover:bg-rose-950/30 hover:text-rose-500'
-            }`}>
-              <Heart className={`w-5 h-5 transition-transform group-hover:scale-110 ${hasLiked ? 'fill-current text-rose-500' : ''}`} />
-            </div>
-            <span className={`text-[11px] font-bold ${hasLiked ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-500 dark:text-zinc-400'}`}>
-              {likes}
-            </span>
-          </button>
-
-          {/* Comments */}
-          <button
-            onClick={handleScrollToComments}
-            className="flex flex-col items-center space-y-1 group cursor-pointer"
-            title="Jump to Discussion"
-          >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-[#EBF1EE] dark:hover:bg-emerald-950/30 hover:text-[#2E4A3E] dark:hover:text-emerald-400 transition-all">
-              <MessageSquare className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            </div>
-            <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">
-              {comments.length}
-            </span>
-          </button>
-
-          {/* Bookmark */}
-          <button
-            onClick={handleBookmarkClick}
-            className="flex flex-col items-center space-y-1 group cursor-pointer"
-            title={isBookmarked(article.id) ? "Remove from Reading List" : "Save to Reading List"}
-          >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-              isBookmarked(article.id)
-                ? 'bg-[#F7EFE9] dark:bg-[#2A1D17] text-[#9E5A38] dark:text-[#E05A30] shadow-xs'
-                : 'text-zinc-500 dark:text-zinc-400 hover:bg-[#F7EFE9]/80 dark:hover:bg-[#2A1D17]/40 hover:text-[#9E5A38]'
-            }`}>
-              <Bookmark className={`w-5 h-5 transition-transform group-hover:scale-110 ${isBookmarked(article.id) ? 'fill-current' : ''}`} />
-            </div>
-            <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">
-              {isBookmarked(article.id) ? 1 : 0}
-            </span>
-          </button>
-
-          {/* Audio */}
-          {audioSupported && (
-            <button
-              onClick={handleToggleAudio}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-                isPlayingAudio
-                  ? 'bg-emerald-600 text-white shadow-md animate-pulse'
-                  : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-[#1F2430] hover:text-black dark:hover:text-white'
-              }`}
-              title={isPlayingAudio ? "Pause Narration" : "Listen to Story"}
-            >
-              {isPlayingAudio ? <Pause className="w-4 h-4 fill-current" /> : <Volume2 className="w-4 h-4" />}
-            </button>
-          )}
-
-          {/* Share */}
-          <button
-            onClick={handleShare}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-[#1F2430] hover:text-black dark:hover:text-white transition-all cursor-pointer relative"
-            title="Share Story"
-          >
-            {copiedShare ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
-            {copiedShare && (
-              <span className="absolute -right-16 bg-[#141416] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-md pointer-events-none animate-in fade-in">
-                Copied!
-              </span>
-            )}
-          </button>
-
-          {/* Three dots (...) More options */}
-          <div className="relative">
-            <button
-              onClick={() => setShowMoreMenu(!showMoreMenu)}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#1F2430] transition-colors cursor-pointer"
-              title="More Options"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </button>
-
-            {showMoreMenu && (
-              <div className="absolute left-12 bottom-0 w-44 bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] rounded-2xl shadow-xl p-1.5 z-50 text-xs animate-in fade-in">
-                <button
-                  onClick={() => {
-                    handleShare();
-                    setShowMoreMenu(false);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-[#1F2430] cursor-pointer flex items-center space-x-2"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>Copy Story Link</span>
-                </button>
-                <button
-                  onClick={() => {
-                    handleScrollToComments();
-                    setShowMoreMenu(false);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-[#1F2430] cursor-pointer flex items-center space-x-2"
-                >
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  <span>View Comments</span>
-                </button>
-              </div>
-            )}
+      {/* FLOATING ACTION CAPSULE (Centered Vertically, Fit-Content Height) */}
+      <aside className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center bg-white/95 dark:bg-[#161B22]/95 backdrop-blur-md p-2 rounded-2xl border border-[#EAE4D9] dark:border-[#262C3A] shadow-xl space-y-3">
+        {/* Like */}
+        <button
+          onClick={handleLike}
+          className="flex flex-col items-center space-y-0.5 group cursor-pointer"
+          title="Heart / React to Story"
+        >
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+            hasLiked
+              ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 scale-105 shadow-2xs'
+              : 'text-zinc-500 dark:text-zinc-400 hover:bg-rose-50/80 dark:hover:bg-rose-950/30 hover:text-rose-500'
+          }`}>
+            <Heart className={`w-4 h-4 transition-transform group-hover:scale-115 ${hasLiked ? 'fill-current text-rose-500' : ''}`} />
           </div>
-        </div>
+          <span className={`text-[10px] font-bold ${hasLiked ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-500 dark:text-zinc-400'}`}>
+            {likes}
+          </span>
+        </button>
 
-        {/* Bottom: Quick Theme Switcher */}
-        <div className="flex flex-col items-center space-y-3">
-          <button
-            onClick={toggleTheme}
-            className="w-10 h-10 rounded-xl bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] text-zinc-600 dark:text-zinc-300 hover:text-amber-500 flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
-            title="Toggle Light / Dark"
-          >
-            {isDark ? <Moon className="w-4 h-4 text-amber-400" /> : <Sun className="w-4 h-4 text-amber-600" />}
-          </button>
-        </div>
+        {/* Comment */}
+        <button
+          onClick={handleScrollToComments}
+          className="flex flex-col items-center space-y-0.5 group cursor-pointer"
+          title="Jump to Discussion"
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-[#EBF1EE] dark:hover:bg-emerald-950/30 hover:text-[#2E4A3E] dark:hover:text-emerald-400 transition-all">
+            <MessageSquare className="w-4 h-4 group-hover:scale-115 transition-transform" />
+          </div>
+          <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400">
+            {comments.length}
+          </span>
+        </button>
+
+        {/* Save / Bookmark */}
+        <button
+          onClick={handleBookmarkClick}
+          className="flex flex-col items-center space-y-0.5 group cursor-pointer"
+          title={isBookmarked(article.id) ? "Remove from Reading List" : "Save to Reading List"}
+        >
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+            isBookmarked(article.id)
+              ? 'bg-[#F7EFE9] dark:bg-[#2A1D17] text-[#9E5A38] dark:text-[#E05A30] shadow-2xs'
+              : 'text-zinc-500 dark:text-zinc-400 hover:bg-[#F7EFE9]/80 dark:hover:bg-[#2A1D17]/40 hover:text-[#9E5A38]'
+          }`}>
+            <Bookmark className={`w-4 h-4 transition-transform group-hover:scale-115 ${isBookmarked(article.id) ? 'fill-current' : ''}`} />
+          </div>
+          <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400">
+            {isBookmarked(article.id) ? 1 : 0}
+          </span>
+        </button>
+
+        {/* Share */}
+        <button
+          onClick={handleShare}
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-[#1F2430] hover:text-black dark:hover:text-white transition-all cursor-pointer relative group"
+          title="Share Story"
+        >
+          {copiedShare ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 group-hover:scale-115 transition-transform" />}
+          {copiedShare && (
+            <span className="absolute left-12 bg-[#141416] text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md pointer-events-none whitespace-nowrap animate-in fade-in">
+              Copied!
+            </span>
+          )}
+        </button>
       </aside>
 
       {/* DEV.TO STYLE MOBILE BOTTOM FLOATING ACTION BAR */}
@@ -385,11 +306,6 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <button onClick={handleBookmarkClick} className="p-2 text-zinc-600 dark:text-zinc-300 cursor-pointer">
           <Bookmark className={`w-4 h-4 ${isBookmarked(article.id) ? 'fill-current text-[#9E5A38]' : ''}`} />
         </button>
-        {audioSupported && (
-          <button onClick={handleToggleAudio} className="p-2 text-zinc-600 dark:text-zinc-300 cursor-pointer">
-            {isPlayingAudio ? <Pause className="w-4 h-4 text-emerald-500" /> : <Volume2 className="w-4 h-4" />}
-          </button>
-        )}
         <button onClick={handleShare} className="p-2 text-zinc-600 dark:text-zinc-300 cursor-pointer">
           <Share2 className="w-4 h-4" />
         </button>
