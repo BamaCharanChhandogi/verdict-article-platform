@@ -235,13 +235,17 @@ export function App() {
                 />
               )}
 
-              <div className={`flex-1 flex flex-col min-w-0 ${!isArticlePage ? 'lg:pl-64' : ''}`}>
+              <div className={`flex-1 flex flex-col min-w-0 ${!isArticlePage ? 'lg:pl-64' : 'lg:pl-16'}`}>
                 {!isArticlePage && (
                   <Header
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
                     onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
                     onOpenAuth={() => setIsAuthOpen(true)}
+                    onOpenEditor={() => {
+                      setEditingDraft(null);
+                      navigate('/write');
+                    }}
                   />
                 )}
 
