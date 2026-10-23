@@ -71,20 +71,17 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
 
-        <button
-          onClick={() => {
-            if (!isAuthenticated) {
-              onOpenAuth();
-            } else if (onOpenEditor) {
-              onOpenEditor();
-            }
-          }}
-          className="inline-flex items-center space-x-1.5 bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white text-white dark:text-[#0E1116] text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-2xs cursor-pointer shrink-0 group"
-          title={isAuthenticated ? "Write a new story" : "Sign in to write a story"}
-        >
-          <Edit3 className="w-3.5 h-3.5" />
-          <span>Write Story</span>
-        </button>
+        {/* Guest CTA: Hidden for already logged-in users */}
+        {!isAuthenticated && (
+          <button
+            onClick={onOpenAuth}
+            className="inline-flex items-center space-x-1.5 bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white text-white dark:text-[#0E1116] text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-2xs cursor-pointer shrink-0 group"
+            title="Sign in to write a story"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>Write Story</span>
+          </button>
+        )}
       </div>
     </header>
   );

@@ -115,34 +115,49 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   }, [article.id]);
 
   // Audio Player Handlers (Interactive Web Speech API)
+  const startAudioNarration = (rate: number) => {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    // Prepare clean narrative text stripping markdown and HTML tags
+    const cleanContent = article.content
+      ? article.content.replace(/<[^>]*>/g, ' ').replace(/[#*`_>]/g, ' ').replace(/\s+/g, ' ').trim()
+      : article.description;
+    const cleanText = `${article.title}. By ${article.author.name}. ${article.description}. ${cleanContent}`;
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = rate;
+    utterance.pitch = 1.0;
+    utterance.onend = () => {
+      setIsPlayingAudio(false);
+      speechUtteranceRef.current = null;
+    };
+    utterance.onerror = () => {
+      setIsPlayingAudio(false);
+      speechUtteranceRef.current = null;
+    };
+
+    speechUtteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+    setIsPlayingAudio(true);
+  };
+
   const handleToggleAudio = () => {
     if (!('speechSynthesis' in window)) return;
 
     if (isPlayingAudio) {
       window.speechSynthesis.cancel();
       setIsPlayingAudio(false);
+      speechUtteranceRef.current = null;
     } else {
-      window.speechSynthesis.cancel();
-      // Prepare clean narrative text
-      const cleanText = `${article.title}. By ${article.author.name}. ${article.description}. ${article.content.replace(/[#*`_>]/g, '')}`;
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.rate = speechRate;
-      utterance.pitch = 1.0;
-      utterance.onend = () => setIsPlayingAudio(false);
-      utterance.onerror = () => setIsPlayingAudio(false);
-
-      speechUtteranceRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
-      setIsPlayingAudio(true);
+      startAudioNarration(speechRate);
     }
   };
 
   const handleChangeRate = (newRate: number) => {
     setSpeechRate(newRate);
-    if (isPlayingAudio && speechUtteranceRef.current) {
-      window.speechSynthesis.cancel();
-      speechUtteranceRef.current.rate = newRate;
-      window.speechSynthesis.speak(speechUtteranceRef.current);
+    if (isPlayingAudio) {
+      startAudioNarration(newRate);
     }
   };
 
@@ -210,9 +225,20 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     .filter(a => a.id !== article.id && (a.category === article.category || a.isEditorPick))
     .slice(0, 3);
 
-  // Dynamic Content Parser
+  // Dynamic Content Parser supporting Markdown and HTML formats
   const parseContent = (raw: string) => {
     if (!raw) return [];
+    if (/<[a-z][\s\S]*>/i.test(raw)) {
+      const cleaned = raw
+        .replace(/<\/p>/gi, '\n\n')
+        .replace(/<\/h[1-6]>/gi, '\n\n')
+        .replace(/<\/blockquote>/gi, '\n\n')
+        .replace(/<br\s*\/?>/gi, '\n');
+      return cleaned
+        .split('\n\n')
+        .map(p => p.replace(/<[^>]+>/g, '').trim())
+        .filter(p => p.length > 0);
+    }
     return raw
       .split('\n\n')
       .map(p => p.trim())
@@ -346,7 +372,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           {/* Speed Toggle */}
           <div className="relative group flex items-center justify-center">
             <button
-              onClick={() => handleChangeRate(speechRate === 1 ? 1.25 : speechRate === 1.25 ? 1.5 : 1)}
+              onClick={() => handleChangeRate(speechRate === 1 ? 1.25 : speechRate === 1.25 ? 1.5 : speechRate === 1.5 ? 2 : 1)}
               className="px-2 py-0.5 rounded-full text-[11px] font-bold text-zinc-800 dark:text-zinc-100 bg-white/40 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 transition-all cursor-pointer"
               aria-label="Playback Speed"
             >
