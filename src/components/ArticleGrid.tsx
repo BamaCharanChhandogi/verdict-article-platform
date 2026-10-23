@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, RefreshCw, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Article } from '../types';
 import { ArticleCard } from './ArticleCard';
 
@@ -21,9 +21,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
   activeFilterName,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [subscribed, setSubscribed] = useState(false);
-  const [emailInput, setEmailInput] = useState('');
-  const articlesPerPage = 7; // 7 articles + 1 promo card = 8 grid slots
+  const articlesPerPage = 8;
 
   // Calculate pagination bounds
   const totalPages = Math.max(1, Math.ceil(articles.length / articlesPerPage));
@@ -36,13 +34,6 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
     const element = document.getElementById('latest-articles-section');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (emailInput.trim()) {
-      setSubscribed(true);
     }
   };
 
@@ -114,57 +105,6 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
                 isBookmarked={isBookmarked(article.id)}
               />
             ))}
-
-            {/* Curated Insights / Weekly Brief Promo Card */}
-            <div className="relative rounded-2xl overflow-hidden shadow-lg p-6 text-white flex flex-col justify-between min-h-[320px] group bg-gradient-to-b from-[#0A1A12] via-[#05110B] to-[#010805]">
-              <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-600 via-transparent to-transparent"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=600&q=80" 
-                alt="Curated leaf pattern"
-                className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-30 group-hover:scale-105 transition-transform duration-700"
-              />
-
-              <div className="relative z-10">
-                <span className="inline-flex items-center space-x-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-950/80 border border-emerald-800/60 px-3 py-1 rounded-full mb-3">
-                  <Sparkles className="w-3 h-3" />
-                  <span>The Sunday Brief</span>
-                </span>
-                <h4 className="font-editorial text-2xl font-medium leading-snug mt-1">
-                  Curated insights. <br />
-                  <span className="italic">Real impact.</span>
-                </h4>
-                <p className="text-zinc-400 text-xs mt-2 leading-relaxed">
-                  Join 45,000+ discerning readers who receive our Sunday morning digest on ideas, design, and culture.
-                </p>
-              </div>
-
-              <div className="relative z-10 pt-4">
-                {subscribed ? (
-                  <div className="bg-emerald-900/60 border border-emerald-500/40 rounded-xl p-3 text-center text-xs text-emerald-200 flex items-center justify-center space-x-1.5">
-                    <Check className="w-4 h-4 text-emerald-400" />
-                    <span>✓ Subscribed for Sunday Edition!</span>
-                  </div>
-                ) : (
-                  <form onSubmit={handleNewsletterSubmit} className="space-y-2">
-                    <input
-                      type="email"
-                      required
-                      placeholder="Enter your email..."
-                      value={emailInput}
-                      onChange={(e) => setEmailInput(e.target.value)}
-                      className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-400 focus:outline-hidden focus:bg-white/20"
-                    />
-                    <button
-                      type="submit"
-                      className="w-full bg-white hover:bg-zinc-100 text-[#141416] font-semibold text-xs py-2 px-4 rounded-full transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer"
-                    >
-                      <span>Subscribe Free</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </form>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* Pagination Controls */}
