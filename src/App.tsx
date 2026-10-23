@@ -343,6 +343,8 @@ export function App() {
                   bookmarkedArticles={bookmarkedArticles}
                   onRemoveBookmark={handleBookmarkToggle}
                   onOpenAuth={() => setIsAuthOpen(true)}
+                  allArticles={articles}
+                  onAddBookmark={handleBookmarkToggle}
                 />
               </main>
             }

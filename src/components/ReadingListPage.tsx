@@ -1,25 +1,48 @@
 import React, { useState, useMemo } from 'react';
-import { Bookmark, Clock, ArrowRight, Trash2, Share2, Check, Search, Lock, LogIn, Compass, BookOpen } from 'lucide-react';
+import { 
+  Bookmark, 
+  Clock, 
+  ArrowRight, 
+  Trash2, 
+  Share2, 
+  Check, 
+  Search, 
+  Sparkles, 
+  Compass, 
+  Plus, 
+  BookOpen 
+} from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Article, Category } from '../types';
+import { Article } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 interface ReadingListPageProps {
   bookmarkedArticles: Article[];
   onRemoveBookmark: (article: Article) => void;
   onOpenAuth: () => void;
+  allArticles?: Article[];
+  onAddBookmark?: (article: Article) => void;
 }
 
 export const ReadingListPage: React.FC<ReadingListPageProps> = ({
   bookmarkedArticles,
   onRemoveBookmark,
   onOpenAuth,
+  allArticles = [],
+  onAddBookmark,
 }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [copiedId, setCopiedId] = useState<string | number | null>(null);
+
+  // Suggested starters if reading list is empty
+  const starterArticles = useMemo(() => {
+    return allArticles
+      .filter(a => !bookmarkedArticles.some(b => b.id === a.id))
+      .slice(0, 2);
+  }, [allArticles, bookmarkedArticles]);
 
   // Categories present in saved articles
   const categories = useMemo(() => {
@@ -73,7 +96,7 @@ export const ReadingListPage: React.FC<ReadingListPageProps> = ({
             </p>
           </div>
 
-          {isAuthenticated && bookmarkedArticles.length > 0 && (
+          {bookmarkedArticles.length > 0 && (
             <div className="flex items-center space-x-3 text-xs bg-[#FAF7F2] dark:bg-[#1A1F29] border border-[#EAE4D9] dark:border-[#262C3A] px-4 py-2 rounded-2xl shrink-0">
               <span className="font-bold text-[#141416] dark:text-white">
                 {bookmarkedArticles.length} {bookmarkedArticles.length === 1 ? 'story' : 'stories'}
@@ -88,48 +111,90 @@ export const ReadingListPage: React.FC<ReadingListPageProps> = ({
         </div>
       </div>
 
-      {/* Guest Sign-In Gate */}
-      {!isAuthenticated ? (
-        <div className="bg-white dark:bg-[#171B22] rounded-3xl border border-[#EAE4D9] dark:border-[#262C3A] p-8 sm:p-14 text-center max-w-2xl mx-auto shadow-sm my-12">
-          <div className="w-16 h-16 rounded-3xl bg-[#FAF7F2] dark:bg-[#1F2430] border border-[#EAE4D9] dark:border-[#262C3A] text-[#9E5A38] dark:text-[#E05A30] flex items-center justify-center mx-auto mb-6 shadow-xs">
-            <Lock className="w-8 h-8" />
+      {/* Guest Mode: Non-blocking helpful sync banner */}
+      {!isAuthenticated && bookmarkedArticles.length > 0 && (
+        <div className="mb-8 p-4 rounded-2xl bg-[#FAF7F2] dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center space-x-2.5 text-zinc-700 dark:text-zinc-300">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span>Saved to your local browser storage. Ready for offline reading.</span>
           </div>
-
-          <h2 className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] dark:text-white mb-3">
-            Sign In to Access Your Reading List
-          </h2>
-
-          <p className="font-sans text-sm text-zinc-600 dark:text-zinc-400 max-w-md mx-auto leading-relaxed mb-8">
-            Keep your saved stories synced across all devices, retain reading progress, and build your personal knowledge vault.
-          </p>
-
           <button
             onClick={onOpenAuth}
-            className="inline-flex items-center space-x-2.5 bg-[#141416] dark:bg-white hover:bg-black dark:hover:bg-zinc-200 text-white dark:text-[#141416] font-semibold text-sm px-8 py-3.5 rounded-full transition-all shadow-md cursor-pointer group"
+            className="font-bold text-[#9E5A38] dark:text-[#E05A30] hover:underline self-start sm:self-auto cursor-pointer"
           >
-            <LogIn className="w-4 h-4 group-hover:scale-110 transition-transform" />
-            <span>Sign In to Continue</span>
+            Create free account to sync across devices &rarr;
           </button>
         </div>
-      ) : bookmarkedArticles.length === 0 ? (
-        /* Empty State */
-        <div className="bg-white dark:bg-[#171B22] rounded-3xl border border-[#EAE4D9] dark:border-[#262C3A] p-12 text-center max-w-xl mx-auto my-12 shadow-xs">
-          <div className="w-16 h-16 rounded-3xl bg-[#FAF7F2] dark:bg-[#1F2430] border border-[#EAE4D9] dark:border-[#262C3A] text-zinc-400 dark:text-zinc-500 flex items-center justify-center mx-auto mb-5">
-            <BookOpen className="w-8 h-8" />
+      )}
+
+      {/* Main Content Area: Empty State vs Cards Grid */}
+      {bookmarkedArticles.length === 0 ? (
+        <div className="space-y-8 my-8">
+          {/* Creative Out-of-the-box Empty State */}
+          <div className="bg-white dark:bg-[#171B22] rounded-3xl border border-[#EAE4D9] dark:border-[#262C3A] p-8 sm:p-12 text-center max-w-2xl mx-auto shadow-xs">
+            <div className="w-16 h-16 rounded-2xl bg-[#FAF7F2] dark:bg-[#1F2430] border border-[#EAE4D9] dark:border-[#262C3A] text-[#9E5A38] dark:text-[#E05A30] flex items-center justify-center mx-auto mb-4">
+              <Bookmark className="w-8 h-8 stroke-[1.75]" />
+            </div>
+            <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] dark:text-white mb-2">
+              Your Reading Queue is Waiting
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 max-w-md mx-auto leading-relaxed mb-6">
+              As you explore long-form perspectives, tap the bookmark ribbon on any essay to stash it here. No login required.
+            </p>
+            <button
+              onClick={() => navigate('/')}
+              className="inline-flex items-center space-x-2 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-xs font-bold px-6 py-3 rounded-full hover:bg-black dark:hover:bg-zinc-200 transition-all cursor-pointer shadow-sm"
+            >
+              <Compass className="w-4 h-4" />
+              <span>Explore Curated Feed</span>
+            </button>
           </div>
-          <h3 className="font-editorial text-2xl font-bold text-[#141416] dark:text-white mb-2">
-            Your reading list is empty
-          </h3>
-          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">
-            Whenever you find a perspective or research essay you want to read later, click the bookmark icon on any card.
-          </p>
-          <button
-            onClick={() => navigate('/feed')}
-            className="inline-flex items-center space-x-2 bg-[#141416] dark:bg-white hover:bg-black dark:hover:bg-zinc-200 text-white dark:text-[#141416] text-xs font-bold px-6 py-3 rounded-full transition-all shadow-xs cursor-pointer"
-          >
-            <Compass className="w-4 h-4" />
-            <span>Explore Feed &amp; Discover</span>
-          </button>
+
+          {/* Quick Starters: 2 Suggested Stories to 1-Click Bookmark directly */}
+          {starterArticles.length > 0 && (
+            <div className="max-w-3xl mx-auto pt-4">
+              <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-4">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <span>Recommended Stories to Start Your Queue</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {starterArticles.map((article) => (
+                  <div
+                    key={article.id}
+                    className="bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] rounded-2xl p-4 flex items-center justify-between gap-4 hover:shadow-xs transition-shadow"
+                  >
+                    <div className="flex items-center space-x-3 min-w-0">
+                      <img
+                        src={article.coverImage}
+                        alt={article.title}
+                        className="w-14 h-14 rounded-xl object-cover shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E5A38] dark:text-[#E05A30]">
+                          {article.category}
+                        </span>
+                        <h4 className="font-editorial text-sm font-bold text-[#141416] dark:text-white truncate">
+                          {article.title}
+                        </h4>
+                        <p className="text-[11px] text-zinc-400 mt-0.5">
+                          {article.readingTime} min read &bull; by {article.author.name}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => onAddBookmark && onAddBookmark(article)}
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#FAF7F2] dark:bg-[#1F2430] hover:bg-[#2E4A3E] hover:text-white dark:hover:bg-emerald-600 text-zinc-700 dark:text-zinc-200 border border-[#EAE4D9] dark:border-[#262C3A] transition-colors shrink-0 cursor-pointer flex items-center space-x-1"
+                      title="Save to reading list"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Save</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         /* Filter Controls & Bookmarks Grid */

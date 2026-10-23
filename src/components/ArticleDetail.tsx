@@ -27,6 +27,7 @@ import { CommentsSection } from './CommentsSection';
 import { fetchCommentsForArticle, createRealComment, deleteRealComment } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { isAuthorFollowed, toggleAuthorFollow } from '../utils/follows';
 
 interface ArticleDetailProps {
   article?: Article | null;
@@ -60,8 +61,13 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   const [likes, setLikes] = useState(article?.likesCount || 0);
   const [hasLiked, setHasLiked] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(() => isAuthorFollowed(article.author.name));
   const [comments, setComments] = useState<Comment[]>([]);
+
+  const handleToggleFollow = () => {
+    const next = toggleAuthorFollow(article.author.name);
+    setIsFollowing(next);
+  };
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
@@ -455,14 +461,14 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                   {article.author.name}
                 </h3>
                 <button
-                  onClick={() => setIsFollowing(!isFollowing)}
+                  onClick={handleToggleFollow}
                   className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full transition-colors cursor-pointer ${
                     isFollowing
                       ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white'
                       : 'bg-zinc-100 dark:bg-[#1F2430] hover:bg-zinc-200 dark:hover:bg-[#262C3A] text-zinc-700 dark:text-zinc-200'
                   }`}
                 >
-                  {isFollowing ? 'Following' : '+ Follow'}
+                  {isFollowing ? '✓ Following' : '+ Follow'}
                 </button>
               </div>
               <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
@@ -587,7 +593,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                 </p>
               </div>
               <button
-                onClick={() => setIsFollowing(!isFollowing)}
+                onClick={handleToggleFollow}
                 className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-colors cursor-pointer self-center sm:self-auto ${
                   isFollowing
                     ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white'
@@ -601,7 +607,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
               {article.author.bio}
             </p>
             <div className="flex items-center justify-center sm:justify-start space-x-4 mt-3 text-xs text-zinc-400 dark:text-zinc-500">
-              <span>{article.author.followers.toLocaleString()} readers</span>
+              <span>{(article.author.followers + (isFollowing ? 1 : 0)).toLocaleString()} readers</span>
               <span>&bull;</span>
               <span>{article.author.articlesCount} published essays</span>
             </div>

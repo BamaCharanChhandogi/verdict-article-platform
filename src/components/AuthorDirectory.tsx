@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, Search, Check, Plus, ExternalLink, BookOpen, Award, ArrowUpRight } from 'lucide-react';
 import { Author } from '../types';
 import { fetchAuthors } from '../services/api';
+import { getFollowedAuthors, toggleAuthorFollow } from '../utils/follows';
 
 interface AuthorDirectoryProps {
   onSelectAuthorArticles?: (authorName: string) => void;
@@ -11,7 +12,7 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
+  const [followingList, setFollowingList] = useState<string[]>(() => getFollowedAuthors());
 
   useEffect(() => {
     let isMounted = true;
@@ -27,11 +28,9 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
     };
   }, []);
 
-  const toggleFollow = (id: string | number) => {
-    setFollowingMap(prev => ({
-      ...prev,
-      [String(id)]: !prev[String(id)]
-    }));
+  const handleToggleFollow = (author: Author) => {
+    toggleAuthorFollow(author.name);
+    setFollowingList(getFollowedAuthors());
   };
 
   const filteredAuthors = authors.filter((author) => {
@@ -98,7 +97,11 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredAuthors.map((author) => {
-            const isFollowing = !!followingMap[String(author.id)];
+            const isFollowing = followingList.some(
+              (k) => k.toLowerCase() === String(author.id).toLowerCase() || k.toLowerCase() === author.name.toLowerCase()
+            );
+            const dynamicFollowers = author.followers + (isFollowing ? 1 : 0);
+
             return (
               <div
                 key={author.id}
@@ -124,10 +127,10 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
                     </div>
 
                     <button
-                      onClick={() => toggleFollow(author.id)}
-                      className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all shrink-0 cursor-pointer flex items-center space-x-1 ${
+                      onClick={() => handleToggleFollow(author)}
+                      className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all shrink-0 cursor-pointer flex items-center space-x-1.5 ${
                         isFollowing
-                          ? 'bg-[#2E4A3E] text-white hover:bg-[#233a30]'
+                          ? 'bg-[#2E4A3E] text-white hover:bg-[#233a30] shadow-xs'
                           : 'bg-[#FAF7F2] dark:bg-[#1E232B] hover:bg-zinc-200 dark:hover:bg-[#252B36] text-[#141416] dark:text-[#F1F3F5] border border-[#EAE4D9] dark:border-[#262C3A]'
                       }`}
                     >
@@ -161,7 +164,7 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
                     </div>
                     <div className="flex items-center space-x-1">
                       <Users className="w-3.5 h-3.5 text-zinc-400" />
-                      <span className="font-semibold text-zinc-800 dark:text-zinc-200">{author.followers.toLocaleString()}</span>
+                      <span className="font-semibold text-zinc-800 dark:text-zinc-200">{dynamicFollowers.toLocaleString()}</span>
                       <span>readers</span>
                     </div>
                   </div>
