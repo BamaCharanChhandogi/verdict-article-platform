@@ -151,12 +151,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </aside>
 
-      {/* DESKTOP FROSTED GLASS CAPSULE DOCK (Matches User Provided Image 2) */}
+      {/* DESKTOP FROSTED GLASS CAPSULE DOCK */}
       <aside 
-        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[54px] h-[352px] py-3.5 px-1.5 rounded-full"
+        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[52px] h-[348px] py-3.5 px-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.45)] border border-white/60 dark:border-white/10"
         style={{
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
         }}
       >
         {navItems.map((item) => {
@@ -174,14 +174,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   setActiveNav(item.id as NavTab);
                   setSelectedCategory('All');
                 }}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                   isActive
-                    ? 'border-2 border-zinc-800 dark:border-white text-zinc-900 dark:text-white bg-transparent'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white'
+                    ? 'bg-[#141416] text-white dark:bg-white dark:text-[#141416] shadow-sm'
+                    : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10'
                 }`}
                 aria-label={item.label}
               >
-                <Icon className="w-5 h-5 stroke-[1.8]" />
+                <Icon className={`w-[18px] h-[18px] ${isActive ? 'stroke-[2.1]' : 'stroke-[1.75]'}`} />
               </button>
 
               {/* Floating Tooltip Pill */}
@@ -193,17 +193,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
 
-        {/* Divider */}
-        <div className="w-6 h-px bg-zinc-300/60 dark:bg-zinc-700/60 my-0.5"></div>
+        {/* Crisp Proportional Divider */}
+        <div className="w-5 h-[1.5px] bg-zinc-300 dark:bg-zinc-700/80 rounded-full my-0.5"></div>
 
         {/* Theme Switcher Button */}
         <div className="relative group flex items-center justify-center">
           <button
             onClick={toggleTheme}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
             aria-label="Toggle Theme"
           >
-            {isDark ? <Sun className="w-5 h-5 text-amber-400 stroke-[1.75]" /> : <Moon className="w-5 h-5 stroke-[1.75]" />}
+            {isDark ? <Sun className="w-[18px] h-[18px] text-amber-400 stroke-[1.8]" /> : <Moon className="w-[18px] h-[18px] stroke-[1.8]" />}
           </button>
           <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
             {isDark ? 'Light Mode' : 'Dark Mode'}
@@ -215,18 +215,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {isAuthenticated ? (
             <button
               onClick={logout}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/20 hover:text-rose-600 transition-all cursor-pointer"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:bg-rose-500/15 hover:text-rose-600 transition-all cursor-pointer"
               aria-label="Sign Out"
             >
-              <LogOut className="w-5 h-5 stroke-[1.75]" />
+              <LogOut className="w-[18px] h-[18px] stroke-[1.8]" />
             </button>
           ) : (
             <button
               onClick={onOpenAuth}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all cursor-pointer"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
               aria-label="Sign In"
             >
-              <LogIn className="w-5 h-5 stroke-[1.75]" />
+              <LogIn className="w-[18px] h-[18px] stroke-[1.8]" />
             </button>
           )}
           <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">

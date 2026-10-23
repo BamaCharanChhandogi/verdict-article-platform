@@ -336,20 +336,20 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
       {/* LEFT FROSTED GLASS CAPSULE: HOME & SOCIAL INTERACTIONS (Matches Feed Dock Dimensions Exactly) */}
       <aside 
-        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[54px] h-[352px] py-3.5 px-1.5 rounded-full"
+        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[52px] h-[348px] py-3.5 px-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.45)] border border-white/60 dark:border-white/10"
         style={{
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
         }}
       >
         {/* Home / Return to Feed */}
         <div className="relative group flex items-center justify-center">
           <button
             onClick={() => navigate(isAuthenticated ? '/feed' : '/')}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
             aria-label="Return to Home Feed"
           >
-            <Home className="w-5 h-5 stroke-[1.8]" />
+            <Home className="w-[18px] h-[18px] stroke-[1.8]" />
           </button>
           <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
             {isAuthenticated ? 'Back to Feed' : 'Back to Home'}
@@ -360,12 +360,12 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <div className="relative group flex items-center justify-center">
           <button
             onClick={handleLike}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer relative"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer relative"
             aria-label="Heart Story"
           >
-            <Heart className={`w-5 h-5 stroke-[1.8] transition-transform group-hover:scale-110 ${hasLiked ? 'fill-rose-500 text-rose-500' : 'text-zinc-700 dark:text-zinc-300'}`} />
+            <Heart className={`w-[18px] h-[18px] stroke-[1.8] transition-transform group-hover:scale-110 ${hasLiked ? 'fill-rose-500 text-rose-500' : 'text-zinc-400 dark:text-zinc-500'}`} />
             {likes > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[9px] font-bold flex items-center justify-center pointer-events-none shadow-xs">
+              <span className="absolute -top-0.5 -right-0.5 min-w-3.5 h-3.5 px-0.5 rounded-full bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[8.5px] font-bold flex items-center justify-center pointer-events-none shadow-xs">
                 {likes}
               </span>
             )}
@@ -379,12 +379,12 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <div className="relative group flex items-center justify-center">
           <button
             onClick={handleScrollToComments}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer relative"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer relative"
             aria-label="Jump to Comments"
           >
-            <MessageSquare className="w-5 h-5 stroke-[1.8] text-zinc-700 dark:text-zinc-300 transition-transform group-hover:scale-110" />
+            <MessageSquare className="w-[18px] h-[18px] stroke-[1.8] text-zinc-400 dark:text-zinc-500 transition-transform group-hover:scale-110" />
             {comments.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[9px] font-bold flex items-center justify-center pointer-events-none shadow-xs">
+              <span className="absolute -top-0.5 -right-0.5 min-w-3.5 h-3.5 px-0.5 rounded-full bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[8.5px] font-bold flex items-center justify-center pointer-events-none shadow-xs">
                 {comments.length}
               </span>
             )}
@@ -398,27 +398,27 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <div className="relative group flex items-center justify-center">
           <button
             onClick={handleBookmarkClick}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
             aria-label={isBookmarked(article.id) ? "Remove from Reading List" : "Save to Reading List"}
           >
-            <Bookmark className={`w-5 h-5 stroke-[1.8] transition-transform group-hover:scale-110 ${isBookmarked(article.id) ? 'fill-current text-[#9E5A38] dark:text-[#E05A30]' : 'text-zinc-700 dark:text-zinc-300'}`} />
+            <Bookmark className={`w-[18px] h-[18px] stroke-[1.8] transition-transform group-hover:scale-110 ${isBookmarked(article.id) ? 'fill-current text-[#9E5A38] dark:text-[#E05A30]' : 'text-zinc-400 dark:text-zinc-500'}`} />
           </button>
           <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
             {isBookmarked(article.id) ? 'Saved in Reading List' : 'Save to Reading List'}
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="w-6 h-px bg-zinc-300/60 dark:bg-zinc-700/60 my-0.5"></div>
+        {/* Crisp Proportional Divider */}
+        <div className="w-5 h-[1.5px] bg-zinc-300 dark:bg-zinc-700/80 rounded-full my-0.5"></div>
 
         {/* Share */}
         <div className="relative group flex items-center justify-center">
           <button
             onClick={handleShare}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
             aria-label="Share Story"
           >
-            {copiedShare ? <Check className="w-5 h-5 text-emerald-600 stroke-[2.2]" /> : <Share2 className="w-5 h-5 stroke-[1.8] group-hover:scale-110 transition-transform text-zinc-700 dark:text-zinc-300" />}
+            {copiedShare ? <Check className="w-[18px] h-[18px] text-emerald-600 stroke-[2.2]" /> : <Share2 className="w-[18px] h-[18px] stroke-[1.8] group-hover:scale-110 transition-transform text-zinc-400 dark:text-zinc-500" />}
           </button>
           <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
             {copiedShare ? 'Copied Link!' : 'Share Story'}
@@ -429,10 +429,10 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <div className="relative group flex items-center justify-center">
           <button
             onClick={toggleTheme}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
             aria-label="Toggle Theme"
           >
-            {isDark ? <Sun className="w-5 h-5 text-amber-400 stroke-[1.75]" /> : <Moon className="w-5 h-5 stroke-[1.75]" />}
+            {isDark ? <Sun className="w-[18px] h-[18px] text-amber-400 stroke-[1.8]" /> : <Moon className="w-[18px] h-[18px] stroke-[1.8]" />}
           </button>
           <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
             {isDark ? 'Light Mode' : 'Dark Mode'}
@@ -443,27 +443,27 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       {/* RIGHT FROSTED GLASS CAPSULE: AUDIO NARRATION & READING ENGINE (Matches Left Symmetrically) */}
       {audioSupported && (
         <aside 
-          className="fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-5 px-2.5 rounded-full space-y-4 w-16"
+          className="fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[52px] h-[348px] py-3.5 px-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.45)] border border-white/60 dark:border-white/10"
           style={{
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
           }}
         >
           {/* Audio Play / Pause */}
           <div className="relative group flex items-center justify-center">
             <button
               onClick={handleToggleAudio}
-              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md ${
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm ${
                 isPlayingAudio 
                   ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white animate-pulse' 
-                  : 'bg-white dark:bg-white text-black hover:scale-105'
+                  : 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] hover:scale-105'
               }`}
               aria-label={isPlayingAudio ? "Pause Audio" : "Listen to Story"}
             >
               {isPlayingAudio ? (
-                <Pause className="w-5 h-5 fill-current" />
+                <Pause className="w-4 h-4 fill-current" />
               ) : (
-                <Play className="w-5 h-5 fill-current ml-0.5" />
+                <Play className="w-4 h-4 fill-current ml-0.5" />
               )}
             </button>
             <div className="absolute right-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
@@ -472,19 +472,19 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           </div>
 
           {/* Equalizer Visualizer when playing */}
-          {isPlayingAudio && (
+          {isPlayingAudio ? (
             <div className="flex items-end justify-center space-x-0.5 h-3">
               <span className="w-1 bg-emerald-500 rounded-full animate-bounce h-2"></span>
               <span className="w-1 bg-emerald-600 rounded-full animate-bounce h-3 delay-75"></span>
               <span className="w-1 bg-emerald-500 rounded-full animate-bounce h-1.5 delay-150"></span>
             </div>
-          )}
+          ) : <div className="h-3" />}
 
           {/* Speed Toggle */}
           <div className="relative group flex items-center justify-center">
             <button
               onClick={() => handleChangeRate(speechRate === 1 ? 1.25 : speechRate === 1.25 ? 1.5 : speechRate === 1.5 ? 2 : 1)}
-              className="px-2 py-0.5 rounded-full text-[11px] font-bold text-zinc-800 dark:text-zinc-100 bg-white/40 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 transition-all cursor-pointer"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer"
               aria-label="Playback Speed"
             >
               {speechRate}x
@@ -494,20 +494,20 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="w-6 h-px bg-zinc-300/60 dark:bg-zinc-700/60 my-0.5"></div>
+          {/* Crisp Proportional Divider */}
+          <div className="w-5 h-[1.5px] bg-zinc-300 dark:bg-zinc-700/80 rounded-full my-0.5"></div>
 
           {/* Font Size Toggle */}
           <div className="relative group flex items-center justify-center">
             <button
               onClick={() => setFontSize(fontSize === 'normal' ? 'large' : fontSize === 'large' ? 'xlarge' : 'normal')}
-              className="w-10 h-10 rounded-full flex flex-col items-center justify-center text-zinc-800 dark:text-zinc-100 hover:bg-white/40 dark:hover:bg-white/10 transition-all cursor-pointer font-bold"
+              className="w-9 h-9 rounded-full flex flex-col items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-black/5 dark:hover:bg-white/10 transition-all cursor-pointer font-bold"
               aria-label="Font Size"
             >
               <span className={`transition-all font-bold ${fontSize === 'normal' ? 'text-xs' : fontSize === 'large' ? 'text-sm scale-110' : 'text-base scale-125'}`}>
                 Aa
               </span>
-              <span className="text-[8px] font-sans text-zinc-400 dark:text-zinc-500 uppercase -mt-0.5 tracking-tighter">
+              <span className="text-[7.5px] font-sans text-zinc-400 dark:text-zinc-500 uppercase -mt-0.5 tracking-tighter">
                 {fontSize === 'normal' ? '1x' : fontSize === 'large' ? '1.2x' : '1.5x'}
               </span>
             </button>
@@ -520,10 +520,10 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           <div className="relative group flex items-center justify-center">
             <button
               onClick={() => setIsSerifFont(prev => !prev)}
-              className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all cursor-pointer border ${
+              className={`w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold transition-all cursor-pointer ${
                 isSerifFont 
-                  ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] border-[#141416] dark:border-white shadow-xs font-serif' 
-                  : 'bg-white/50 dark:bg-zinc-800/50 text-[#9E5A38] dark:text-[#E05A30] border-zinc-300 dark:border-zinc-700 font-sans'
+                  ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] shadow-xs font-serif' 
+                  : 'bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 font-sans'
               }`}
               aria-label="Toggle Font Style"
             >
