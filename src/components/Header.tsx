@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Menu, X, Sparkles } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
@@ -65,12 +65,10 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenEditor();
             }
           }}
-          className="inline-flex items-center space-x-1.5 bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white text-white dark:text-[#0E1116] text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-2xs cursor-pointer shrink-0 group"
-          title={isAuthenticated ? "Write a new story" : "Publish an essay on Verdict"}
+          className="bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white text-white dark:text-[#0E1116] text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-2xs cursor-pointer shrink-0"
+          title={isAuthenticated ? "Write a new story" : "Write here on Verdict"}
         >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400 dark:text-amber-600 group-hover:rotate-12 transition-transform" />
-          <span className="hidden sm:inline">Publish Story ✦</span>
-          <span className="sm:hidden">Write</span>
+          <span>Write here</span>
         </button>
       </div>
     </header>
