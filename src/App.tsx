@@ -42,7 +42,6 @@ export function App() {
   const [articles, setArticles] = useState<Article[]>(fallbackArticles);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -82,7 +81,6 @@ export function App() {
   // Real Multi-API & Editorial Articles Fetch on Mount + User Drafts Sync
   useEffect(() => {
     let isMounted = true;
-    setIsLoading(true);
 
     fetchArticles().then((data) => {
       if (isMounted) {
@@ -98,7 +96,6 @@ export function App() {
         } catch (e) {
           setArticles(data);
         }
-        setIsLoading(false);
       }
     });
 
@@ -450,20 +447,14 @@ export function App() {
                     />
                   </div>
 
-                  {isLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
-                      {[1, 2, 3, 4].map(i => <ArticleCardSkeleton key={i} />)}
-                    </div>
-                  ) : (
-                    <ArticleGrid
-                      articles={filteredArticles}
-                      onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
-                      onBookmarkToggle={handleBookmarkToggle}
-                      isBookmarked={isBookmarked}
-                      onResetFilters={() => setSelectedCategory('All')}
-                      activeFilterName={selectedCategory}
-                    />
-                  )}
+                  <ArticleGrid
+                    articles={filteredArticles}
+                    onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                    onBookmarkToggle={handleBookmarkToggle}
+                    isBookmarked={isBookmarked}
+                    onResetFilters={() => setSelectedCategory('All')}
+                    activeFilterName={selectedCategory}
+                  />
                 </main>
               )
             }
@@ -501,33 +492,29 @@ export function App() {
                   </div>
                 ) : (
                   <>
-                    {isLoading ? (
-                      <HeroSkeleton />
-                    ) : (
-                      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-                        <div className="xl:col-span-9 space-y-6">
-                          <HeroSection onExploreClick={() => {
-                            const el = document.getElementById('latest-articles-section');
-                            el?.scrollIntoView({ behavior: 'smooth' });
-                          }} />
+                    <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+                      <div className="xl:col-span-9 space-y-6">
+                        <HeroSection onExploreClick={() => {
+                          const el = document.getElementById('latest-articles-section');
+                          el?.scrollIntoView({ behavior: 'smooth' });
+                        }} />
 
-                          <FeaturedCarousel
-                            articles={filteredArticles}
-                            onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
-                          />
-                        </div>
-
-                        <div className="xl:col-span-3 pt-4 xl:pt-8 xl:border-l xl:border-[#EAE4D9] dark:xl:border-[#262C3A] xl:pl-6">
-                          <EditorsPicks
-                            articles={filteredArticles}
-                            onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
-                            onBookmarkToggle={handleBookmarkToggle}
-                            isBookmarked={isBookmarked}
-                            onSeeAllClick={() => setSelectedCategory('All')}
-                          />
-                        </div>
+                        <FeaturedCarousel
+                          articles={filteredArticles}
+                          onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                        />
                       </div>
-                    )}
+
+                      <div className="xl:col-span-3 pt-4 xl:pt-8 xl:border-l xl:border-[#EAE4D9] dark:xl:border-[#262C3A] xl:pl-6">
+                        <EditorsPicks
+                          articles={filteredArticles}
+                          onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                          onBookmarkToggle={handleBookmarkToggle}
+                          isBookmarked={isBookmarked}
+                          onSeeAllClick={() => setSelectedCategory('All')}
+                        />
+                      </div>
+                    </div>
 
                     <div className="mt-8">
                       <CategoryPills
@@ -538,20 +525,14 @@ export function App() {
                     </div>
 
                     <div id="latest-articles-section">
-                      {isLoading ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
-                          {[1, 2, 3, 4].map(i => <ArticleCardSkeleton key={i} />)}
-                        </div>
-                      ) : (
-                        <ArticleGrid
-                          articles={filteredArticles}
-                          onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
-                          onBookmarkToggle={handleBookmarkToggle}
-                          isBookmarked={isBookmarked}
-                          onResetFilters={() => setSelectedCategory('All')}
-                          activeFilterName={selectedCategory}
-                        />
-                      )}
+                      <ArticleGrid
+                        articles={filteredArticles}
+                        onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                        onBookmarkToggle={handleBookmarkToggle}
+                        isBookmarked={isBookmarked}
+                        onResetFilters={() => setSelectedCategory('All')}
+                        activeFilterName={selectedCategory}
+                      />
                     </div>
                   </>
                 )}
