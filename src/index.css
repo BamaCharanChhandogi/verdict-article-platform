@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Manrope', 'Inter', system-ui, -apple-system, sans-serif;
+  
+  --color-warm-ivory: #FAF7F2;
+  --color-warm-surface: #FFFFFF;
+  --color-warm-border: #EAE4D9;
+  --color-warm-border-strong: #D5CEBF;
+  --color-charcoal: #141416;
+  --color-charcoal-muted: #6B6861;
+  --color-earth-green: #2E4A3E;
+  --color-earth-green-light: #EBF1EE;
+  --color-earth-brown: #9E5A38;
+  --color-earth-brown-light: #F7EFE9;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #FAF7F2;
+  color: #141416;
+  letter-spacing: -0.012em;
+}
+
+/* Headings Editorial Styling */
+h1, h2, h3, .font-editorial {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Custom Minimalist Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8D2C4;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B6AEA0;
+}
+
+/* Shimmer Loading Animation */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.animate-shimmer::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.45) 20%,
+    rgba(255, 255, 255, 0.7) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 1.8s infinite;
+  content: '';
+}
