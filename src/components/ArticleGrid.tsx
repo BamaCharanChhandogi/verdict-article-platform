@@ -238,6 +238,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
                   onSelectTag={onSelectCategory || (() => {})}
                   selectedTag={activeFilterName as Category}
                   onOpenAuthors={onOpenAuthors}
+                  onOpenAuth={onOpenAuth}
                 />
               </div>
             </div>

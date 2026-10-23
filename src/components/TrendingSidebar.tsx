@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { TrendingUp, Users, Check, Plus, ExternalLink } from 'lucide-react';
 import { Category } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface TrendingSidebarProps {
   onSelectTag: (tag: Category) => void;
   selectedTag?: Category;
   onOpenAuthors?: () => void;
+  onOpenAuth?: () => void;
 }
 
 interface TrendingTagItem {
@@ -103,10 +105,16 @@ export const TrendingSidebar: React.FC<TrendingSidebarProps> = ({
   onSelectTag,
   selectedTag,
   onOpenAuthors,
+  onOpenAuth,
 }) => {
+  const { isAuthenticated } = useAuth();
   const [followingState, setFollowingState] = useState<Record<string, boolean>>({});
 
   const toggleFollow = (handle: string) => {
+    if (!isAuthenticated) {
+      if (onOpenAuth) onOpenAuth();
+      return;
+    }
     setFollowingState(prev => ({
       ...prev,
       [handle]: !prev[handle],
@@ -248,12 +256,6 @@ export const TrendingSidebar: React.FC<TrendingSidebarProps> = ({
         </div>
       </div>
 
-      {/* 3. Publication Badge / Footer snippet */}
-      <div className="px-3 text-[11px] text-zinc-400 dark:text-zinc-500 leading-relaxed space-y-2">
-        <p>
-          &copy; {new Date().getFullYear()} Verdict Media &bull; Distributed via Cloudflare CDN &amp; Neon PostgreSQL.
-        </p>
-      </div>
     </aside>
   );
 };

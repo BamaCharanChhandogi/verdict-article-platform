@@ -3,12 +3,15 @@ import { Users, Search, Check, Plus, ExternalLink, BookOpen, Award, ArrowUpRight
 import { Author } from '../types';
 import { fetchAuthors } from '../services/api';
 import { getFollowedAuthors, toggleAuthorFollow } from '../utils/follows';
+import { useAuth } from '../context/AuthContext';
 
 interface AuthorDirectoryProps {
   onSelectAuthorArticles?: (authorName: string) => void;
+  onOpenAuth?: () => void;
 }
 
-export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthorArticles }) => {
+export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthorArticles, onOpenAuth }) => {
+  const { isAuthenticated } = useAuth();
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -29,6 +32,10 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
   }, []);
 
   const handleToggleFollow = (author: Author) => {
+    if (!isAuthenticated) {
+      if (onOpenAuth) onOpenAuth();
+      return;
+    }
     toggleAuthorFollow(author.name);
     setFollowingList(getFollowedAuthors());
   };

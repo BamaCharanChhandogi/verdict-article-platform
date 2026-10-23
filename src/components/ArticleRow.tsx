@@ -178,6 +178,10 @@ export const ArticleRow: React.FC<ArticleRowProps> = ({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              if (!isAuthenticated) {
+                if (onOpenAuth) onOpenAuth();
+                return;
+              }
               onBookmarkToggle(article);
             }}
             className={`p-1.5 rounded-full transition-colors cursor-pointer ${

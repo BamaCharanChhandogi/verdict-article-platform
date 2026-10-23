@@ -343,6 +343,7 @@ export function App() {
                     setSelectedCategory('All');
                     navigate('/');
                   }}
+                  onOpenAuth={() => setIsAuthOpen(true)}
                 />
               </main>
             }

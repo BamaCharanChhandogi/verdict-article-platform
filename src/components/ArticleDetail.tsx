@@ -65,6 +65,10 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   const [comments, setComments] = useState<Comment[]>([]);
 
   const handleToggleFollow = () => {
+    if (!isAuthenticated) {
+      if (onOpenAuth) onOpenAuth();
+      return;
+    }
     const next = toggleAuthorFollow(article.author.name);
     setIsFollowing(next);
   };
