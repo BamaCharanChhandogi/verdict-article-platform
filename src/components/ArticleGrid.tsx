@@ -232,8 +232,8 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
                 ))}
               </div>
 
-              {/* Right Column: Sticky Trending Tags & Top Writers Sidebar */}
-              <div className="lg:col-span-4 sticky top-24 hidden lg:block">
+              {/* Right Column: Natural Scrolling Trending Tags & Top Writers Sidebar */}
+              <div className="lg:col-span-4 hidden lg:block space-y-6">
                 <TrendingSidebar
                   onSelectTag={onSelectCategory || (() => {})}
                   selectedTag={activeFilterName as Category}
