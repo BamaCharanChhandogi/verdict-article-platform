@@ -73,10 +73,16 @@ export async function fetchArticles(): Promise<Article[]> {
       });
     }
 
-    // Merge: PostgreSQL real database articles first, then live multi-API articles
-    const combined = dbArticles.length > 0 
-      ? [...dbArticles, ...remoteArticles] 
-      : (remoteArticles.length > 0 ? remoteArticles : fallbackArticles);
+    // Merge: PostgreSQL real database articles first, then curated editorial articles, then live multi-API articles
+    const allArticles = [...dbArticles, ...fallbackArticles, ...remoteArticles];
+    const uniqueMap = new Map<string, Article>();
+    allArticles.forEach((art) => {
+      const key = art.slug || String(art.id);
+      if (key && !uniqueMap.has(key)) {
+        uniqueMap.set(key, art);
+      }
+    });
+    const combined = Array.from(uniqueMap.values());
 
     appCache.set(cacheKey, combined);
     return combined;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -75,25 +75,64 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
   const { draftId } = useParams<{ draftId?: string }>();
   const navigate = useNavigate();
 
-  // Active Draft ID in PostgreSQL
-  const [activeDraftId, setActiveDraftId] = useState<string | number | undefined>(
-    initialDraft?.id || draftId
-  );
+  // 1. Resolve existing draft from initialDraft prop, draftId in localStorage, or active draft
+  const existingDraft = useMemo(() => {
+    if (initialDraft) return initialDraft;
 
-  // Metadata states
-  const [title, setTitle] = useState(initialDraft?.title || '');
-  const [subtitle, setSubtitle] = useState(initialDraft?.subtitle || initialDraft?.description || '');
-  const [showSubtitleInput, setShowSubtitleInput] = useState(!!(initialDraft?.subtitle || initialDraft?.description));
-  const [showCoverSection, setShowCoverSection] = useState(!!initialDraft?.coverImage);
-  const [category, setCategory] = useState<Category>((initialDraft?.category as Category) || 'Technology');
-  const [coverImage, setCoverImage] = useState(initialDraft?.coverImage || '');
-  const [tagsInput, setTagsInput] = useState(initialDraft?.tags ? initialDraft.tags.join(', ') : '');
-  const [seriesName, setSeriesName] = useState(initialDraft?.seriesName || 'None');
-  const [seoTitle, setSeoTitle] = useState(initialDraft?.seoTitle || '');
-  const [seoDescription, setSeoDescription] = useState(initialDraft?.seoDescription || '');
-  const [canonicalUrl, setCanonicalUrl] = useState(initialDraft?.canonicalUrl || '');
-  const [scheduledAt, setScheduledAt] = useState(initialDraft?.scheduledAt || '');
-  const [isUnlisted, setIsUnlisted] = useState(initialDraft?.isUnlisted || false);
+    // Check localStorage user drafts
+    if (draftId) {
+      try {
+        const storedDrafts: Article[] = JSON.parse(localStorage.getItem('verdict_user_drafts') || '[]');
+        const found = storedDrafts.find(d => String(d.id) === String(draftId));
+        if (found) return found;
+      } catch (e) {}
+    }
+
+    // Check active draft in localStorage
+    try {
+      const activeRaw = localStorage.getItem('verdict_active_draft');
+      if (activeRaw) {
+        const active = JSON.parse(activeRaw);
+        if (active && (active.title || active.content)) {
+          if (!draftId || String(active.id) === String(draftId)) {
+            return active;
+          }
+        }
+      }
+    } catch (e) {}
+
+    return null;
+  }, [initialDraft, draftId]);
+
+  // Guaranteed stable Draft ID: Never undefined!
+  const [activeDraftId, setActiveDraftId] = useState<string | number>(() => {
+    if (initialDraft?.id) return initialDraft.id;
+    if (draftId) return draftId;
+    if (existingDraft?.id) return existingDraft.id;
+    return `draft_${Date.now()}`;
+  });
+
+  // Keep route synced: If user visits bare /write, immediately permalink to /write/:activeDraftId
+  useEffect(() => {
+    if (!draftId && activeDraftId) {
+      navigate(`/write/${activeDraftId}`, { replace: true });
+    }
+  }, [draftId, activeDraftId, navigate]);
+
+  // Metadata states (restores existing draft if user refreshed the page)
+  const [title, setTitle] = useState(existingDraft?.title || '');
+  const [subtitle, setSubtitle] = useState(existingDraft?.subtitle || existingDraft?.description || '');
+  const [showSubtitleInput, setShowSubtitleInput] = useState(!!(existingDraft?.subtitle || existingDraft?.description));
+  const [showCoverSection, setShowCoverSection] = useState(!!existingDraft?.coverImage);
+  const [category, setCategory] = useState<Category>((existingDraft?.category as Category) || 'Technology');
+  const [coverImage, setCoverImage] = useState(existingDraft?.coverImage || '');
+  const [tagsInput, setTagsInput] = useState(existingDraft?.tags ? existingDraft.tags.join(', ') : '');
+  const [seriesName, setSeriesName] = useState(existingDraft?.seriesName || 'None');
+  const [seoTitle, setSeoTitle] = useState(existingDraft?.seoTitle || '');
+  const [seoDescription, setSeoDescription] = useState(existingDraft?.seoDescription || '');
+  const [canonicalUrl, setCanonicalUrl] = useState(existingDraft?.canonicalUrl || '');
+  const [scheduledAt, setScheduledAt] = useState(existingDraft?.scheduledAt || '');
+  const [isUnlisted, setIsUnlisted] = useState(existingDraft?.isUnlisted || false);
 
   // UI Drawer & Preview States
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -105,9 +144,18 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
   const [errorMessage, setErrorMessage] = useState('');
 
   // Initial Content Setup
-  const initialContent = initialDraft?.content 
-    ? initialDraft.content.replace(/^#\s+/gm, '<h1>').replace(/^##\s+/gm, '<h2>').replace(/^###\s+/gm, '<h3>').replace(/\n\n/g, '<p></p>')
-    : '';
+  const initialContent = useMemo(() => {
+    const raw = existingDraft?.content || '';
+    if (!raw) return '';
+    if (raw.includes('<p>') || raw.includes('<h1>') || raw.includes('<div>')) {
+      return raw;
+    }
+    return raw
+      .replace(/^#\s+/gm, '<h1>')
+      .replace(/^##\s+/gm, '<h2>')
+      .replace(/^###\s+/gm, '<h3>')
+      .replace(/\n\n/g, '<p></p>');
+  }, [existingDraft]);
 
   // TipTap Rich-Text Engine
   const editor = useEditor({
@@ -138,9 +186,16 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
     },
   });
 
-  // Load draft from DB if draftId route param provided
+  // Ensure content is set in editor if editor ready after state
   useEffect(() => {
-    if (draftId && (!initialDraft || initialDraft.id !== draftId)) {
+    if (editor && existingDraft?.content && editor.isEmpty) {
+      editor.commands.setContent(initialContent);
+    }
+  }, [editor, existingDraft, initialContent]);
+
+  // Load draft from remote backend if available
+  useEffect(() => {
+    if (draftId && !existingDraft) {
       fetchSingleArticle(draftId).then((loaded) => {
         if (loaded) {
           setActiveDraftId(loaded.id);
@@ -156,61 +211,92 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
         }
       });
     }
-  }, [draftId]);
+  }, [draftId, existingDraft, editor]);
 
   // Live word count & reading time
   const textContent = editor?.getText() || '';
   const wordCount = textContent.trim() ? textContent.trim().split(/\s+/).length : 0;
   const estimatedReadingTime = Math.max(1, Math.ceil(wordCount / 200));
 
-  // Auto-Save Draft to PostgreSQL & LocalStorage Debounce
+  // Auto-Save Draft to LocalStorage & Remote Service (Debounced 1000ms)
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (!title.trim() && !textContent.trim()) return;
 
       setSaveStatus('saving');
       const htmlContent = editor?.getHTML() || '';
-      const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
-      const draftPayload = {
+      const tags = tagsInput.split(',').map((t: string) => t.trim()).filter(Boolean);
+      const currentId = activeDraftId || draftId || `draft_${Date.now()}`;
+
+      const draftPayload: Article = {
+        id: currentId,
         title: title.trim() || 'Untitled Draft',
+        slug: (title.trim() || 'untitled-draft').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || `draft-${Date.now()}`,
         subtitle: subtitle.trim(),
         description: subtitle.trim() || textContent.slice(0, 160).replace(/[#*`_]/g, '') + '...',
         content: htmlContent,
-        cover_image: coverImage,
+        coverImage,
         category,
         tags: tags.length ? tags : ['Culture', 'Perspective'],
-        status: 'draft' as const,
-        seo_title: seoTitle,
-        seo_description: seoDescription,
-        canonical_url: canonicalUrl,
-        series_name: seriesName,
-        is_unlisted: isUnlisted,
-        scheduled_at: scheduledAt || null,
+        status: 'draft',
+        author: {
+          id: user?.id || 'user-demo-1',
+          name: user?.name || 'Author',
+          avatar: user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+          role: user?.role || 'Contributing Author',
+          bio: user?.bio || 'Writing on Verdict.',
+          followers: 14200,
+          articlesCount: 42,
+        },
+        publishedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        readingTime: estimatedReadingTime,
+        likesCount: 0,
+        commentsCount: 0,
+        updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        seoTitle,
+        seoDescription,
+        canonicalUrl,
+        seriesName,
+        isUnlisted,
+        scheduledAt: scheduledAt || undefined,
       };
 
+      // 1. Save to localStorage user drafts list (verdict_user_drafts)
       try {
-        if (activeDraftId && !String(activeDraftId).startsWith('local-')) {
-          // Update in-place in PostgreSQL
-          await updateRealArticle(activeDraftId, draftPayload, token);
+        const storedDrafts: Article[] = JSON.parse(localStorage.getItem('verdict_user_drafts') || '[]');
+        const idx = storedDrafts.findIndex(d => String(d.id) === String(currentId));
+        if (idx >= 0) {
+          storedDrafts[idx] = draftPayload;
         } else {
-          // First-time save to PostgreSQL
-          const created = await createRealArticle(draftPayload, token);
-          if (created?.id) {
-            setActiveDraftId(created.id);
-          }
+          storedDrafts.unshift(draftPayload);
         }
-
-        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        setLastSavedTime(timeStr);
-        setSaveStatus('saved');
-        localStorage.setItem('verdict_active_draft', JSON.stringify({ ...draftPayload, id: activeDraftId }));
+        localStorage.setItem('verdict_user_drafts', JSON.stringify(storedDrafts));
+        localStorage.setItem('verdict_active_draft', JSON.stringify(draftPayload));
       } catch (err) {
-        setSaveStatus('idle');
+        console.warn('LocalStorage draft persistence error:', err);
       }
-    }, 1500);
+
+      // 2. Try remote API sync if available
+      try {
+        await updateRealArticle(currentId, {
+          title: draftPayload.title,
+          subtitle: draftPayload.subtitle,
+          description: draftPayload.description,
+          content: htmlContent,
+          cover_image: coverImage,
+          category,
+          tags: draftPayload.tags,
+          status: 'draft',
+        }, token).catch(() => null);
+      } catch (e) {}
+
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setLastSavedTime(timeStr);
+      setSaveStatus('saved');
+    }, 1000);
 
     return () => clearTimeout(timer);
-  }, [title, subtitle, category, coverImage, textContent, tagsInput, seriesName, seoTitle, seoDescription, canonicalUrl, isUnlisted, scheduledAt, editor]);
+  }, [title, subtitle, category, coverImage, textContent, tagsInput, seriesName, seoTitle, seoDescription, canonicalUrl, isUnlisted, scheduledAt, editor, activeDraftId, draftId, user, token, estimatedReadingTime]);
 
 // High-performance image optimizer for instant local and persistent remote storage
 const processImageFile = (file: File): Promise<string> => {
@@ -313,7 +399,7 @@ const processImageFile = (file: File): Promise<string> => {
     setErrorMessage('');
     setIsPublishing(true);
 
-    const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
+    const tags = tagsInput.split(',').map((t: string) => t.trim()).filter(Boolean);
     const articlePayload = {
       title: title.trim(),
       subtitle: subtitle.trim(),
@@ -368,7 +454,12 @@ const processImageFile = (file: File): Promise<string> => {
 
     setIsPublishing(false);
     setIsSettingsOpen(false);
-    localStorage.removeItem('verdict_active_draft');
+    try {
+      const storedDrafts: Article[] = JSON.parse(localStorage.getItem('verdict_user_drafts') || '[]');
+      const filtered = storedDrafts.filter(d => String(d.id) !== String(activeDraftId));
+      localStorage.setItem('verdict_user_drafts', JSON.stringify(filtered));
+      localStorage.removeItem('verdict_active_draft');
+    } catch (e) {}
     onArticlePublished(finalArticle || fallbackArticle);
   };
 

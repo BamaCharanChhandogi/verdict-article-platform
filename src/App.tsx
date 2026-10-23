@@ -79,14 +79,25 @@ export function App() {
     }
   }, [bookmarkedIds]);
 
-  // Real Multi-API & PostgreSQL Fetch on Mount
+  // Real Multi-API & Editorial Articles Fetch on Mount + User Drafts Sync
   useEffect(() => {
     let isMounted = true;
     setIsLoading(true);
 
     fetchArticles().then((data) => {
       if (isMounted) {
-        setArticles(data);
+        try {
+          const storedDrafts: Article[] = JSON.parse(localStorage.getItem('verdict_user_drafts') || '[]');
+          if (storedDrafts.length > 0) {
+            const serverIds = new Set(data.map(d => String(d.id)));
+            const uniqueDrafts = storedDrafts.filter(d => !serverIds.has(String(d.id)));
+            setArticles([...uniqueDrafts, ...data]);
+          } else {
+            setArticles(data);
+          }
+        } catch (e) {
+          setArticles(data);
+        }
         setIsLoading(false);
       }
     });
@@ -122,9 +133,21 @@ export function App() {
     return articles.filter(a => bookmarkedIds.includes(String(a.id)));
   }, [articles, bookmarkedIds]);
 
-  // Delete article handler (real database sync)
+  // Delete article handler (real database sync & local drafts cleanup)
   const handleDeleteArticle = (id: string | number) => {
     setArticles((prev) => prev.filter((a) => a.id !== id));
+    try {
+      const storedDrafts: Article[] = JSON.parse(localStorage.getItem('verdict_user_drafts') || '[]');
+      const filtered = storedDrafts.filter(d => String(d.id) !== String(id));
+      localStorage.setItem('verdict_user_drafts', JSON.stringify(filtered));
+      const activeRaw = localStorage.getItem('verdict_active_draft');
+      if (activeRaw) {
+        const active = JSON.parse(activeRaw);
+        if (String(active?.id) === String(id)) {
+          localStorage.removeItem('verdict_active_draft');
+        }
+      }
+    } catch (e) {}
   };
 
   // Article published or saved in Dedicated Studio
