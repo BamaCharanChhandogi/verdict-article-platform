@@ -44,6 +44,7 @@ interface DedicatedWriterStudioProps {
   onBack: () => void;
   onArticlePublished: (article: Article) => void;
   initialDraft?: Partial<Article> | null;
+  onOpenAuth?: () => void;
 }
 
 const CATEGORIES: Category[] = [
@@ -68,8 +69,9 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
   onBack,
   onArticlePublished,
   initialDraft,
+  onOpenAuth,
 }) => {
-  const { user, token } = useAuth();
+  const { user, token, isAuthenticated } = useAuth();
   const { draftId } = useParams<{ draftId?: string }>();
   const navigate = useNavigate();
 
@@ -84,8 +86,8 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
   const [showSubtitleInput, setShowSubtitleInput] = useState(!!(initialDraft?.subtitle || initialDraft?.description));
   const [showCoverSection, setShowCoverSection] = useState(!!initialDraft?.coverImage);
   const [category, setCategory] = useState<Category>((initialDraft?.category as Category) || 'Technology');
-  const [coverImage, setCoverImage] = useState(initialDraft?.coverImage || COVER_PRESETS[0].url);
-  const [tagsInput, setTagsInput] = useState(initialDraft?.tags ? initialDraft.tags.join(', ') : 'Engineering, Design');
+  const [coverImage, setCoverImage] = useState(initialDraft?.coverImage || '');
+  const [tagsInput, setTagsInput] = useState(initialDraft?.tags ? initialDraft.tags.join(', ') : '');
   const [seriesName, setSeriesName] = useState(initialDraft?.seriesName || 'None');
   const [seoTitle, setSeoTitle] = useState(initialDraft?.seoTitle || '');
   const [seoDescription, setSeoDescription] = useState(initialDraft?.seoDescription || '');
@@ -105,7 +107,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
   // Initial Content Setup
   const initialContent = initialDraft?.content 
     ? initialDraft.content.replace(/^#\s+/gm, '<h1>').replace(/^##\s+/gm, '<h2>').replace(/^###\s+/gm, '<h3>').replace(/\n\n/g, '<p></p>')
-    : `<h2>The Architecture of Clarity</h2><p>Every breakthrough begins with the courage to question consensus. In an age saturated by instant algorithmic validation, true depth emerges not from consuming more, but from thinking more rigorously about what is essential.</p><blockquote>"The ultimate elegance in software and design is not how much you can add, but the disciplined restraint of knowing what to leave untouched."</blockquote><p>When our systems prioritize depth over velocity, the work we produce leaves an indelible mark on culture.</p>`;
+    : '';
 
   // TipTap Rich-Text Engine
   const editor = useEditor({
@@ -337,7 +339,7 @@ const processImageFile = (file: File): Promise<string> => {
       finalArticle = await createRealArticle(articlePayload, token);
     }
 
-    const authorName = user?.name || 'Elena Rostova';
+    const authorName = user?.name || 'Author';
     const fallbackArticle: Article = {
       id: activeDraftId || `art_${Date.now()}`,
       title: title.trim(),
@@ -347,17 +349,17 @@ const processImageFile = (file: File): Promise<string> => {
       coverImage,
       category,
       author: {
-        id: user?.id || 'user-demo-1',
+        id: user?.id || 'usr_author',
         name: authorName,
         avatar: user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-        role: user?.role || 'Staff Author',
-        bio: user?.bio || 'Writing on craft and architecture.',
-        followers: 14200,
-        articlesCount: 28,
+        role: user?.role || 'Author',
+        bio: user?.bio || 'Contributing author at Verdict.',
+        followers: 1,
+        articlesCount: 1,
       },
       publishedAt: 'Just now',
       readingTime: estimatedReadingTime,
-      likesCount: 1,
+      likesCount: 0,
       commentsCount: 0,
       tags: articlePayload.tags,
       status: 'published',
@@ -369,6 +371,60 @@ const processImageFile = (file: File): Promise<string> => {
     localStorage.removeItem('verdict_active_draft');
     onArticlePublished(finalArticle || fallbackArticle);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] text-[#141416] dark:text-[#F1F3F5] flex flex-col items-center justify-center px-4 relative">
+        {/* Floating Frosted Glass Capsule Dock */}
+        <aside 
+          className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-4 px-2 rounded-full space-y-3.5"
+          style={{
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        >
+          <div className="relative group flex items-center justify-center">
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all cursor-pointer"
+              aria-label="Back to Feed"
+            >
+              <Home className="w-5 h-5 stroke-[1.8]" />
+            </button>
+            <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              Home Feed
+            </div>
+          </div>
+        </aside>
+
+        <div className="max-w-md w-full text-center p-8 bg-white/80 dark:bg-[#151921]/80 backdrop-blur-md rounded-3xl border border-[#EAE4D9] dark:border-[#262C3A] shadow-xl">
+          <div className="w-14 h-14 rounded-2xl bg-[#2E4A3E]/10 dark:bg-emerald-950/40 text-[#2E4A3E] dark:text-emerald-400 flex items-center justify-center mx-auto mb-5">
+            <Edit3 className="w-7 h-7" />
+          </div>
+          <h2 className="font-editorial text-3xl font-bold text-[#141416] dark:text-white mb-2">
+            Writer Studio
+          </h2>
+          <p className="font-sans text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">
+            Please sign in or create an author profile to draft, write, and publish stories on Verdict.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => onOpenAuth ? onOpenAuth() : navigate('/')}
+              className="w-full sm:w-auto bg-[#141416] dark:bg-white hover:bg-black dark:hover:bg-zinc-200 text-white dark:text-[#141416] text-xs font-semibold px-6 py-2.5 rounded-full transition-all shadow-sm cursor-pointer"
+            >
+              Sign In to Write
+            </button>
+            <button
+              onClick={onBack}
+              className="w-full sm:w-auto bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-semibold px-5 py-2.5 rounded-full border border-zinc-300 dark:border-zinc-700 transition-all cursor-pointer"
+            >
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] text-[#141416] dark:text-[#F1F3F5] flex flex-col">
@@ -387,7 +443,7 @@ const processImageFile = (file: File): Promise<string> => {
 
           <div className="flex items-center space-x-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300 truncate">
             <span className="text-[#141416] dark:text-white font-bold truncate">
-              {user?.name || 'Elena Rostova'}
+              {user?.name || 'Author'}
             </span>
             <span className="text-zinc-300 dark:text-zinc-600">/</span>
             <button 
@@ -783,9 +839,9 @@ const processImageFile = (file: File): Promise<string> => {
         setIsUnlisted={setIsUnlisted}
         onPublish={handlePublish}
         isPublishing={isPublishing}
-        authorName={user?.name || 'Elena Rostova'}
+        authorName={user?.name || 'Author'}
         authorAvatar={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
-        authorRole={user?.role || 'Staff Author'}
+        authorRole={user?.role || 'Author'}
       />
     </div>
   );

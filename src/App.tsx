@@ -35,7 +35,7 @@ const ALL_CATEGORIES: Category[] = [
 export function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const [articles, setArticles] = useState<Article[]>(fallbackArticles);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
@@ -96,10 +96,17 @@ export function App() {
     };
   }, []);
 
-  // Filter drafts vs published stories
+  // Filter drafts vs published stories for authenticated author
   const draftsList = useMemo(() => {
-    return articles.filter(a => a.status === 'draft');
-  }, [articles]);
+    if (!isAuthenticated || !user) return [];
+    return articles.filter(a => 
+      a.status === 'draft' && (
+        a.author.id === user.id || 
+        a.author.name === user.name ||
+        (user.id === 'user-demo-1' && (a.author.id === 'user-demo-1' || a.author.name === 'Elena Rostova'))
+      )
+    );
+  }, [articles, isAuthenticated, user]);
 
   // Bookmark Toggle Handler
   const handleBookmarkToggle = (article: Article) => {
@@ -170,10 +177,11 @@ export function App() {
             <DedicatedWriterStudio
               onBack={() => {
                 setEditingDraft(null);
-                navigate('/studio');
+                navigate(isAuthenticated ? '/studio' : '/');
               }}
               onArticlePublished={handleArticlePublished}
               initialDraft={editingDraft}
+              onOpenAuth={() => setIsAuthOpen(true)}
             />
           }
         />
@@ -183,10 +191,11 @@ export function App() {
             <DedicatedWriterStudio
               onBack={() => {
                 setEditingDraft(null);
-                navigate('/drafts');
+                navigate(isAuthenticated ? '/drafts' : '/');
               }}
               onArticlePublished={handleArticlePublished}
               initialDraft={editingDraft}
+              onOpenAuth={() => setIsAuthOpen(true)}
             />
           }
         />
@@ -219,8 +228,12 @@ export function App() {
                     } else if (nav === 'bookmarks') {
                       navigate('/reading-list');
                     } else if (nav === 'write') {
-                      setEditingDraft(null);
-                      navigate('/write');
+                      if (!isAuthenticated) {
+                        setIsAuthOpen(true);
+                      } else {
+                        setEditingDraft(null);
+                        navigate('/write');
+                      }
                     }
                   }}
                   selectedCategory={selectedCategory}
@@ -232,8 +245,12 @@ export function App() {
                   onOpenBookmarks={() => navigate('/reading-list')}
                   onOpenAuth={() => setIsAuthOpen(true)}
                   onOpenEditor={() => {
-                    setEditingDraft(null);
-                    navigate('/write');
+                    if (!isAuthenticated) {
+                      setIsAuthOpen(true);
+                    } else {
+                      setEditingDraft(null);
+                      navigate('/write');
+                    }
                   }}
                 />
               )}
@@ -245,8 +262,12 @@ export function App() {
                   onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
                   onOpenAuth={() => setIsAuthOpen(true)}
                   onOpenEditor={() => {
-                    setEditingDraft(null);
-                    navigate('/write');
+                    if (!isAuthenticated) {
+                      setIsAuthOpen(true);
+                    } else {
+                      setEditingDraft(null);
+                      navigate('/write');
+                    }
                   }}
                 />
 
@@ -291,21 +312,25 @@ export function App() {
           <Route
             path="/drafts"
             element={
-              <main className="flex-1">
-                <DraftsPage
-                  drafts={draftsList}
-                  onResumeDraft={(draft) => {
-                    setEditingDraft(draft);
-                    navigate(`/write/${draft.id}`);
-                  }}
-                  onOpenNewDraft={() => {
-                    setEditingDraft(null);
-                    navigate('/write');
-                  }}
-                  onDeleteDraft={handleDeleteArticle}
-                  onBackToStudio={() => navigate('/studio')}
-                />
-              </main>
+              !isAuthenticated ? (
+                <Navigate to="/" replace />
+              ) : (
+                <main className="flex-1">
+                  <DraftsPage
+                    drafts={draftsList}
+                    onResumeDraft={(draft) => {
+                      setEditingDraft(draft);
+                      navigate(`/write/${draft.id}`);
+                    }}
+                    onOpenNewDraft={() => {
+                      setEditingDraft(null);
+                      navigate('/write');
+                    }}
+                    onDeleteDraft={handleDeleteArticle}
+                    onBackToStudio={() => navigate('/studio')}
+                  />
+                </main>
+              )
             }
           />
 

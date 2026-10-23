@@ -191,10 +191,10 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       article.id,
       text,
       {
-        id: user.id || 'user-demo-1',
-        name: user.name || 'Elena Rostova',
+        id: user.id || 'usr_reader',
+        name: user.name || 'Reader',
         avatar: user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-        role: user.role || 'Author'
+        role: user.role || 'Member'
       },
       token
     );

@@ -43,7 +43,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
   const { user, token, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<'home' | 'analytics' | 'profile'>('home');
   const [bioText, setBioText] = useState(user?.bio || 'Writing at the intersection of architecture, systems engineering, and modern editorial aesthetics.');
-  const [authorName, setAuthorName] = useState(user?.name || 'Elena Rostova');
+  const [authorName, setAuthorName] = useState(user?.name || 'Author');
   const [savedSettings, setSavedSettings] = useState(false);
 
   // Dynamic Time Greeting
@@ -62,14 +62,14 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
 
   const greeting = getGreeting();
 
-  // Filter articles belonging to author or editorial roster
+  // Filter articles belonging to current author or author's created stories
   const authorStories = articles.filter(a => 
     a.author.id === user?.id || 
     a.author.name === user?.name || 
     String(a.id).startsWith('art_') || 
     String(a.id).startsWith('local-') ||
     String(a.id).startsWith('draft-') ||
-    a.author.id === 'user-demo-1'
+    (user?.id === 'user-demo-1' && (a.author.id === 'user-demo-1' || a.author.name === 'Elena Rostova'))
   );
 
   const displayStories = authorStories.length > 0 ? authorStories : articles;

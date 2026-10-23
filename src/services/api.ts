@@ -293,8 +293,8 @@ export async function createRealComment(
     id: commentId,
     articleId: artIdStr,
     user: {
-      id: user.id || 'user-demo-1',
-      name: user.name || 'Elena Rostova',
+      id: user.id || 'usr_reader',
+      name: user.name || 'Reader',
       avatar: user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
     },
     body: body.trim(),
