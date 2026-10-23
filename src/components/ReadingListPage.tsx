@@ -10,7 +10,9 @@ import {
   Sparkles, 
   Compass, 
   Plus, 
-  BookOpen 
+  BookOpen,
+  User,
+  LogIn
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Article } from '../types';
@@ -36,13 +38,6 @@ export const ReadingListPage: React.FC<ReadingListPageProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [copiedId, setCopiedId] = useState<string | number | null>(null);
-
-  // Suggested starters if reading list is empty
-  const starterArticles = useMemo(() => {
-    return allArticles
-      .filter(a => !bookmarkedArticles.some(b => b.id === a.id))
-      .slice(0, 2);
-  }, [allArticles, bookmarkedArticles]);
 
   // Categories present in saved articles
   const categories = useMemo(() => {
@@ -96,7 +91,7 @@ export const ReadingListPage: React.FC<ReadingListPageProps> = ({
             </p>
           </div>
 
-          {bookmarkedArticles.length > 0 && (
+          {isAuthenticated && bookmarkedArticles.length > 0 && (
             <div className="flex items-center space-x-3 text-xs bg-[#FAF7F2] dark:bg-[#1A1F29] border border-[#EAE4D9] dark:border-[#262C3A] px-4 py-2 rounded-2xl shrink-0">
               <span className="font-bold text-[#141416] dark:text-white">
                 {bookmarkedArticles.length} {bookmarkedArticles.length === 1 ? 'story' : 'stories'}
@@ -111,93 +106,57 @@ export const ReadingListPage: React.FC<ReadingListPageProps> = ({
         </div>
       </div>
 
-      {/* Guest Mode: Non-blocking helpful sync banner */}
-      {!isAuthenticated && bookmarkedArticles.length > 0 && (
-        <div className="mb-8 p-4 rounded-2xl bg-[#FAF7F2] dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center space-x-2.5 text-zinc-700 dark:text-zinc-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span>Saved to your local browser storage. Ready for offline reading.</span>
+      {/* 1. Unauthenticated Gate: Clean Auth Required State */}
+      {!isAuthenticated ? (
+        <div className="bg-white dark:bg-[#171B22] rounded-3xl border border-[#EAE4D9] dark:border-[#262C3A] p-8 sm:p-14 text-center max-w-2xl mx-auto shadow-xs my-8">
+          <div className="w-16 h-16 rounded-2xl bg-[#FAF7F2] dark:bg-[#1F2430] border border-[#EAE4D9] dark:border-[#262C3A] text-[#9E5A38] dark:text-[#E05A30] flex items-center justify-center mx-auto mb-5 shadow-2xs">
+            <Bookmark className="w-8 h-8 stroke-[1.75]" />
           </div>
-          <button
-            onClick={onOpenAuth}
-            className="font-bold text-[#9E5A38] dark:text-[#E05A30] hover:underline self-start sm:self-auto cursor-pointer"
-          >
-            Create free account to sync across devices &rarr;
-          </button>
-        </div>
-      )}
-
-      {/* Main Content Area: Empty State vs Cards Grid */}
-      {bookmarkedArticles.length === 0 ? (
-        <div className="space-y-8 my-8">
-          {/* Creative Out-of-the-box Empty State */}
-          <div className="bg-white dark:bg-[#171B22] rounded-3xl border border-[#EAE4D9] dark:border-[#262C3A] p-8 sm:p-12 text-center max-w-2xl mx-auto shadow-xs">
-            <div className="w-16 h-16 rounded-2xl bg-[#FAF7F2] dark:bg-[#1F2430] border border-[#EAE4D9] dark:border-[#262C3A] text-[#9E5A38] dark:text-[#E05A30] flex items-center justify-center mx-auto mb-4">
-              <Bookmark className="w-8 h-8 stroke-[1.75]" />
-            </div>
-            <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] dark:text-white mb-2">
-              Your Reading Queue is Waiting
-            </h3>
-            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 max-w-md mx-auto leading-relaxed mb-6">
-              As you explore long-form perspectives, tap the bookmark ribbon on any essay to stash it here. No login required.
-            </p>
+          <h2 className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] dark:text-[#F1F3F5] mb-3">
+            Access Your Reading List
+          </h2>
+          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 max-w-md mx-auto leading-relaxed mb-6">
+            Sign in to access your curated library of essays, perspectives, and dispatches synced securely across all your devices.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={onOpenAuth}
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-xs font-semibold px-6 py-3 rounded-full hover:bg-black dark:hover:bg-zinc-200 transition-all cursor-pointer shadow-sm"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Sign In to Access Reading List</span>
+            </button>
             <button
               onClick={() => navigate('/')}
-              className="inline-flex items-center space-x-2 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-xs font-bold px-6 py-3 rounded-full hover:bg-black dark:hover:bg-zinc-200 transition-all cursor-pointer shadow-sm"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-[#FAF7F2] dark:bg-[#12151B] border border-[#EAE4D9] dark:border-[#262C3A] text-zinc-700 dark:text-zinc-300 text-xs font-semibold px-6 py-3 rounded-full hover:bg-white dark:hover:bg-[#171B22] transition-all cursor-pointer"
             >
               <Compass className="w-4 h-4" />
-              <span>Explore Curated Feed</span>
+              <span>Explore Editorial Feed</span>
             </button>
           </div>
-
-          {/* Quick Starters: 2 Suggested Stories to 1-Click Bookmark directly */}
-          {starterArticles.length > 0 && (
-            <div className="max-w-3xl mx-auto pt-4">
-              <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-4">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Recommended Stories to Start Your Queue</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {starterArticles.map((article) => (
-                  <div
-                    key={article.id}
-                    className="bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] rounded-2xl p-4 flex items-center justify-between gap-4 hover:shadow-xs transition-shadow"
-                  >
-                    <div className="flex items-center space-x-3 min-w-0">
-                      <img
-                        src={article.coverImage}
-                        alt={article.title}
-                        className="w-14 h-14 rounded-xl object-cover shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E5A38] dark:text-[#E05A30]">
-                          {article.category}
-                        </span>
-                        <h4 className="font-editorial text-sm font-bold text-[#141416] dark:text-white truncate">
-                          {article.title}
-                        </h4>
-                        <p className="text-[11px] text-zinc-400 mt-0.5">
-                          {article.readingTime} min read &bull; by {article.author.name}
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => onAddBookmark && onAddBookmark(article)}
-                      className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#FAF7F2] dark:bg-[#1F2430] hover:bg-[#2E4A3E] hover:text-white dark:hover:bg-emerald-600 text-zinc-700 dark:text-zinc-200 border border-[#EAE4D9] dark:border-[#262C3A] transition-colors shrink-0 cursor-pointer flex items-center space-x-1"
-                      title="Save to reading list"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Save</span>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+        </div>
+      ) : bookmarkedArticles.length === 0 ? (
+        /* 2. Authenticated Empty State */
+        <div className="bg-white dark:bg-[#171B22] rounded-3xl border border-[#EAE4D9] dark:border-[#262C3A] p-8 sm:p-12 text-center max-w-2xl mx-auto shadow-xs my-8">
+          <div className="w-16 h-16 rounded-2xl bg-[#FAF7F2] dark:bg-[#1F2430] border border-[#EAE4D9] dark:border-[#262C3A] text-[#9E5A38] dark:text-[#E05A30] flex items-center justify-center mx-auto mb-4">
+            <Bookmark className="w-8 h-8 stroke-[1.75]" />
+          </div>
+          <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] dark:text-white mb-2">
+            Your Reading Queue is Waiting
+          </h3>
+          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 max-w-md mx-auto leading-relaxed mb-6">
+            As you explore long-form perspectives, tap the bookmark ribbon on any essay to stash it in your personal reading queue.
+          </p>
+          <button
+            onClick={() => navigate('/feed')}
+            className="inline-flex items-center space-x-2 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-xs font-bold px-6 py-3 rounded-full hover:bg-black dark:hover:bg-zinc-200 transition-all cursor-pointer shadow-sm"
+          >
+            <Compass className="w-4 h-4" />
+            <span>Explore Curated Feed</span>
+          </button>
         </div>
       ) : (
-        /* Filter Controls & Bookmarks Grid */
+        /* 3. Authenticated Bookmarked Articles Grid */
         <div>
           {/* Search & Category Filter Bar */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-8">

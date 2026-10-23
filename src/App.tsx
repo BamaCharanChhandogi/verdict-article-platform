@@ -17,7 +17,7 @@ import { AuthorDirectory } from './components/AuthorDirectory';
 import { AuthorDashboard } from './components/AuthorDashboard';
 import { HeroSkeleton, ArticleCardSkeleton } from './components/Skeletons';
 import { Article, Category, NavTab } from './types';
-import { fetchArticles } from './services/api';
+import { fetchArticles, fetchUserBookmarks, addUserBookmark, removeUserBookmark } from './services/api';
 import { fallbackArticles } from './data/fallbackData';
 
 const ALL_CATEGORIES: Category[] = [
@@ -35,7 +35,7 @@ const ALL_CATEGORIES: Category[] = [
 export function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, token } = useAuth();
 
   const [articles, setArticles] = useState<Article[]>(fallbackArticles);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
@@ -61,23 +61,21 @@ export function App() {
     return isAuthenticated ? 'feed' : 'home';
   }, [location.pathname, isAuthenticated]);
 
-  // LocalStorage Bookmarks Persistence
-  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('verdict_bookmarks');
-      return saved ? JSON.parse(saved) : ['feat-1', 'pick-2'];
-    } catch {
-      return ['feat-1'];
-    }
-  });
+  // Real Database Bookmarks State
+  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
 
+  // Synchronize authenticated user's bookmarks directly with Neon PostgreSQL database
   useEffect(() => {
-    try {
-      localStorage.setItem('verdict_bookmarks', JSON.stringify(bookmarkedIds));
-    } catch (err) {
-      console.warn('LocalStorage unavailable');
+    if (isAuthenticated && token) {
+      fetchUserBookmarks(token).then((res) => {
+        if (res.articleIds) {
+          setBookmarkedIds(res.articleIds);
+        }
+      });
+    } else {
+      setBookmarkedIds([]);
     }
-  }, [bookmarkedIds]);
+  }, [isAuthenticated, token]);
 
   // Real Multi-API & Editorial Articles Fetch on Mount + User Drafts Sync
   useEffect(() => {
@@ -119,12 +117,26 @@ export function App() {
     );
   }, [articles, isAuthenticated, user]);
 
-  // Bookmark Toggle Handler
-  const handleBookmarkToggle = (article: Article) => {
+  // Bookmark Toggle Handler with Real Database Sync
+  const handleBookmarkToggle = async (article: Article) => {
+    if (!isAuthenticated) {
+      setIsAuthOpen(true);
+      return;
+    }
     const id = String(article.id);
+    const willBookmark = !bookmarkedIds.includes(id);
+
     setBookmarkedIds((prev) => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+      willBookmark ? [...prev, id] : prev.filter(item => item !== id)
     );
+
+    if (token) {
+      if (willBookmark) {
+        await addUserBookmark(id, token);
+      } else {
+        await removeUserBookmark(id, token);
+      }
+    }
   };
 
   const isBookmarked = (id: string | number) => bookmarkedIds.includes(String(id));

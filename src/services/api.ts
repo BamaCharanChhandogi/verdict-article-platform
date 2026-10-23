@@ -394,3 +394,72 @@ export async function deleteRealComment(
   appCache.delete(`comments_${artIdStr}`);
   return true;
 }
+
+/**
+ * Service 4: Fetch User's Bookmarks from Real PostgreSQL Database
+ */
+export async function fetchUserBookmarks(token: string): Promise<{ data: Article[]; articleIds: string[] }> {
+  try {
+    const res = await axios.get('/api/bookmarks', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.data?.success) {
+      return {
+        data: res.data.data || [],
+        articleIds: res.data.articleIds || []
+      };
+    }
+    return { data: [], articleIds: [] };
+  } catch (err) {
+    console.warn('Failed to fetch bookmarks from database:', err);
+    return { data: [], articleIds: [] };
+  }
+}
+
+/**
+ * Service 4B: Add Bookmark to Real PostgreSQL Database
+ */
+export async function addUserBookmark(articleId: string | number, token: string): Promise<boolean> {
+  try {
+    const res = await axios.post('/api/bookmarks', { articleId: String(articleId) }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data?.success === true;
+  } catch (err) {
+    console.warn('Failed to persist bookmark to database:', err);
+    return false;
+  }
+}
+
+/**
+ * Service 4C: Remove Bookmark from Real PostgreSQL Database
+ */
+export async function removeUserBookmark(articleId: string | number, token: string): Promise<boolean> {
+  try {
+    const res = await axios.delete(`/api/bookmarks/${articleId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data?.success === true;
+  } catch (err) {
+    console.warn('Failed to delete bookmark from database:', err);
+    return false;
+  }
+}
+
+/**
+ * Service 5: Upvote Article in Real PostgreSQL Database
+ */
+export async function likeRealArticle(articleId: string | number, token?: string | null): Promise<number | null> {
+  try {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await axios.post(`/api/articles/${articleId}/like`, {}, { headers });
+    if (res.data?.success && typeof res.data.likesCount === 'number') {
+      return res.data.likesCount;
+    }
+    return null;
+  } catch (err) {
+    console.warn('Failed to like article in database:', err);
+    return null;
+  }
+}

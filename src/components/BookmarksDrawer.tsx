@@ -64,7 +64,7 @@ export const BookmarksDrawer: React.FC<BookmarksDrawerProps> = ({
                 <Bookmark className="w-10 h-10 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
                 <p className="font-editorial text-lg text-zinc-700 dark:text-zinc-300 font-medium">Your list is empty</p>
                 <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1 max-w-xs mx-auto">
-                  Click the bookmark icon on any article card to save it for offline reading.
+                  Click the bookmark icon on any article card to save it to your reading list.
                 </p>
               </div>
             ) : (

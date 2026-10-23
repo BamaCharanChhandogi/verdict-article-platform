@@ -24,7 +24,7 @@ import {
 import { Article, Comment } from '../types';
 import { ReadingProgress } from './ReadingProgress';
 import { CommentsSection } from './CommentsSection';
-import { fetchCommentsForArticle, createRealComment, deleteRealComment } from '../services/api';
+import { fetchCommentsForArticle, createRealComment, deleteRealComment, likeRealArticle } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { isAuthorFollowed, toggleAuthorFollow } from '../utils/follows';
@@ -236,7 +236,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     }
   };
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!isAuthenticated) {
       if (onOpenAuth) onOpenAuth();
       return;
@@ -244,6 +244,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     if (!hasLiked) {
       setLikes(prev => prev + 1);
       setHasLiked(true);
+      await likeRealArticle(article.id, token);
     } else {
       setLikes(prev => Math.max(0, prev - 1));
       setHasLiked(false);
@@ -440,10 +441,10 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         </div>
       </aside>
 
-      {/* RIGHT FROSTED GLASS CAPSULE: AUDIO NARRATION & READING ENGINE (Matches Left Symmetrically) */}
+      {/* RIGHT FROSTED GLASS CAPSULE: AUDIO NARRATION & READING ENGINE (Compact Proportional Height) */}
       {audioSupported && (
         <aside 
-          className="fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[52px] h-[348px] py-3.5 px-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.45)] border border-white/60 dark:border-white/10"
+          className="fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[52px] h-[256px] py-3 px-1.5 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.45)] border border-white/60 dark:border-white/10"
           style={{
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
