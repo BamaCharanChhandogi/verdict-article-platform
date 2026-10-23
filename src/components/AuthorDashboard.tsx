@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Plus, 
   BookOpen, 
@@ -41,7 +42,32 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
   onNavigateDrafts,
 }) => {
   const { user, token, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<'home' | 'analytics' | 'profile'>('home');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+
+  const [activeTab, setActiveTab] = useState<'home' | 'analytics' | 'profile'>(() => {
+    if (tabParam === 'profile' || tabParam === 'analytics') return tabParam;
+    return 'home';
+  });
+
+  // Automatically sync activeTab when URL search parameter changes
+  useEffect(() => {
+    const currentTab = searchParams.get('tab');
+    if (currentTab === 'profile' || currentTab === 'analytics' || currentTab === 'home') {
+      setActiveTab(currentTab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab: 'home' | 'analytics' | 'profile') => {
+    setActiveTab(tab);
+    if (tab === 'home') {
+      searchParams.delete('tab');
+      setSearchParams(searchParams, { replace: true });
+    } else {
+      setSearchParams({ tab }, { replace: true });
+    }
+  };
+
   const [bioText, setBioText] = useState(user?.bio || 'Writing at the intersection of architecture, systems engineering, and modern editorial aesthetics.');
   const [authorName, setAuthorName] = useState(user?.name || 'Author');
   const [savedSettings, setSavedSettings] = useState(false);
@@ -149,7 +175,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
       {/* 2. SUB-NAVIGATION PILL TABS */}
       <div className="flex items-center space-x-2 mb-8 overflow-x-auto pb-1 scrollbar-none">
         <button
-          onClick={() => setActiveTab('home')}
+          onClick={() => handleTabChange('home')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
             activeTab === 'home'
               ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] shadow-xs'
@@ -161,7 +187,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
         </button>
 
         <button
-          onClick={() => setActiveTab('analytics')}
+          onClick={() => handleTabChange('analytics')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
             activeTab === 'analytics'
               ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] shadow-xs'
@@ -173,7 +199,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
         </button>
 
         <button
-          onClick={() => setActiveTab('profile')}
+          onClick={() => handleTabChange('profile')}
           className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
             activeTab === 'profile'
               ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] shadow-xs'

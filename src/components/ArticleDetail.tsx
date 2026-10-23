@@ -302,9 +302,9 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       {/* Scroll Reading Progress Bar at the top */}
       <ReadingProgress />
 
-      {/* LEFT FROSTED GLASS CAPSULE: HOME & SOCIAL INTERACTIONS */}
+      {/* LEFT FROSTED GLASS CAPSULE: HOME & SOCIAL INTERACTIONS (Matches Feed Dock Dimensions Exactly) */}
       <aside 
-        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-5 px-2.5 rounded-full space-y-4 w-16"
+        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[54px] h-[352px] py-3.5 px-1.5 rounded-full"
         style={{
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
@@ -314,60 +314,96 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <div className="relative group flex items-center justify-center">
           <button
             onClick={() => navigate(isAuthenticated ? '/feed' : '/')}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 border border-zinc-300/80 dark:border-zinc-700/80 transition-all cursor-pointer"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer"
             aria-label="Return to Home Feed"
           >
-            <Home className="w-4.5 h-4.5 stroke-[1.8]" />
+            <Home className="w-5 h-5 stroke-[1.8]" />
           </button>
           <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
             {isAuthenticated ? 'Back to Feed' : 'Back to Home'}
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="w-6 h-px bg-zinc-300/60 dark:bg-zinc-700/60 my-0.5"></div>
-
         {/* Like */}
-        <button
-          onClick={handleLike}
-          className="flex flex-col items-center group cursor-pointer"
-          title="Heart / React to Story"
-        >
-          <Heart className={`w-5 h-5 stroke-[1.8] transition-transform group-hover:scale-115 ${hasLiked ? 'fill-rose-500 text-rose-500' : 'text-zinc-800 dark:text-zinc-100'}`} />
-          <span className="text-[11px] font-bold mt-1 text-zinc-800 dark:text-zinc-100">{likes}</span>
-        </button>
+        <div className="relative group flex items-center justify-center">
+          <button
+            onClick={handleLike}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer relative"
+            aria-label="Heart Story"
+          >
+            <Heart className={`w-5 h-5 stroke-[1.8] transition-transform group-hover:scale-110 ${hasLiked ? 'fill-rose-500 text-rose-500' : 'text-zinc-700 dark:text-zinc-300'}`} />
+            {likes > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[9px] font-bold flex items-center justify-center pointer-events-none shadow-xs">
+                {likes}
+              </span>
+            )}
+          </button>
+          <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+            {likes} {likes === 1 ? 'Reaction' : 'Reactions'}
+          </div>
+        </div>
 
         {/* Comment */}
-        <button
-          onClick={handleScrollToComments}
-          className="flex flex-col items-center group cursor-pointer"
-          title="Jump to Discussion"
-        >
-          <MessageSquare className="w-5 h-5 stroke-[1.8] text-zinc-800 dark:text-zinc-100 transition-transform group-hover:scale-115" />
-          <span className="text-[11px] font-bold mt-1 text-zinc-800 dark:text-zinc-100">{comments.length}</span>
-        </button>
+        <div className="relative group flex items-center justify-center">
+          <button
+            onClick={handleScrollToComments}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer relative"
+            aria-label="Jump to Comments"
+          >
+            <MessageSquare className="w-5 h-5 stroke-[1.8] text-zinc-700 dark:text-zinc-300 transition-transform group-hover:scale-110" />
+            {comments.length > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[9px] font-bold flex items-center justify-center pointer-events-none shadow-xs">
+                {comments.length}
+              </span>
+            )}
+          </button>
+          <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+            {comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}
+          </div>
+        </div>
 
         {/* Bookmark */}
-        <button
-          onClick={handleBookmarkClick}
-          className="flex flex-col items-center group cursor-pointer"
-          title={isBookmarked(article.id) ? "Remove from Reading List" : "Save to Reading List"}
-        >
-          <Bookmark className={`w-5 h-5 stroke-[1.8] transition-transform group-hover:scale-115 ${isBookmarked(article.id) ? 'fill-current text-[#9E5A38] dark:text-[#E05A30]' : 'text-zinc-800 dark:text-zinc-100'}`} />
-          <span className="text-[11px] font-bold mt-1 text-zinc-800 dark:text-zinc-100">{isBookmarked(article.id) ? 1 : 0}</span>
-        </button>
+        <div className="relative group flex items-center justify-center">
+          <button
+            onClick={handleBookmarkClick}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer"
+            aria-label={isBookmarked(article.id) ? "Remove from Reading List" : "Save to Reading List"}
+          >
+            <Bookmark className={`w-5 h-5 stroke-[1.8] transition-transform group-hover:scale-110 ${isBookmarked(article.id) ? 'fill-current text-[#9E5A38] dark:text-[#E05A30]' : 'text-zinc-700 dark:text-zinc-300'}`} />
+          </button>
+          <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+            {isBookmarked(article.id) ? 'Saved in Reading List' : 'Save to Reading List'}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="w-6 h-px bg-zinc-300/60 dark:bg-zinc-700/60 my-0.5"></div>
 
         {/* Share */}
         <div className="relative group flex items-center justify-center">
           <button
             onClick={handleShare}
-            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-800 dark:text-zinc-100 hover:bg-white/40 dark:hover:bg-white/10 transition-all cursor-pointer"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-200 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer"
             aria-label="Share Story"
           >
-            {copiedShare ? <Check className="w-5 h-5 text-emerald-600 stroke-[2.2]" /> : <Share2 className="w-5 h-5 stroke-[1.8] group-hover:scale-115 transition-transform" />}
+            {copiedShare ? <Check className="w-5 h-5 text-emerald-600 stroke-[2.2]" /> : <Share2 className="w-5 h-5 stroke-[1.8] group-hover:scale-110 transition-transform text-zinc-700 dark:text-zinc-300" />}
           </button>
           <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
             {copiedShare ? 'Copied Link!' : 'Share Story'}
+          </div>
+        </div>
+
+        {/* Theme Switcher Button */}
+        <div className="relative group flex items-center justify-center">
+          <button
+            onClick={toggleTheme}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-white/60 dark:hover:bg-white/10 transition-all cursor-pointer"
+            aria-label="Toggle Theme"
+          >
+            {isDark ? <Sun className="w-5 h-5 text-amber-400 stroke-[1.75]" /> : <Moon className="w-5 h-5 stroke-[1.75]" />}
+          </button>
+          <div className="absolute left-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+            {isDark ? 'Light Mode' : 'Dark Mode'}
           </div>
         </div>
       </aside>

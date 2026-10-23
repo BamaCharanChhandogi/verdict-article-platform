@@ -55,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { id: 'home', label: 'Home', icon: Home },
         { id: 'authors', label: 'Authors & Fellows', icon: Users },
         { id: 'bookmarks', label: 'Reading List', icon: Bookmark, badge: bookmarksCount },
+        { id: 'mystories', label: 'Creator Studio', icon: FileText },
       ];
 
   return (
@@ -152,7 +153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* DESKTOP FROSTED GLASS CAPSULE DOCK (Matches User Provided Image 2) */}
       <aside 
-        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-4 px-2 rounded-full space-y-3.5"
+        className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center justify-between frosted-glass-dock w-[54px] h-[352px] py-3.5 px-1.5 rounded-full"
         style={{
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
@@ -166,6 +167,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div key={item.id} className="relative group flex items-center justify-center">
               <button
                 onClick={() => {
+                  if (item.id === 'mystories' && !isAuthenticated) {
+                    onOpenAuth();
+                    return;
+                  }
                   setActiveNav(item.id as NavTab);
                   setSelectedCategory('All');
                 }}
@@ -189,13 +194,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
 
         {/* Divider */}
-        <div className="w-6 h-px bg-zinc-300/60 dark:bg-zinc-700/60 my-1"></div>
+        <div className="w-6 h-px bg-zinc-300/60 dark:bg-zinc-700/60 my-0.5"></div>
 
         {/* Theme Switcher Button */}
         <div className="relative group flex items-center justify-center">
           <button
             onClick={toggleTheme}
-            className="w-11 h-11 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all cursor-pointer"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all cursor-pointer"
             aria-label="Toggle Theme"
           >
             {isDark ? <Sun className="w-5 h-5 text-amber-400 stroke-[1.75]" /> : <Moon className="w-5 h-5 stroke-[1.75]" />}
@@ -210,7 +215,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {isAuthenticated ? (
             <button
               onClick={logout}
-              className="w-11 h-11 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/20 hover:text-rose-600 transition-all cursor-pointer"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-rose-500/20 hover:text-rose-600 transition-all cursor-pointer"
               aria-label="Sign Out"
             >
               <LogOut className="w-5 h-5 stroke-[1.75]" />
@@ -218,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ) : (
             <button
               onClick={onOpenAuth}
-              className="w-11 h-11 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all cursor-pointer"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:bg-white/40 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all cursor-pointer"
               aria-label="Sign In"
             >
               <LogIn className="w-5 h-5 stroke-[1.75]" />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Menu, X, Edit3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenEditor,
 }) => {
   const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-30 bg-[#FAF7F2]/90 dark:bg-[#0E1116]/90 backdrop-blur-md border-b border-[#EAE4D9] dark:border-[#222733] px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4 transition-colors">
@@ -57,18 +59,20 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* Authenticated User Badge */}
+        {/* Authenticated User Profile Avatar -> Directly Opens Creator Studio Profile Settings */}
         {isAuthenticated && (
-          <div className="flex items-center space-x-2 shrink-0">
+          <button
+            onClick={() => navigate('/studio?tab=profile')}
+            className="flex items-center shrink-0 group cursor-pointer focus:outline-hidden"
+            title="Creator Studio • Profile Settings"
+            aria-label="Author Profile Settings"
+          >
             <img 
               src={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'} 
-              alt={user?.name || 'User'} 
-              className="w-7 h-7 rounded-full object-cover border border-[#EAE4D9] dark:border-[#262C3A]"
+              alt={user?.name || 'Author Profile'} 
+              className="w-8 h-8 rounded-full object-cover border-2 border-[#EAE4D9] dark:border-[#262C3A] group-hover:border-[#9E5A38] dark:group-hover:border-[#E05A30] transition-all shadow-2xs group-hover:scale-105"
             />
-            <span className="text-xs font-semibold text-[#141416] dark:text-white hidden md:inline truncate max-w-[100px]">
-              {user?.name?.split(' ')[0] || 'Author'}
-            </span>
-          </div>
+          </button>
         )}
 
         {/* Guest CTA: Hidden for already logged-in users */}
