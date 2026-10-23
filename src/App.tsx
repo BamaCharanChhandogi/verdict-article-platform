@@ -195,14 +195,6 @@ export function App() {
         <Route
           element={
             <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] text-[#141416] dark:text-[#F1F3F5] flex transition-colors relative">
-              {/* Ambient Bokeh & Light Spots for Frosted Glass Refraction */}
-              <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-                <div className="absolute top-[28%] -left-10 w-72 h-72 bg-amber-400/30 dark:bg-emerald-500/20 rounded-full blur-[45px]"></div>
-                <div className="absolute top-[48%] -left-8 w-64 h-64 bg-orange-400/25 dark:bg-teal-500/15 rounded-full blur-[40px]"></div>
-                <div className="absolute top-[65%] -left-12 w-80 h-80 bg-rose-400/25 dark:bg-indigo-500/20 rounded-full blur-[50px]"></div>
-                <div className="absolute top-[35%] -right-16 w-80 h-80 bg-teal-400/20 dark:bg-violet-500/20 rounded-full blur-[50px]"></div>
-              </div>
-
               {!isArticlePage && (
                 <Sidebar
                   activeNav={activeNav}

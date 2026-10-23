@@ -154,8 +154,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside 
         className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-4 px-2 rounded-full space-y-3.5"
         style={{
-          backdropFilter: 'blur(24px) saturate(190%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(190%)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
         }}
       >
         {navItems.map((item) => {

@@ -227,20 +227,12 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       {/* Scroll Reading Progress Bar at the top */}
       <ReadingProgress />
 
-      {/* Ambient Glow Backdrop for Frosted Glassmorphism Refraction */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[32%] -left-10 w-72 h-72 bg-amber-400/30 dark:bg-emerald-500/20 rounded-full blur-[45px]"></div>
-        <div className="absolute top-[52%] -left-8 w-64 h-64 bg-rose-400/25 dark:bg-indigo-500/20 rounded-full blur-[45px]"></div>
-        <div className="absolute top-[32%] -right-10 w-72 h-72 bg-orange-400/25 dark:bg-teal-500/20 rounded-full blur-[45px]"></div>
-        <div className="absolute top-[52%] -right-8 w-64 h-64 bg-rose-400/25 dark:bg-indigo-500/20 rounded-full blur-[45px]"></div>
-      </div>
-
       {/* LEFT FROSTED GLASS CAPSULE: HOME & SOCIAL INTERACTIONS */}
       <aside 
         className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-5 px-2.5 rounded-full space-y-4 w-16"
         style={{
-          backdropFilter: 'blur(24px) saturate(190%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(190%)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
         }}
       >
         {/* Home / Return to Feed */}
@@ -310,8 +302,8 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <aside 
           className="fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center frosted-glass-dock py-5 px-2.5 rounded-full space-y-4 w-16"
           style={{
-            backdropFilter: 'blur(24px) saturate(190%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(190%)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
           }}
         >
           {/* Audio Play / Pause */}
