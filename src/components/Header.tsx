@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Menu, X, Edit3, LogIn } from 'lucide-react';
+import { Search, Menu, X, Edit3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
         </span>
       </div>
 
-      {/* Right: Clean Global Search Input, Auth Status & Write Story CTA */}
+      {/* Right: Clean Global Search Input & Write Story CTA */}
       <div className="flex items-center space-x-2.5 sm:space-x-3 flex-1 max-w-lg justify-end">
         <div className="relative w-full max-w-xs">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-500" />
@@ -57,16 +57,8 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* Guest: Sign In Button | Authenticated: User Badge */}
-        {!isAuthenticated ? (
-          <button
-            onClick={onOpenAuth}
-            className="inline-flex items-center space-x-1 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white px-3 py-1.5 rounded-full hover:bg-zinc-200/60 dark:hover:bg-[#1F2430] transition-colors cursor-pointer shrink-0"
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>Sign In</span>
-          </button>
-        ) : (
+        {/* Authenticated User Badge */}
+        {isAuthenticated && (
           <div className="flex items-center space-x-2 shrink-0">
             <img 
               src={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'} 
