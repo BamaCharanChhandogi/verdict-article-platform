@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Bookmark, 
@@ -21,23 +22,31 @@ import { CommentsSection } from './CommentsSection';
 import { fetchCommentsForArticle } from '../services/api';
 
 interface ArticleDetailProps {
-  article: Article;
-  onBack: () => void;
+  article?: Article | null;
+  onBack?: () => void;
   onBookmarkToggle: (article: Article) => void;
-  isBookmarked: boolean;
-  onSelectRelated: (article: Article) => void;
+  isBookmarked: (id: string | number) => boolean;
+  onSelectRelated?: (article: Article) => void;
   allArticles: Article[];
 }
 
 export const ArticleDetail: React.FC<ArticleDetailProps> = ({
-  article,
+  article: propArticle,
   onBack,
   onBookmarkToggle,
   isBookmarked,
   onSelectRelated,
   allArticles,
 }) => {
-  const [likes, setLikes] = useState(article.likesCount);
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+
+  // Find active article from route slug or fallback to prop
+  const article = propArticle || 
+    allArticles.find(a => a.slug === slug || String(a.id) === slug) || 
+    allArticles[0];
+
+  const [likes, setLikes] = useState(article?.likesCount || 0);
   const [hasLiked, setHasLiked] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -130,7 +139,8 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   };
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
+    const canonicalUrl = `${window.location.origin}/article/${article.slug}`;
+    navigator.clipboard.writeText(canonicalUrl);
     setCopiedShare(true);
     setTimeout(() => setCopiedShare(false), 2500);
   };
@@ -181,7 +191,10 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       {/* Top Navigation & Breadcrumbs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 pb-4 flex items-center justify-between border-b border-[#EAE4D9]">
         <button
-          onClick={onBack}
+          onClick={() => {
+            if (onBack) onBack();
+            navigate('/');
+          }}
           className="inline-flex items-center space-x-2 text-xs font-semibold text-zinc-600 hover:text-black transition-colors py-1.5 px-3 rounded-full hover:bg-[#FAF7F2] cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
@@ -333,13 +346,13 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
             <button
               onClick={() => onBookmarkToggle(article)}
               className={`p-2 rounded-full border transition-colors cursor-pointer ${
-                isBookmarked
+                isBookmarked(article.id)
                   ? 'bg-[#F7EFE9] border-[#9E5A38] text-[#9E5A38]'
                   : 'bg-white hover:bg-zinc-100 border-[#EAE4D9] text-zinc-700'
               }`}
-              title={isBookmarked ? "Remove Bookmark" : "Save Bookmark"}
+              title={isBookmarked(article.id) ? "Remove Bookmark" : "Save Bookmark"}
             >
-              <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-3.5 h-3.5 ${isBookmarked(article.id) ? 'fill-current' : ''}`} />
             </button>
 
             <button
@@ -515,10 +528,11 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {related.map((rel) => (
-                <div
+                <Link
                   key={rel.id}
-                  onClick={() => onSelectRelated(rel)}
-                  className="group cursor-pointer flex flex-col justify-between"
+                  to={`/article/${rel.slug}`}
+                  onClick={() => onSelectRelated && onSelectRelated(rel)}
+                  className="group cursor-pointer flex flex-col justify-between block no-underline text-inherit"
                 >
                   <div className="rounded-xl overflow-hidden aspect-16/10 mb-3 bg-zinc-100">
                     <img
@@ -538,7 +552,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                       {rel.description}
                     </p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

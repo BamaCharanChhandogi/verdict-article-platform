@@ -1,10 +1,11 @@
 import React from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Article } from '../types';
 
 interface FeaturedCarouselProps {
   articles: Article[];
-  onSelectArticle: (article: Article) => void;
+  onSelectArticle?: (article: Article) => void;
 }
 
 export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
@@ -17,7 +18,7 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
     <div className="py-4">
       {/* Section Header */}
       <div className="flex items-center space-x-2 mb-4">
-        <span className="w-2 h-2 rounded-full bg-[#E05A30] animate-pulse"></span>
+        <span className="w-2 h-2 rounded-full bg-[#9E5A38] animate-pulse"></span>
         <h3 className="text-xs uppercase font-bold tracking-wider text-zinc-800 font-sans">
           Featured This Week
         </h3>
@@ -26,10 +27,11 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
       {/* 3 Horizontal Overlay Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {featured.map((article) => (
-          <div
+          <Link
             key={article.id}
-            onClick={() => onSelectArticle(article)}
-            className="group relative h-64 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer flex flex-col justify-between p-5"
+            to={`/article/${article.slug}`}
+            onClick={() => onSelectArticle && onSelectArticle(article)}
+            className="group relative h-64 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer flex flex-col justify-between p-5 block no-underline text-inherit"
           >
             {/* Background Image */}
             <img
@@ -51,7 +53,7 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
             {/* Bottom: Title & Action Circle */}
             <div className="relative z-10 flex items-end justify-between gap-3">
               <div>
-                <h4 className="font-serif text-lg sm:text-xl font-medium text-white leading-snug group-hover:text-amber-200 transition-colors line-clamp-2">
+                <h4 className="font-editorial text-lg sm:text-xl font-bold text-white leading-snug group-hover:text-amber-200 transition-colors line-clamp-2">
                   {article.title}
                 </h4>
                 <div className="flex items-center space-x-2 text-[11px] text-zinc-300 mt-2 font-sans">
@@ -61,12 +63,12 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
                 </div>
               </div>
 
-              {/* White Action Circle with Dark Arrow */}
-              <div className="w-9 h-9 rounded-full bg-white group-hover:bg-[#E05A30] text-[#18181B] group-hover:text-white flex items-center justify-center shrink-0 transition-colors shadow-md">
+              {/* Action Circle with Arrow */}
+              <div className="w-9 h-9 rounded-full bg-white group-hover:bg-[#2E4A3E] text-[#141416] group-hover:text-white flex items-center justify-center shrink-0 transition-colors shadow-md">
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
