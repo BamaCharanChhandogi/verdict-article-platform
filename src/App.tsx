@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
@@ -34,6 +35,7 @@ const ALL_CATEGORIES: Category[] = [
 export function App() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   const [articles, setArticles] = useState<Article[]>(fallbackArticles);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
@@ -44,6 +46,9 @@ export function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [editingDraft, setEditingDraft] = useState<Partial<Article> | null>(null);
 
+  // Check if current route is an article reading canvas
+  const isArticlePage = location.pathname.startsWith('/article/');
+
   // Sync activeNav with current pathname
   const activeNav: NavTab = useMemo(() => {
     const path = location.pathname;
@@ -52,8 +57,8 @@ export function App() {
     if (path === '/studio' || path === '/mystories') return 'mystories';
     if (path === '/feed' || path === '/explore') return 'feed';
     if (path.startsWith('/write')) return 'write';
-    return 'home';
-  }, [location.pathname]);
+    return isAuthenticated ? 'feed' : 'home';
+  }, [location.pathname, isAuthenticated]);
 
   // LocalStorage Bookmarks Persistence
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
@@ -189,52 +194,56 @@ export function App() {
         <Route
           element={
             <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] text-[#141416] dark:text-[#F1F3F5] flex transition-colors">
-              <Sidebar
-                activeNav={activeNav}
-                setActiveNav={(nav) => {
-                  if (nav === 'home') {
-                    setSearchQuery('');
-                    setSelectedCategory('All');
-                    navigate('/');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  } else if (nav === 'feed') {
-                    setSearchQuery('');
-                    setSelectedCategory('All');
-                    navigate('/feed');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  } else if (nav === 'authors') {
-                    setSearchQuery('');
-                    navigate('/authors');
-                  } else if (nav === 'drafts') {
-                    navigate('/drafts');
-                  } else if (nav === 'mystories') {
-                    navigate('/studio');
-                  } else if (nav === 'write') {
+              {!isArticlePage && (
+                <Sidebar
+                  activeNav={activeNav}
+                  setActiveNav={(nav) => {
+                    if (nav === 'home') {
+                      setSearchQuery('');
+                      setSelectedCategory('All');
+                      navigate('/');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else if (nav === 'feed') {
+                      setSearchQuery('');
+                      setSelectedCategory('All');
+                      navigate('/feed');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else if (nav === 'authors') {
+                      setSearchQuery('');
+                      navigate('/authors');
+                    } else if (nav === 'drafts') {
+                      navigate('/drafts');
+                    } else if (nav === 'mystories') {
+                      navigate('/studio');
+                    } else if (nav === 'write') {
+                      setEditingDraft(null);
+                      navigate('/write');
+                    }
+                  }}
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={setSelectedCategory}
+                  bookmarksCount={bookmarkedIds.length}
+                  draftsCount={draftsList.length}
+                  isOpenMobile={isMobileSidebarOpen}
+                  setIsOpenMobile={setIsMobileSidebarOpen}
+                  onOpenBookmarks={() => setIsBookmarksOpen(true)}
+                  onOpenAuth={() => setIsAuthOpen(true)}
+                  onOpenEditor={() => {
                     setEditingDraft(null);
                     navigate('/write');
-                  }
-                }}
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                bookmarksCount={bookmarkedIds.length}
-                draftsCount={draftsList.length}
-                isOpenMobile={isMobileSidebarOpen}
-                setIsOpenMobile={setIsMobileSidebarOpen}
-                onOpenBookmarks={() => setIsBookmarksOpen(true)}
-                onOpenAuth={() => setIsAuthOpen(true)}
-                onOpenEditor={() => {
-                  setEditingDraft(null);
-                  navigate('/write');
-                }}
-              />
-
-              <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
-                <Header
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
-                  onOpenAuth={() => setIsAuthOpen(true)}
+                  }}
                 />
+              )}
+
+              <div className={`flex-1 flex flex-col min-w-0 ${!isArticlePage ? 'lg:pl-64' : ''}`}>
+                {!isArticlePage && (
+                  <Header
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+                    onOpenAuth={() => setIsAuthOpen(true)}
+                  />
+                )}
 
                 <Outlet />
               </div>
@@ -247,10 +256,11 @@ export function App() {
             element={
               <main className="flex-1">
                 <ArticleDetail
-                  onBack={() => navigate('/')}
+                  onBack={() => navigate(isAuthenticated ? '/feed' : '/')}
                   onBookmarkToggle={handleBookmarkToggle}
                   isBookmarked={isBookmarked}
                   allArticles={articles}
+                  onOpenAuth={() => setIsAuthOpen(true)}
                 />
               </main>
             }
@@ -323,45 +333,49 @@ export function App() {
           <Route
             path="/feed"
             element={
-              <main className="flex-1 px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full">
-                <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#EAE4D9] dark:border-[#262C3A] gap-2">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                      Popular Posts
-                    </span>
-                    <h1 className="font-editorial text-3xl font-bold text-[#141416] dark:text-white">
-                      New &amp; Popular
-                    </h1>
+              !isAuthenticated ? (
+                <Navigate to="/" replace />
+              ) : (
+                <main className="flex-1 px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full">
+                  <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#EAE4D9] dark:border-[#262C3A] gap-2">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                        Popular Posts
+                      </span>
+                      <h1 className="font-editorial text-3xl font-bold text-[#141416] dark:text-white">
+                        New &amp; Popular
+                      </h1>
+                    </div>
+                    <div className="flex items-center space-x-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] px-3.5 py-1.5 rounded-full shadow-2xs self-start sm:self-auto">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>Last 24h: <strong>804 articles</strong> &bull; <strong>556 writers</strong></span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] px-3.5 py-1.5 rounded-full shadow-2xs self-start sm:self-auto">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Last 24h: <strong>804 articles</strong> &bull; <strong>556 writers</strong></span>
-                  </div>
-                </div>
 
-                <div className="mb-6">
-                  <CategoryPills
-                    categories={ALL_CATEGORIES}
-                    selectedCategory={selectedCategory}
-                    onSelectCategory={setSelectedCategory}
-                  />
-                </div>
-
-                {isLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
-                    {[1, 2, 3, 4].map(i => <ArticleCardSkeleton key={i} />)}
+                  <div className="mb-6">
+                    <CategoryPills
+                      categories={ALL_CATEGORIES}
+                      selectedCategory={selectedCategory}
+                      onSelectCategory={setSelectedCategory}
+                    />
                   </div>
-                ) : (
-                  <ArticleGrid
-                    articles={filteredArticles}
-                    onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
-                    onBookmarkToggle={handleBookmarkToggle}
-                    isBookmarked={isBookmarked}
-                    onResetFilters={() => setSelectedCategory('All')}
-                    activeFilterName={selectedCategory}
-                  />
-                )}
-              </main>
+
+                  {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
+                      {[1, 2, 3, 4].map(i => <ArticleCardSkeleton key={i} />)}
+                    </div>
+                  ) : (
+                    <ArticleGrid
+                      articles={filteredArticles}
+                      onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
+                      onBookmarkToggle={handleBookmarkToggle}
+                      isBookmarked={isBookmarked}
+                      onResetFilters={() => setSelectedCategory('All')}
+                      activeFilterName={selectedCategory}
+                    />
+                  )}
+                </main>
+              )
             }
           />
 
@@ -369,7 +383,10 @@ export function App() {
           <Route
             path="/"
             element={
-              <main className="flex-1 px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full">
+              isAuthenticated && !searchQuery ? (
+                <Navigate to="/feed" replace />
+              ) : (
+                <main className="flex-1 px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full">
                 {searchQuery ? (
                   <div className="pt-6">
                     <div className="mb-6 flex items-center justify-between">
@@ -464,6 +481,7 @@ export function App() {
                   </div>
                 </footer>
               </main>
+              )
             }
           />
           <Route path="/explore" element={<Navigate to="/" replace />} />

@@ -47,25 +47,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { user, isAuthenticated, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
-  const mainNavItems = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'feed', label: 'Feed & Discover', icon: Rss, badge: 'Live' },
-    { id: 'authors', label: 'Authors & Fellows', icon: Users },
-    { id: 'bookmarks', label: 'Reading List', icon: Bookmark, count: bookmarksCount },
-  ];
+  // Clean, role-differentiated navigation
+  const mainNavItems = isAuthenticated
+    ? [
+        { id: 'feed', label: 'Feed & Discover', icon: Rss },
+        { id: 'bookmarks', label: 'Reading List', icon: Bookmark, count: bookmarksCount },
+        { id: 'authors', label: 'Authors & Fellows', icon: Users },
+      ]
+    : [
+        { id: 'home', label: 'Home', icon: Home },
+        { id: 'authors', label: 'Authors & Fellows', icon: Users },
+        { id: 'bookmarks', label: 'Reading List', icon: Bookmark, count: bookmarksCount },
+      ];
 
   const writingNavItems = [
     { id: 'drafts', label: 'Drafts', icon: Clock, count: draftsCount },
     { id: 'mystories', label: 'Creator Studio', icon: FileText },
-  ];
-
-  const popularTopics: Category[] = [
-    'Technology',
-    'Design',
-    'Productivity',
-    'Business',
-    'Lifestyle',
-    'AI & Future',
   ];
 
   return (
@@ -88,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Brand Logo & Header */}
           <div className="flex items-center justify-between">
             <button 
-              onClick={() => { setActiveNav('home'); setSelectedCategory('All'); setIsOpenMobile(false); }}
+              onClick={() => { setActiveNav(isAuthenticated ? 'feed' : 'home'); setSelectedCategory('All'); setIsOpenMobile(false); }}
               className="text-left group cursor-pointer"
             >
               <h1 className="font-editorial text-2xl font-bold tracking-tight text-[#141416] dark:text-[#F1F3F5] flex items-baseline">
@@ -152,11 +149,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <Icon className={`w-4 h-4 ${isActive ? 'text-[#141416] dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} />
                     <span>{item.label}</span>
                   </div>
-                  {item.badge && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-400">
-                      {item.badge}
-                    </span>
-                  )}
                   {item.count !== undefined && item.count > 0 && (
                     <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#141416] dark:bg-zinc-200 text-white dark:text-black">
                       {item.count}
@@ -207,42 +199,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           )}
-
-          {/* Curated Editorial Topics */}
-          <div className="pt-4 border-t border-[#EAE4D9]/80 dark:border-[#222733]">
-            <h2 className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2 px-3">
-              Explore Topics
-            </h2>
-            <div className="space-y-0.5">
-              {popularTopics.map((topic) => {
-                const isSelected = selectedCategory === topic && (activeNav === 'home' || activeNav === 'feed');
-                return (
-                  <button
-                    key={topic}
-                    onClick={() => {
-                      setSelectedCategory(topic);
-                      setActiveNav('feed');
-                      setIsOpenMobile(false);
-                    }}
-                    className={`
-                      w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer
-                      ${isSelected 
-                        ? 'text-[#9E5A38] dark:text-[#D98A62] font-bold bg-[#9E5A38]/10 dark:bg-[#D98A62]/10' 
-                        : 'text-zinc-600 dark:text-zinc-400 hover:text-[#141416] dark:hover:text-white hover:bg-[#FAF7F2] dark:hover:bg-[#1A1F29]'
-                      }
-                    `}
-                  >
-                    {topic}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </div>
 
         {/* BOTTOM DOCK: Functional Theme Toggle & Profile */}
         <div className="mt-6 pt-4 border-t border-[#EAE4D9] dark:border-[#222733] space-y-3">
-          {/* Functional Theme Switcher (No Pro badge) */}
+          {/* Functional Theme Switcher */}
           <div className="px-1">
             <button 
               onClick={toggleTheme}
@@ -263,8 +224,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           </div>
 
-          {/* User Profile or Sign In */}
-          {isAuthenticated && user ? (
+          {/* User Profile (when authenticated) */}
+          {isAuthenticated && user && (
             <div className="bg-white dark:bg-[#171B22] rounded-2xl p-3 border border-[#EAE4D9] dark:border-[#262C3A] shadow-2xs flex items-center justify-between">
               <div 
                 onClick={() => {
@@ -296,17 +257,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <LogOut className="w-4 h-4" />
               </button>
             </div>
-          ) : (
-            <button
-              onClick={() => {
-                onOpenAuth();
-                setIsOpenMobile(false);
-              }}
-              className="w-full bg-white dark:bg-[#171B22] hover:bg-zinc-50 dark:hover:bg-[#1E232B] border border-[#EAE4D9] dark:border-[#262C3A] text-[#141416] dark:text-[#F1F3F5] text-xs font-semibold py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center space-x-2 cursor-pointer shadow-2xs"
-            >
-              <LogIn className="w-3.5 h-3.5 text-zinc-500" />
-              <span>Sign in to Verdict</span>
-            </button>
           )}
         </div>
       </aside>

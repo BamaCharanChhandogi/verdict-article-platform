@@ -20,6 +20,7 @@ import { Article, Comment } from '../types';
 import { ReadingProgress } from './ReadingProgress';
 import { CommentsSection } from './CommentsSection';
 import { fetchCommentsForArticle } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 interface ArticleDetailProps {
   article?: Article | null;
@@ -28,6 +29,7 @@ interface ArticleDetailProps {
   isBookmarked: (id: string | number) => boolean;
   onSelectRelated?: (article: Article) => void;
   allArticles: Article[];
+  onOpenAuth?: () => void;
 }
 
 export const ArticleDetail: React.FC<ArticleDetailProps> = ({
@@ -37,7 +39,9 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   isBookmarked,
   onSelectRelated,
   allArticles,
+  onOpenAuth,
 }) => {
+  const { user, isAuthenticated } = useAuth();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
@@ -146,13 +150,17 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   };
 
   const handleAddComment = (text: string) => {
+    if (!isAuthenticated || !user) {
+      if (onOpenAuth) onOpenAuth();
+      return;
+    }
     const newComment: Comment = {
       id: `local-c-${Date.now()}`,
       articleId: article.id,
       user: {
-        id: 'current-user',
-        name: 'You (Editorial Fellow)',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
+        id: user.id || 'current-user',
+        name: user.name || 'Author',
+        avatar: user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
       },
       body: text,
       likes: 1,
@@ -193,12 +201,12 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         <button
           onClick={() => {
             if (onBack) onBack();
-            navigate('/');
+            navigate(isAuthenticated ? '/feed' : '/');
           }}
           className="inline-flex items-center space-x-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors py-1.5 px-3 rounded-full hover:bg-[#FAF7F2] dark:hover:bg-[#1F2430] cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Stories</span>
+          <span>{isAuthenticated ? 'Back to Feed' : 'Back to Stories'}</span>
         </button>
 
         {/* Reading Controls Toolbar (Font Size & Typography) */}
@@ -516,6 +524,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           <CommentsSection
             comments={comments}
             onAddComment={handleAddComment}
+            onOpenAuth={onOpenAuth}
             isLoading={commentsLoading}
           />
         </div>

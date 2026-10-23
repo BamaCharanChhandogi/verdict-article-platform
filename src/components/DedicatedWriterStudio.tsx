@@ -31,6 +31,7 @@ import {
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import Image from '@tiptap/extension-image';
 import axios from 'axios';
 import { Article, Category } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -114,6 +115,12 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
       }),
       Placeholder.configure({
         placeholder: "Type '/' for commands or start writing your essay...",
+      }),
+      Image.configure({
+        inline: false,
+        HTMLAttributes: {
+          class: 'rounded-2xl max-w-full my-6 shadow-md border border-[#EAE4D9] dark:border-[#262C3A]',
+        },
       }),
     ],
     content: initialContent,
@@ -228,6 +235,28 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
       setUploadingImage(false);
       setShowCoverSection(true);
     }
+  };
+
+  // Inline Image Insertion Handlers
+  const handleInsertInlineImageUrl = () => {
+    const url = window.prompt('Enter image URL or Unsplash photo link:');
+    if (url && editor) {
+      editor.chain().focus().setImage({ src: url }).run();
+    }
+  };
+
+  const handleInlineImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editor) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        editor.chain().focus().setImage({ src: reader.result }).run();
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   // Submit Handler: Publish Story
@@ -612,6 +641,30 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 >
                   <Minus className="w-4 h-4" />
                 </button>
+
+                <span className="text-zinc-300 dark:text-zinc-600 mx-0.5">|</span>
+
+                {/* Inline Image Upload & URL Insertion */}
+                <button
+                  type="button"
+                  onClick={handleInsertInlineImageUrl}
+                  className="p-1.5 hover:bg-zinc-100 dark:hover:bg-[#1F2430] rounded-lg cursor-pointer text-zinc-600 dark:text-zinc-300"
+                  title="Insert Image by URL"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </button>
+                <label
+                  className="p-1.5 hover:bg-zinc-100 dark:hover:bg-[#1F2430] rounded-lg cursor-pointer text-zinc-600 dark:text-zinc-300"
+                  title="Upload Image into Essay"
+                >
+                  <Upload className="w-4 h-4" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleInlineImageFileUpload}
+                    className="hidden"
+                  />
+                </label>
 
                 <span className="text-zinc-300 dark:text-zinc-600 mx-0.5">|</span>
 
