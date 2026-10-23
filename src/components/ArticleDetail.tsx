@@ -189,13 +189,13 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       <ReadingProgress />
 
       {/* Top Navigation & Breadcrumbs */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 pb-4 flex items-center justify-between border-b border-[#EAE4D9]">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 pb-4 flex items-center justify-between border-b border-[#EAE4D9] dark:border-[#262C3A]">
         <button
           onClick={() => {
             if (onBack) onBack();
             navigate('/');
           }}
-          className="inline-flex items-center space-x-2 text-xs font-semibold text-zinc-600 hover:text-black transition-colors py-1.5 px-3 rounded-full hover:bg-[#FAF7F2] cursor-pointer"
+          className="inline-flex items-center space-x-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors py-1.5 px-3 rounded-full hover:bg-[#FAF7F2] dark:hover:bg-[#1F2430] cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Stories</span>
@@ -203,30 +203,30 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
         {/* Reading Controls Toolbar (Font Size & Typography) */}
         <div className="flex items-center space-x-2">
-          <div className="hidden sm:flex items-center space-x-1 bg-white border border-[#EAE4D9] rounded-full px-2 py-1 text-xs">
+          <div className="hidden sm:flex items-center space-x-1 bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] rounded-full px-2 py-1 text-xs">
             <button
               onClick={() => setFontSize(fontSize === 'normal' ? 'large' : fontSize === 'large' ? 'xlarge' : 'normal')}
-              className="px-2 py-0.5 text-zinc-600 hover:text-black font-semibold cursor-pointer"
+              className="px-2 py-0.5 text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white font-semibold cursor-pointer"
               title="Toggle font size"
             >
               <span className={fontSize === 'normal' ? 'text-xs' : fontSize === 'large' ? 'text-sm font-bold' : 'text-base font-black'}>
                 Aa
               </span>
             </button>
-            <span className="text-zinc-300">|</span>
+            <span className="text-zinc-300 dark:text-zinc-600">|</span>
             <button
               onClick={() => setIsSerifFont(!isSerifFont)}
-              className={`px-2 py-0.5 rounded-full font-medium cursor-pointer ${isSerifFont ? 'text-[#9E5A38] font-bold' : 'text-zinc-500'}`}
+              className={`px-2 py-0.5 rounded-full font-medium cursor-pointer ${isSerifFont ? 'text-[#9E5A38] dark:text-[#E05A30] font-bold' : 'text-zinc-500 dark:text-zinc-400'}`}
               title="Toggle Serif/Sans font"
             >
               {isSerifFont ? 'Serif' : 'Sans'}
             </button>
           </div>
 
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#2E4A3E] bg-[#EBF1EE] px-2.5 py-1 rounded-full">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[#2E4A3E] dark:text-emerald-400 bg-[#EBF1EE] dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
             {article.category}
           </span>
-          <span className="text-xs text-zinc-500 font-medium hidden sm:inline">
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium hidden sm:inline">
             {article.readingTime} min read
           </span>
         </div>
@@ -235,14 +235,14 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       {/* Sticky Audio Narration Bar */}
       {audioSupported && (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 mt-4">
-          <div className="bg-white rounded-2xl border border-[#EAE4D9] p-3 sm:px-5 sm:py-3.5 shadow-2xs flex items-center justify-between gap-3">
+          <div className="bg-white dark:bg-[#171B22] rounded-2xl border border-[#EAE4D9] dark:border-[#262C3A] p-3 sm:px-5 sm:py-3.5 shadow-2xs flex items-center justify-between gap-3">
             <div className="flex items-center space-x-3 min-w-0">
               <button
                 onClick={handleToggleAudio}
                 className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                   isPlayingAudio 
-                    ? 'bg-[#2E4A3E] text-white shadow-sm' 
-                    : 'bg-[#FAF7F2] hover:bg-zinc-200 text-[#141416]'
+                    ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white shadow-sm' 
+                    : 'bg-[#FAF7F2] dark:bg-[#1F2430] hover:bg-zinc-200 dark:hover:bg-[#262C3A] text-[#141416] dark:text-white'
                 }`}
                 title={isPlayingAudio ? "Pause Audio" : "Listen to this article"}
               >
@@ -251,7 +251,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
               <div className="min-w-0">
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-bold text-[#141416]">
+                  <span className="text-xs font-bold text-[#141416] dark:text-white">
                     {isPlayingAudio ? 'Listening to Article...' : 'Listen to this Article'}
                   </span>
                   {isPlayingAudio && (
@@ -262,7 +262,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-zinc-400 truncate">
+                <p className="text-[11px] text-zinc-400 dark:text-zinc-500 truncate">
                   AI Narration &bull; ~{article.readingTime} mins total
                 </p>
               </div>
@@ -276,8 +276,8 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                   onClick={() => handleChangeRate(rate)}
                   className={`text-[10px] font-bold px-2 py-1 rounded-lg transition-colors cursor-pointer ${
                     speechRate === rate 
-                      ? 'bg-[#141416] text-white' 
-                      : 'bg-[#FAF7F2] text-zinc-600 hover:bg-zinc-200'
+                      ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' 
+                      : 'bg-[#FAF7F2] dark:bg-[#1F2430] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-[#262C3A]'
                   }`}
                 >
                   {rate}x
@@ -290,40 +290,40 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
       {/* Article Header & Typography */}
       <header className="max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-6 text-center sm:text-left">
-        <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-medium text-[#141416] leading-[1.12] tracking-tight mb-5">
+        <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-medium text-[#141416] dark:text-white leading-[1.12] tracking-tight mb-5">
           {article.title}
         </h1>
 
-        <p className="font-sans text-base sm:text-lg text-zinc-600 leading-relaxed mb-6">
+        <p className="font-sans text-base sm:text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed mb-6">
           {article.description}
         </p>
 
         {/* Author Metadata Bar + Social Engagement Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 border-y border-[#EAE4D9] gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 border-y border-[#EAE4D9] dark:border-[#262C3A] gap-4">
           {/* Author Info */}
           <div className="flex items-center space-x-3.5">
             <img
               src={article.author.avatar}
               alt={article.author.name}
-              className="w-12 h-12 rounded-full object-cover ring-2 ring-zinc-200"
+              className="w-12 h-12 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
             />
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="font-sans text-sm font-bold text-[#141416]">
+                <h3 className="font-sans text-sm font-bold text-[#141416] dark:text-white">
                   {article.author.name}
                 </h3>
                 <button
                   onClick={() => setIsFollowing(!isFollowing)}
                   className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full transition-colors cursor-pointer ${
                     isFollowing
-                      ? 'bg-[#2E4A3E] text-white'
-                      : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700'
+                      ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white'
+                      : 'bg-zinc-100 dark:bg-[#1F2430] hover:bg-zinc-200 dark:hover:bg-[#262C3A] text-zinc-700 dark:text-zinc-200'
                   }`}
                 >
                   {isFollowing ? 'Following' : '+ Follow'}
                 </button>
               </div>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                 Published {article.publishedAt} &bull; {article.readingTime} min read
               </p>
             </div>
@@ -335,8 +335,8 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
               onClick={handleLike}
               className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
                 hasLiked
-                  ? 'bg-rose-50 text-rose-600 border border-rose-200'
-                  : 'bg-white hover:bg-zinc-100 text-zinc-700 border border-[#EAE4D9]'
+                  ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60'
+                  : 'bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] text-zinc-700 dark:text-zinc-300 border border-[#EAE4D9] dark:border-[#262C3A]'
               }`}
             >
               <Heart className={`w-3.5 h-3.5 ${hasLiked ? 'fill-current text-rose-600' : ''}`} />
@@ -347,8 +347,8 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
               onClick={() => onBookmarkToggle(article)}
               className={`p-2 rounded-full border transition-colors cursor-pointer ${
                 isBookmarked(article.id)
-                  ? 'bg-[#F7EFE9] border-[#9E5A38] text-[#9E5A38]'
-                  : 'bg-white hover:bg-zinc-100 border-[#EAE4D9] text-zinc-700'
+                  ? 'bg-[#F7EFE9] dark:bg-[#2A1D17] border-[#9E5A38] dark:border-[#D48360] text-[#9E5A38] dark:text-[#E05A30]'
+                  : 'bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] border-[#EAE4D9] dark:border-[#262C3A] text-zinc-700 dark:text-zinc-300'
               }`}
               title={isBookmarked(article.id) ? "Remove Bookmark" : "Save Bookmark"}
             >
@@ -357,13 +357,13 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
             <button
               onClick={handleShare}
-              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white hover:bg-zinc-100 text-zinc-700 border border-[#EAE4D9] transition-colors cursor-pointer"
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] text-zinc-700 dark:text-zinc-300 border border-[#EAE4D9] dark:border-[#262C3A] transition-colors cursor-pointer"
               title="Share article link"
             >
               {copiedShare ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="text-emerald-700">Copied!</span>
+                  <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-emerald-700 dark:text-emerald-400">Copied!</span>
                 </>
               ) : (
                 <>
@@ -378,7 +378,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
       {/* Featured Cover Image */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-10">
-        <div className="rounded-[28px] overflow-hidden shadow-xl aspect-16/9 bg-zinc-200">
+        <div className="rounded-[28px] overflow-hidden shadow-xl aspect-16/9 bg-zinc-200 dark:bg-zinc-800">
           <img
             src={article.coverImage}
             alt={article.title}
@@ -391,23 +391,23 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
         
         {/* Executive AI TL;DR Takeaways Card */}
-        <div className="bg-white rounded-2xl border border-[#EAE4D9] p-5 sm:p-6 mb-8 shadow-xs">
+        <div className="bg-white dark:bg-[#171B22] rounded-2xl border border-[#EAE4D9] dark:border-[#262C3A] p-5 sm:p-6 mb-8 shadow-xs">
           <div 
             onClick={() => setShowExecutiveSummary(!showExecutiveSummary)}
             className="flex items-center justify-between cursor-pointer"
           >
-            <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-[#2E4A3E]">
-              <Sparkles className="w-4 h-4 text-emerald-600" />
+            <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-[#2E4A3E] dark:text-emerald-400">
+              <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Executive Brief &amp; Key Takeaways</span>
             </div>
             {showExecutiveSummary ? <ChevronUp className="w-4 h-4 text-zinc-400" /> : <ChevronDown className="w-4 h-4 text-zinc-400" />}
           </div>
 
           {showExecutiveSummary && (
-            <div className="mt-4 pt-4 border-t border-[#FAF7F2] space-y-2.5">
+            <div className="mt-4 pt-4 border-t border-[#FAF7F2] dark:border-[#262C3A] space-y-2.5">
               {keyTakeaways.map((item, idx) => (
-                <div key={idx} className="flex items-start space-x-2.5 text-xs sm:text-sm text-zinc-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#9E5A38] mt-2 shrink-0"></span>
+                <div key={idx} className="flex items-start space-x-2.5 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#9E5A38] dark:bg-[#E05A30] mt-2 shrink-0"></span>
                   <span className="leading-relaxed">{item}</span>
                 </div>
               ))}
@@ -416,29 +416,29 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         </div>
 
         {/* Dynamic Content Typography Engine */}
-        <div className={`prose prose-zinc max-w-none text-zinc-800 leading-[1.8] space-y-6 ${
+        <div className={`prose prose-zinc dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 leading-[1.8] space-y-6 ${
           fontSize === 'large' ? 'text-lg sm:text-xl' : fontSize === 'xlarge' ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg'
         } ${isSerifFont ? 'font-editorial' : 'font-sans'}`}>
           {paragraphs.length > 0 ? (
             paragraphs.map((p, idx) => {
               if (p.startsWith('# ')) {
                 return (
-                  <h2 key={idx} className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] pt-4">
+                  <h2 key={idx} className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] dark:text-white pt-4">
                     {p.replace(/^#\s*/, '')}
                   </h2>
                 );
               }
               if (p.startsWith('## ') || p.startsWith('### ')) {
                 return (
-                  <h3 key={idx} className="font-editorial text-xl sm:text-2xl font-bold text-[#141416] pt-3">
+                  <h3 key={idx} className="font-editorial text-xl sm:text-2xl font-bold text-[#141416] dark:text-white pt-3">
                     {p.replace(/^###?\s*/, '')}
                   </h3>
                 );
               }
               if (p.startsWith('>')) {
                 return (
-                  <blockquote key={idx} className="my-8 py-4 px-6 border-y border-[#EAE4D9] text-center">
-                    <p className="font-editorial text-xl sm:text-2xl text-[#141416] italic font-normal leading-snug">
+                  <blockquote key={idx} className="my-8 py-4 px-6 border-y border-[#EAE4D9] dark:border-[#262C3A] text-center">
+                    <p className="font-editorial text-xl sm:text-2xl text-[#141416] dark:text-white italic font-normal leading-snug">
                       "{p.replace(/^>\s*/, '')}"
                     </p>
                   </blockquote>
@@ -447,7 +447,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
               return (
                 <p 
                   key={idx}
-                  className={idx === 0 ? "first-letter:font-editorial first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-[#141416] leading-relaxed" : "leading-relaxed"}
+                  className={idx === 0 ? "first-letter:font-editorial first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-[#141416] dark:first-letter:text-white leading-relaxed" : "leading-relaxed"}
                 >
                   {p}
                 </p>
@@ -461,11 +461,11 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         </div>
 
         {/* Tags Section */}
-        <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-[#EAE4D9]">
+        <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-[#EAE4D9] dark:border-[#262C3A]">
           {article.tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs font-semibold text-zinc-600 bg-white border border-[#EAE4D9] px-3 py-1 rounded-full hover:bg-zinc-100 transition-colors cursor-pointer"
+              className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] px-3 py-1 rounded-full hover:bg-zinc-100 dark:hover:bg-[#1F2430] transition-colors cursor-pointer"
             >
               #{tag}
             </span>
@@ -473,19 +473,19 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         </div>
 
         {/* Author Bio Card */}
-        <div className="mt-12 p-6 rounded-2xl bg-white border border-[#EAE4D9] shadow-xs flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-5 text-center sm:text-left">
+        <div className="mt-12 p-6 rounded-2xl bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] shadow-xs flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-5 text-center sm:text-left">
           <img
             src={article.author.avatar}
             alt={article.author.name}
-            className="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-200 shrink-0"
+            className="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700 shrink-0"
           />
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
               <div>
-                <h4 className="font-editorial text-xl font-bold text-[#141416]">
+                <h4 className="font-editorial text-xl font-bold text-[#141416] dark:text-white">
                   {article.author.name}
                 </h4>
-                <p className="text-xs text-[#9E5A38] font-semibold">
+                <p className="text-xs text-[#9E5A38] dark:text-[#E05A30] font-semibold">
                   {article.author.role}
                 </p>
               </div>
@@ -493,17 +493,17 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                 onClick={() => setIsFollowing(!isFollowing)}
                 className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-colors cursor-pointer self-center sm:self-auto ${
                   isFollowing
-                    ? 'bg-[#2E4A3E] text-white'
-                    : 'bg-[#FAF7F2] hover:bg-zinc-200 text-[#141416] border border-[#EAE4D9]'
+                    ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white'
+                    : 'bg-[#FAF7F2] dark:bg-[#1F2430] hover:bg-zinc-200 dark:hover:bg-[#262C3A] text-[#141416] dark:text-white border border-[#EAE4D9] dark:border-[#262C3A]'
                 }`}
               >
                 {isFollowing ? 'Following' : 'Follow Author'}
               </button>
             </div>
-            <p className="text-xs text-zinc-600 mt-2 leading-relaxed">
+            <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-2 leading-relaxed">
               {article.author.bio}
             </p>
-            <div className="flex items-center justify-center sm:justify-start space-x-4 mt-3 text-xs text-zinc-400">
+            <div className="flex items-center justify-center sm:justify-start space-x-4 mt-3 text-xs text-zinc-400 dark:text-zinc-500">
               <span>{article.author.followers.toLocaleString()} readers</span>
               <span>&bull;</span>
               <span>{article.author.articlesCount} published essays</span>
@@ -512,7 +512,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         </div>
 
         {/* Comments Section (API 3 Integration) */}
-        <div className="mt-12 pt-8 border-t border-[#EAE4D9]">
+        <div className="mt-12 pt-8 border-t border-[#EAE4D9] dark:border-[#262C3A]">
           <CommentsSection
             comments={comments}
             onAddComment={handleAddComment}
@@ -522,8 +522,8 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
 
         {/* Related Articles Rail */}
         {related.length > 0 && (
-          <div className="mt-16 pt-8 border-t border-[#EAE4D9]">
-            <h3 className="font-editorial text-2xl font-bold text-[#141416] mb-6">
+          <div className="mt-16 pt-8 border-t border-[#EAE4D9] dark:border-[#262C3A]">
+            <h3 className="font-editorial text-2xl font-bold text-[#141416] dark:text-white mb-6">
               More Perspectives in {article.category}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -534,7 +534,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                   onClick={() => onSelectRelated && onSelectRelated(rel)}
                   className="group cursor-pointer flex flex-col justify-between block no-underline text-inherit"
                 >
-                  <div className="rounded-xl overflow-hidden aspect-16/10 mb-3 bg-zinc-100">
+                  <div className="rounded-xl overflow-hidden aspect-16/10 mb-3 bg-zinc-100 dark:bg-zinc-800">
                     <img
                       src={rel.coverImage}
                       alt={rel.title}
@@ -542,13 +542,13 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E5A38]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9E5A38] dark:text-[#E05A30]">
                       {rel.category}
                     </span>
-                    <h4 className="font-editorial text-base font-bold text-[#141416] group-hover:text-[#2E4A3E] transition-colors mt-1 line-clamp-2">
+                    <h4 className="font-editorial text-base font-bold text-[#141416] dark:text-white group-hover:text-[#2E4A3E] dark:group-hover:text-emerald-400 transition-colors mt-1 line-clamp-2">
                       {rel.title}
                     </h4>
-                    <p className="text-xs text-zinc-500 mt-1 line-clamp-2">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
                       {rel.description}
                     </p>
                   </div>

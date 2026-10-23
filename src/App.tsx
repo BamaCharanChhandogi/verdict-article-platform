@@ -188,7 +188,7 @@ export function App() {
         {/* 2. LAYOUT-WRAPPED ROUTES (Sidebar + Header + Content Outlet) */}
         <Route
           element={
-            <div className="min-h-screen bg-[#FAF7F2] text-[#141416] flex">
+            <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] text-[#141416] dark:text-[#F1F3F5] flex transition-colors">
               <Sidebar
                 activeNav={activeNav}
                 setActiveNav={(nav) => {
@@ -324,16 +324,16 @@ export function App() {
             path="/feed"
             element={
               <main className="flex-1 px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full">
-                <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#EAE4D9] gap-2">
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#EAE4D9] dark:border-[#262C3A] gap-2">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
                       Popular Posts
                     </span>
-                    <h1 className="font-editorial text-3xl font-bold text-[#141416]">
+                    <h1 className="font-editorial text-3xl font-bold text-[#141416] dark:text-white">
                       New &amp; Popular
                     </h1>
                   </div>
-                  <div className="flex items-center space-x-2 text-xs text-zinc-500 font-medium bg-white border border-[#EAE4D9] px-3.5 py-1.5 rounded-full shadow-2xs self-start sm:self-auto">
+                  <div className="flex items-center space-x-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] px-3.5 py-1.5 rounded-full shadow-2xs self-start sm:self-auto">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span>Last 24h: <strong>804 articles</strong> &bull; <strong>556 writers</strong></span>
                   </div>
@@ -373,10 +373,10 @@ export function App() {
                 {searchQuery ? (
                   <div className="pt-6">
                     <div className="mb-6 flex items-center justify-between">
-                      <h2 className="font-editorial text-2xl font-bold text-[#141416]">
+                      <h2 className="font-editorial text-2xl font-bold text-[#141416] dark:text-white">
                         Search Results for "{searchQuery}"
                       </h2>
-                      <span className="text-xs text-zinc-500 font-semibold">
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold">
                         {filteredArticles.length} {filteredArticles.length === 1 ? 'result' : 'results'} found
                       </span>
                     </div>
@@ -410,7 +410,7 @@ export function App() {
                           />
                         </div>
 
-                        <div className="xl:col-span-3 pt-4 xl:pt-8 xl:border-l xl:border-[#EAE4D9] xl:pl-6">
+                        <div className="xl:col-span-3 pt-4 xl:pt-8 xl:border-l xl:border-[#EAE4D9] dark:xl:border-[#262C3A] xl:pl-6">
                           <EditorsPicks
                             articles={filteredArticles}
                             onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
@@ -449,9 +449,9 @@ export function App() {
                   </>
                 )}
 
-                <footer className="mt-20 pt-8 pb-12 border-t border-[#EAE4D9] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
+                <footer className="mt-20 pt-8 pb-12 border-t border-[#EAE4D9] dark:border-[#222733] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 gap-4">
                   <div className="flex items-center space-x-2">
-                    <span className="font-editorial text-base font-bold text-[#141416]">Verdict<span className="text-[#9E5A38]">.</span></span>
+                    <span className="font-editorial text-base font-bold text-[#141416] dark:text-[#F1F3F5]">Verdict<span className="text-[#9E5A38] dark:text-[#D98A62]">.</span></span>
                     <span>&bull;</span>
                     <span>Curated for curious minds worldwide</span>
                   </div>

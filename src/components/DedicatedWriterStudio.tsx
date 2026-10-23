@@ -119,7 +119,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
     content: initialContent,
     editorProps: {
       attributes: {
-        class: 'prose prose-zinc max-w-none focus:outline-none min-h-[420px] text-zinc-800 font-sans text-base sm:text-lg leading-[1.8]',
+        class: 'prose prose-zinc dark:prose-invert max-w-none focus:outline-none min-h-[420px] text-zinc-800 dark:text-zinc-200 font-sans text-base sm:text-lg leading-[1.8]',
       },
     },
     onUpdate: () => {
@@ -308,48 +308,48 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#141416] flex flex-col">
+    <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#0E1116] text-[#141416] dark:text-[#F1F3F5] flex flex-col">
       {/* 1. HASHNODE-STYLE TOP BREADCRUMB CONTROLS BAR */}
-      <header className="sticky top-0 z-40 bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#EAE4D9] px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-[#FAF7F2]/95 dark:bg-[#0E1116]/95 backdrop-blur-md border-b border-[#EAE4D9] dark:border-[#262C3A] px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
         
         {/* Left: Author / Drafts Breadcrumb */}
         <div className="flex items-center space-x-3 min-w-0">
           <button
             onClick={onBack}
-            className="p-1.5 text-zinc-500 hover:text-black rounded-lg hover:bg-zinc-200/60 transition-colors cursor-pointer"
+            className="p-1.5 text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white rounded-lg hover:bg-zinc-200/60 dark:hover:bg-[#1F2430] transition-colors cursor-pointer"
             title="Back to Studio"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center space-x-2 text-xs font-semibold text-zinc-600 truncate">
-            <span className="text-[#141416] font-bold truncate">
+          <div className="flex items-center space-x-2 text-xs font-semibold text-zinc-600 dark:text-zinc-300 truncate">
+            <span className="text-[#141416] dark:text-white font-bold truncate">
               {user?.name || 'Elena Rostova'}
             </span>
-            <span className="text-zinc-300">/</span>
+            <span className="text-zinc-300 dark:text-zinc-600">/</span>
             <button 
               onClick={onBack}
-              className="hover:text-black flex items-center space-x-1 cursor-pointer"
+              className="hover:text-black dark:hover:text-white flex items-center space-x-1 cursor-pointer"
             >
               <span>Drafts</span>
-              <ChevronDown className="w-3 h-3 text-zinc-400" />
+              <ChevronDown className="w-3 h-3 text-zinc-400 dark:text-zinc-500" />
             </button>
-            <span className="text-zinc-300">/</span>
-            <span className="text-zinc-400 font-normal truncate max-w-[120px] sm:max-w-xs">
+            <span className="text-zinc-300 dark:text-zinc-600">/</span>
+            <span className="text-zinc-400 dark:text-zinc-500 font-normal truncate max-w-[120px] sm:max-w-xs">
               {title || '+ Untitled'}
             </span>
           </div>
 
           {/* Auto-Save Indicator */}
-          <div className="hidden md:flex items-center space-x-1.5 text-[11px] text-zinc-400 pl-2">
+          <div className="hidden md:flex items-center space-x-1.5 text-[11px] text-zinc-400 dark:text-zinc-500 pl-2">
             {saveStatus === 'saving' ? (
-              <span className="flex items-center space-x-1 text-amber-600">
+              <span className="flex items-center space-x-1 text-amber-600 dark:text-amber-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                 <span>Saving to PostgreSQL...</span>
               </span>
             ) : (
-              <span className="flex items-center space-x-1 text-zinc-400">
-                <Check className="w-3 h-3 text-emerald-600" />
+              <span className="flex items-center space-x-1 text-zinc-400 dark:text-zinc-500">
+                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                 <span>Saved ({lastSavedTime})</span>
               </span>
             )}
@@ -358,7 +358,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
 
         {/* Right: Word Count, Preview, Settings Drawer Trigger, Publish Button */}
         <div className="flex items-center space-x-2.5 shrink-0">
-          <span className="text-xs text-zinc-400 font-medium hidden lg:inline mr-1">
+          <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium hidden lg:inline mr-1">
             {wordCount} words &bull; ~{estimatedReadingTime} min read
           </span>
 
@@ -367,8 +367,8 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
             onClick={() => setIsPreview(!isPreview)}
             className={`inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
               isPreview 
-                ? 'bg-[#141416] text-white border-transparent' 
-                : 'bg-white hover:bg-zinc-100 text-zinc-700 border-[#EAE4D9]'
+                ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416] border-transparent' 
+                : 'bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] text-zinc-700 dark:text-zinc-300 border-[#EAE4D9] dark:border-[#262C3A]'
             }`}
           >
             {isPreview ? <Edit3 className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -378,10 +378,10 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
           {/* Draft Settings Drawer Trigger (Hashnode ⚙️) */}
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="inline-flex items-center space-x-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-white hover:bg-zinc-100 text-zinc-700 border border-[#EAE4D9] transition-colors cursor-pointer"
+            className="inline-flex items-center space-x-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] text-zinc-700 dark:text-zinc-300 border border-[#EAE4D9] dark:border-[#262C3A] transition-colors cursor-pointer"
             title="Draft Settings"
           >
-            <Settings className="w-3.5 h-3.5 text-zinc-600" />
+            <Settings className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
             <span className="hidden sm:inline">Draft settings</span>
           </button>
 
@@ -389,7 +389,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
           <button
             onClick={handlePublish}
             disabled={isPublishing}
-            className="inline-flex items-center space-x-1.5 text-xs font-semibold px-4 sm:px-5 py-2 rounded-full bg-[#141416] hover:bg-black text-white transition-all shadow-sm cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center space-x-1.5 text-xs font-semibold px-4 sm:px-5 py-2 rounded-full bg-[#141416] dark:bg-emerald-600 hover:bg-black dark:hover:bg-emerald-500 text-white transition-all shadow-sm cursor-pointer disabled:opacity-50"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{isPublishing ? 'Publishing...' : 'Publish'}</span>
@@ -399,7 +399,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
 
       {/* ERROR NOTICE */}
       {errorMessage && (
-        <div className="bg-rose-50 border-b border-rose-200 px-4 py-2.5 text-center text-xs font-semibold text-rose-700">
+        <div className="bg-rose-50 dark:bg-rose-950/50 border-b border-rose-200 dark:border-rose-900/60 px-4 py-2.5 text-center text-xs font-semibold text-rose-700 dark:text-rose-400">
           {errorMessage}
         </div>
       )}
@@ -410,27 +410,27 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
           /* LIVE PREVIEW */
           <div className="space-y-8 animate-in fade-in">
             <div className="text-center sm:text-left space-y-4">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#9E5A38] bg-[#9E5A38]/10 px-3 py-1 rounded-full">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#9E5A38] dark:text-[#E05A30] bg-[#9E5A38]/10 dark:bg-[#E05A30]/10 px-3 py-1 rounded-full">
                 {category}
               </span>
-              <h1 className="font-editorial text-4xl sm:text-5xl font-bold text-[#141416] leading-tight">
+              <h1 className="font-editorial text-4xl sm:text-5xl font-bold text-[#141416] dark:text-white leading-tight">
                 {title || 'Untitled Essay'}
               </h1>
               {subtitle && (
-                <p className="font-sans text-lg text-zinc-600 leading-relaxed">
+                <p className="font-sans text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed">
                   {subtitle}
                 </p>
               )}
             </div>
 
             {coverImage && (
-              <div className="rounded-2xl overflow-hidden aspect-16/9 bg-zinc-100 shadow-md">
+              <div className="rounded-2xl overflow-hidden aspect-16/9 bg-zinc-100 dark:bg-zinc-800 shadow-md">
                 <img src={coverImage} alt="Cover preview" className="w-full h-full object-cover" />
               </div>
             )}
 
             <div 
-              className="prose prose-zinc max-w-none text-base sm:text-lg leading-[1.8] space-y-6"
+              className="prose prose-zinc dark:prose-invert max-w-none text-base sm:text-lg leading-[1.8] space-y-6"
               dangerouslySetInnerHTML={{ __html: editor?.getHTML() || '' }}
             />
           </div>
@@ -439,11 +439,11 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
           <div className="space-y-6">
             
             {/* Hashnode-Style Inline Action Prompts: [Cover] [Subheading] */}
-            <div className="flex items-center space-x-3 text-xs text-zinc-500 pb-1">
+            <div className="flex items-center space-x-3 text-xs text-zinc-500 dark:text-zinc-400 pb-1">
               <button
                 type="button"
                 onClick={() => setShowCoverSection(!showCoverSection)}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg hover:bg-zinc-200/50 transition-colors cursor-pointer text-zinc-600"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg hover:bg-zinc-200/50 dark:hover:bg-[#1F2430] transition-colors cursor-pointer text-zinc-600 dark:text-zinc-300"
               >
                 <ImageIcon className="w-3.5 h-3.5" />
                 <span>{showCoverSection ? 'Hide Cover' : 'Cover'}</span>
@@ -452,7 +452,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
               <button
                 type="button"
                 onClick={() => setShowSubtitleInput(!showSubtitleInput)}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg hover:bg-zinc-200/50 transition-colors cursor-pointer text-zinc-600"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg hover:bg-zinc-200/50 dark:hover:bg-[#1F2430] transition-colors cursor-pointer text-zinc-600 dark:text-zinc-300"
               >
                 <span className="font-editorial font-bold text-xs">H₂</span>
                 <span>{showSubtitleInput ? 'Hide Subheading' : 'Subheading'}</span>
@@ -462,12 +462,12 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
             {/* Optional Cover Upload Banner */}
             {showCoverSection && (
               <div className="space-y-2 animate-in fade-in">
-                <div className="relative group rounded-2xl overflow-hidden aspect-21/9 bg-[#FAF7F2] border-2 border-dashed border-[#EAE4D9] flex items-center justify-center">
+                <div className="relative group rounded-2xl overflow-hidden aspect-21/9 bg-[#FAF7F2] dark:bg-[#171B22] border-2 border-dashed border-[#EAE4D9] dark:border-[#262C3A] flex items-center justify-center">
                   {coverImage ? (
                     <>
                       <img src={coverImage} alt="Article cover" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-3">
-                        <label className="bg-white hover:bg-zinc-100 text-[#141416] text-xs font-semibold px-4 py-2 rounded-full cursor-pointer shadow-md flex items-center space-x-1.5">
+                        <label className="bg-white dark:bg-[#171B22] hover:bg-zinc-100 dark:hover:bg-[#1F2430] text-[#141416] dark:text-white text-xs font-semibold px-4 py-2 rounded-full cursor-pointer shadow-md flex items-center space-x-1.5">
                           <Upload className="w-3.5 h-3.5" />
                           <span>{uploadingImage ? 'Uploading...' : 'Change Cover (Cloudflare R2)'}</span>
                           <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
@@ -476,21 +476,21 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                     </>
                   ) : (
                     <label className="text-center cursor-pointer p-6">
-                      <ImageIcon className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
-                      <span className="text-xs font-semibold text-zinc-600">Click to upload story cover image</span>
+                      <ImageIcon className="w-8 h-8 text-zinc-400 dark:text-zinc-500 mx-auto mb-2" />
+                      <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">Click to upload story cover image</span>
                       <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                     </label>
                   )}
                 </div>
 
-                <div className="flex items-center space-x-2 text-[11px] text-zinc-500 overflow-x-auto pb-1">
+                <div className="flex items-center space-x-2 text-[11px] text-zinc-500 dark:text-zinc-400 overflow-x-auto pb-1">
                   <span className="shrink-0 font-medium">Presets:</span>
                   {COVER_PRESETS.map((preset, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setCoverImage(preset.url)}
-                      className="px-2.5 py-0.5 bg-white border border-[#EAE4D9] rounded-full hover:bg-zinc-100 shrink-0 cursor-pointer text-zinc-700"
+                      className="px-2.5 py-0.5 bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] rounded-full hover:bg-zinc-100 dark:hover:bg-[#1F2430] shrink-0 cursor-pointer text-zinc-700 dark:text-zinc-300"
                     >
                       {preset.label}
                     </button>
@@ -506,7 +506,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Article title..."
-                className="w-full font-editorial text-4xl sm:text-5xl font-bold text-[#141416] placeholder:text-zinc-300 bg-transparent border-none outline-hidden leading-tight"
+                className="w-full font-editorial text-4xl sm:text-5xl font-bold text-[#141416] dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-600 bg-transparent border-none outline-hidden leading-tight"
               />
             </div>
 
@@ -518,18 +518,18 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
                   placeholder="Add a subheading..."
-                  className="w-full font-sans text-lg sm:text-xl text-zinc-600 placeholder:text-zinc-300 bg-transparent border-none outline-hidden"
+                  className="w-full font-sans text-lg sm:text-xl text-zinc-600 dark:text-zinc-300 placeholder:text-zinc-300 dark:placeholder:text-zinc-600 bg-transparent border-none outline-hidden"
                 />
               </div>
             )}
 
             {/* TIPTAP FORMATTING TOOLBAR */}
             {editor && (
-              <div className="sticky top-16 z-30 bg-white rounded-xl border border-[#EAE4D9] p-1.5 shadow-2xs flex flex-wrap items-center gap-1 text-zinc-600">
+              <div className="sticky top-16 z-30 bg-white dark:bg-[#171B22] rounded-xl border border-[#EAE4D9] dark:border-[#262C3A] p-1.5 shadow-2xs flex flex-wrap items-center gap-1 text-zinc-600 dark:text-zinc-300">
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('heading', { level: 1 }) ? 'bg-[#141416] text-white' : 'hover:bg-zinc-100'}`}
+                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('heading', { level: 1 }) ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' : 'hover:bg-zinc-100 dark:hover:bg-[#1F2430]'}`}
                   title="Heading 1"
                 >
                   <Heading1 className="w-4 h-4" />
@@ -537,7 +537,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('heading', { level: 2 }) ? 'bg-[#141416] text-white' : 'hover:bg-zinc-100'}`}
+                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('heading', { level: 2 }) ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' : 'hover:bg-zinc-100 dark:hover:bg-[#1F2430]'}`}
                   title="Heading 2"
                 >
                   <Heading2 className="w-4 h-4" />
@@ -545,18 +545,18 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('heading', { level: 3 }) ? 'bg-[#141416] text-white' : 'hover:bg-zinc-100'}`}
+                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('heading', { level: 3 }) ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' : 'hover:bg-zinc-100 dark:hover:bg-[#1F2430]'}`}
                   title="Heading 3"
                 >
                   <Heading3 className="w-4 h-4" />
                 </button>
 
-                <span className="text-zinc-300 mx-0.5">|</span>
+                <span className="text-zinc-300 dark:text-zinc-600 mx-0.5">|</span>
 
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleBold().run()}
-                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('bold') ? 'bg-[#141416] text-white' : 'hover:bg-zinc-100'}`}
+                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('bold') ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' : 'hover:bg-zinc-100 dark:hover:bg-[#1F2430]'}`}
                   title="Bold"
                 >
                   <Bold className="w-4 h-4" />
@@ -564,7 +564,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleItalic().run()}
-                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('italic') ? 'bg-[#141416] text-white' : 'hover:bg-zinc-100'}`}
+                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('italic') ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' : 'hover:bg-zinc-100 dark:hover:bg-[#1F2430]'}`}
                   title="Italic"
                 >
                   <Italic className="w-4 h-4" />
@@ -572,18 +572,18 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleCode().run()}
-                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('code') ? 'bg-[#141416] text-white' : 'hover:bg-zinc-100'}`}
+                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('code') ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' : 'hover:bg-zinc-100 dark:hover:bg-[#1F2430]'}`}
                   title="Inline Code"
                 >
                   <Code className="w-4 h-4" />
                 </button>
 
-                <span className="text-zinc-300 mx-0.5">|</span>
+                <span className="text-zinc-300 dark:text-zinc-600 mx-0.5">|</span>
 
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('blockquote') ? 'bg-[#141416] text-white' : 'hover:bg-zinc-100'}`}
+                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('blockquote') ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' : 'hover:bg-zinc-100 dark:hover:bg-[#1F2430]'}`}
                   title="Pull Quote"
                 >
                   <Quote className="w-4 h-4" />
@@ -591,7 +591,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleBulletList().run()}
-                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('bulletList') ? 'bg-[#141416] text-white' : 'hover:bg-zinc-100'}`}
+                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('bulletList') ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' : 'hover:bg-zinc-100 dark:hover:bg-[#1F2430]'}`}
                   title="Bullet List"
                 >
                   <List className="w-4 h-4" />
@@ -599,7 +599,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('orderedList') ? 'bg-[#141416] text-white' : 'hover:bg-zinc-100'}`}
+                  className={`p-1.5 rounded-lg cursor-pointer ${editor.isActive('orderedList') ? 'bg-[#141416] dark:bg-white text-white dark:text-[#141416]' : 'hover:bg-zinc-100 dark:hover:bg-[#1F2430]'}`}
                   title="Numbered List"
                 >
                   <ListOrdered className="w-4 h-4" />
@@ -607,18 +607,18 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().setHorizontalRule().run()}
-                  className="p-1.5 hover:bg-zinc-100 rounded-lg cursor-pointer"
+                  className="p-1.5 hover:bg-zinc-100 dark:hover:bg-[#1F2430] rounded-lg cursor-pointer text-zinc-600 dark:text-zinc-300"
                   title="Horizontal Divider"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
 
-                <span className="text-zinc-300 mx-0.5">|</span>
+                <span className="text-zinc-300 dark:text-zinc-600 mx-0.5">|</span>
 
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().undo().run()}
-                  className="p-1.5 hover:bg-zinc-100 rounded-lg cursor-pointer"
+                  className="p-1.5 hover:bg-zinc-100 dark:hover:bg-[#1F2430] rounded-lg cursor-pointer text-zinc-600 dark:text-zinc-300"
                   title="Undo"
                 >
                   <Undo className="w-4 h-4" />
@@ -626,7 +626,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().redo().run()}
-                  className="p-1.5 hover:bg-zinc-100 rounded-lg cursor-pointer"
+                  className="p-1.5 hover:bg-zinc-100 dark:hover:bg-[#1F2430] rounded-lg cursor-pointer text-zinc-600 dark:text-zinc-300"
                   title="Redo"
                 >
                   <Redo className="w-4 h-4" />
@@ -635,7 +635,7 @@ export const DedicatedWriterStudio: React.FC<DedicatedWriterStudioProps> = ({
             )}
 
             {/* TipTap Editor Content */}
-            <div className="bg-white rounded-2xl border border-[#EAE4D9] p-6 sm:p-8 shadow-xs">
+            <div className="bg-white dark:bg-[#171B22] rounded-2xl border border-[#EAE4D9] dark:border-[#262C3A] p-6 sm:p-8 shadow-xs">
               <EditorContent editor={editor} />
             </div>
 

@@ -19,7 +19,7 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
       {/* Section Header */}
       <div className="flex items-center space-x-2 mb-4">
         <span className="w-2 h-2 rounded-full bg-[#9E5A38] animate-pulse"></span>
-        <h3 className="text-xs uppercase font-bold tracking-wider text-zinc-800 font-sans">
+        <h3 className="text-xs uppercase font-bold tracking-wider text-zinc-800 dark:text-zinc-200 font-sans">
           Featured This Week
         </h3>
       </div>

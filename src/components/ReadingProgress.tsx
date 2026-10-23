@@ -17,7 +17,7 @@ export const ReadingProgress: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-1 bg-[#EFECE6] z-50">
+    <div className="fixed top-0 left-0 right-0 h-1 bg-[#EFECE6] dark:bg-[#1C212B] z-50">
       <div 
         className="h-full bg-[#E05A30] transition-all duration-150 ease-out"
         style={{ width: `${scrollProgress}%` }}

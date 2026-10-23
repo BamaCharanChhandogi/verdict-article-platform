@@ -39,12 +39,12 @@ export const EditorsPicks: React.FC<EditorsPicksProps> = ({
     <div className="bg-transparent rounded-2xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
-        <h3 className="font-editorial text-xl font-bold text-[#141416] tracking-tight">
+        <h3 className="font-editorial text-xl font-bold text-[#141416] dark:text-[#F1F3F5] tracking-tight">
           Editor's Picks
         </h3>
         <button
           onClick={onSeeAllClick}
-          className="text-xs font-semibold text-zinc-500 hover:text-[#141416] transition-colors cursor-pointer"
+          className="text-xs font-semibold text-zinc-500 hover:text-[#141416] dark:hover:text-white transition-colors cursor-pointer"
         >
           See All
         </button>
@@ -62,15 +62,15 @@ export const EditorsPicks: React.FC<EditorsPicksProps> = ({
               key={article.id}
               to={`/article/${article.slug}`}
               onClick={() => onSelectArticle && onSelectArticle(article)}
-              className="group flex items-center space-x-3 p-2 rounded-xl hover:bg-[#FAF7F2] transition-colors cursor-pointer block no-underline text-inherit"
+              className="group flex items-center space-x-3 p-2 rounded-xl hover:bg-[#FAF7F2] dark:hover:bg-[#1A1F29] transition-colors cursor-pointer block no-underline text-inherit"
             >
               {/* Number Rank */}
-              <span className="font-sans text-xs font-bold text-zinc-400 group-hover:text-[#141416] transition-colors w-5 shrink-0">
+              <span className="font-sans text-xs font-bold text-zinc-400 group-hover:text-[#141416] dark:group-hover:text-white transition-colors w-5 shrink-0">
                 {rankStr}
               </span>
 
               {/* Thumbnail */}
-              <div className="w-14 h-14 rounded-xl overflow-hidden bg-zinc-200 shrink-0">
+              <div className="w-14 h-14 rounded-xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 shrink-0">
                 <img
                   src={article.coverImage}
                   alt={article.title}
@@ -80,10 +80,10 @@ export const EditorsPicks: React.FC<EditorsPicksProps> = ({
 
               {/* Title & Reading Time */}
               <div className="flex-1 min-w-0 pr-1">
-                <h4 className="font-editorial text-xs font-bold text-[#141416] leading-snug group-hover:text-[#2E4A3E] transition-colors line-clamp-2">
+                <h4 className="font-editorial text-xs font-bold text-[#141416] dark:text-[#F1F3F5] leading-snug group-hover:text-[#2E4A3E] dark:group-hover:text-emerald-400 transition-colors line-clamp-2">
                   {article.title}
                 </h4>
-                <div className="flex items-center space-x-2 text-[10px] text-zinc-500 mt-1">
+                <div className="flex items-center space-x-2 text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
                   <span>{article.readingTime} min read</span>
                   <span>&bull;</span>
                   <span>{article.category}</span>
@@ -98,8 +98,8 @@ export const EditorsPicks: React.FC<EditorsPicksProps> = ({
                   e.stopPropagation();
                   onBookmarkToggle(article);
                 }}
-                className={`p-1.5 rounded-full hover:bg-zinc-200/60 transition-colors shrink-0 cursor-pointer ${
-                  bookmarked ? 'text-[#9E5A38]' : 'text-zinc-400 hover:text-zinc-700'
+                className={`p-1.5 rounded-full hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer ${
+                  bookmarked ? 'text-[#9E5A38] dark:text-[#D98A62]' : 'text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
                 }`}
                 title={bookmarked ? "Remove Bookmark" : "Save Bookmark"}
               >
@@ -112,17 +112,17 @@ export const EditorsPicks: React.FC<EditorsPicksProps> = ({
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-end space-x-2 mt-4 pt-3 border-t border-[#EAE4D9]">
+        <div className="flex items-center justify-end space-x-2 mt-4 pt-3 border-t border-[#EAE4D9] dark:border-[#222733]">
           <button
             onClick={handlePrev}
-            className="w-7 h-7 rounded-full border border-[#EAE4D9] flex items-center justify-center text-zinc-600 hover:text-[#141416] hover:border-zinc-400 transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-full border border-[#EAE4D9] dark:border-[#262C3A] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-[#141416] dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors cursor-pointer"
             title="Previous"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleNext}
-            className="w-7 h-7 rounded-full border border-[#EAE4D9] flex items-center justify-center text-zinc-600 hover:text-[#141416] hover:border-zinc-400 transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-full border border-[#EAE4D9] dark:border-[#262C3A] flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-[#141416] dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors cursor-pointer"
             title="Next"
           >
             <ChevronRight className="w-3.5 h-3.5" />

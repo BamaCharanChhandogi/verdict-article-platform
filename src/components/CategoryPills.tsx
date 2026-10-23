@@ -23,11 +23,11 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
   };
 
   return (
-    <div className="relative flex items-center py-4 my-2 border-y border-[#EFECE6]">
+    <div className="relative flex items-center py-4 my-2 border-y border-[#EFECE6] dark:border-[#222733] transition-colors">
       {/* Scroll Left Button */}
       <button
         onClick={() => scroll('left')}
-        className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 bg-white items-center justify-center text-zinc-600 hover:text-black transition-colors shadow-2xs mr-2 shrink-0 cursor-pointer"
+        className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 dark:border-[#262C3A] bg-white dark:bg-[#171B22] items-center justify-center text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors shadow-2xs mr-2 shrink-0 cursor-pointer"
         title="Scroll left"
       >
         <ChevronLeft className="w-3.5 h-3.5" />
@@ -48,8 +48,8 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
               className={`
                 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer
                 ${isSelected
-                  ? 'bg-[#18181B] text-white shadow-xs'
-                  : 'bg-white hover:bg-[#F3EFEA] text-zinc-600 hover:text-zinc-900 border border-[#EFECE6]'
+                  ? 'bg-[#18181B] dark:bg-[#F1F3F5] text-white dark:text-[#0E1116] shadow-xs'
+                  : 'bg-white dark:bg-[#171B22] hover:bg-[#F3EFEA] dark:hover:bg-[#1E232B] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border border-[#EFECE6] dark:border-[#262C3A]'
                 }
               `}
             >
@@ -62,7 +62,7 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
       {/* Scroll Right Button */}
       <button
         onClick={() => scroll('right')}
-        className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 bg-white items-center justify-center text-zinc-600 hover:text-black transition-colors shadow-2xs ml-2 shrink-0 cursor-pointer"
+        className="hidden sm:flex w-7 h-7 rounded-full border border-zinc-200 dark:border-[#262C3A] bg-white dark:bg-[#171B22] items-center justify-center text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors shadow-2xs ml-2 shrink-0 cursor-pointer"
         title="Scroll right"
       >
         <ChevronRight className="w-3.5 h-3.5" />

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   --font-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
@@ -20,6 +22,7 @@
 html {
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 body {
@@ -27,6 +30,17 @@ body {
   background-color: #FAF7F2;
   color: #141416;
   letter-spacing: -0.012em;
+  min-height: 100vh;
+}
+
+/* Dark Mode Global Styles */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0E1116;
+  color: #F1F3F5;
 }
 
 /* Headings Editorial Styling */
@@ -49,6 +63,13 @@ h1, h2, h3, .font-editorial {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #B6AEA0;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #2D333F;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #404859;
 }
 
 /* Shimmer Loading Animation */
