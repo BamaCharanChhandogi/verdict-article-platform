@@ -257,19 +257,4 @@ To build an audience solely on proprietary social platforms is to build a cathed
   }
 ];
 
-export const fallbackComments: Record<string, Comment[]> = {
-  'feat-1': [
-    {
-      id: 'c-1',
-      articleId: 'feat-1',
-      user: {
-        id: 'u-101',
-        name: 'Julian Hayes',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80',
-      },
-      body: 'This distinction between generation and discernment is precisely where modern editorial craft is headed. Thoroughly insightful.',
-      likes: 14,
-      createdAt: '2 days ago',
-    }
-  ]
-};
+export const fallbackComments: Record<string, Comment[]> = {};

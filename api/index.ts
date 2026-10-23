@@ -268,12 +268,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             COALESCE(c.created_at, NOW()) as "createdAt",
             json_build_object(
               'id', COALESCE(u.id, c.user_id),
-              'name', COALESCE(u.name, 'Elena Rostova'),
+              'name', COALESCE(u.name, 'Contributing Reader'),
               'avatar', COALESCE(u.avatar_url, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80')
             ) as user
           FROM verdict_comments c
           LEFT JOIN verdict_users u ON c.user_id = u.id
-          WHERE c.article_id = $1
+          WHERE c.article_id = $1 OR c.article_id = (SELECT id FROM verdict_articles WHERE slug = $1 LIMIT 1)
           ORDER BY c.created_at DESC;
         `, [articleId]);
 

@@ -227,25 +227,16 @@ export async function fetchAuthors(): Promise<Author[]> {
   }
 }
 
-// Curated Editorial Perspectives Fallback (Contextual to Verdict)
-const EDITORIAL_PERSPECTIVES: Record<string, string[]> = {
-  default: [
-    "The articulation of structural constraint over sheer velocity resonates deeply with our team's architectural practice.",
-    "This distinction between algorithmic generation and human discernment is precisely where modern craft is headed.",
-    "Compelling thesis. When platforms prioritize depth over hyperactive engagement, the compounding effects are undeniable."
-  ]
-};
-
 /**
- * Service 3: Fetch Real-Time Community Comments for an Article (PostgreSQL DB + LocalStorage + Curated Stream)
+ * Service 3: Fetch Real-Time Community Comments for an Article from Neon PostgreSQL
  */
 export async function fetchCommentsForArticle(articleId: string | number): Promise<Comment[]> {
   const artIdStr = String(articleId);
   const cacheKey = `comments_${artIdStr}`;
   const cached = appCache.get<Comment[]>(cacheKey);
-  if (cached && cached.length > 0) return cached;
+  if (cached) return cached;
 
-  // 1. Read persistent localStorage comments
+  // 1. Read persistent localStorage comments for immediate local author updates
   let localSaved: Comment[] = [];
   try {
     const raw = localStorage.getItem(`verdict_comments_${artIdStr}`);
@@ -254,10 +245,10 @@ export async function fetchCommentsForArticle(articleId: string | number): Promi
     localSaved = [];
   }
 
-  // 2. Fetch real comments from Neon PostgreSQL backend
+  // 2. Fetch real comments strictly from Neon PostgreSQL backend
   let dbComments: Comment[] = [];
   try {
-    const res = await axios.get(`/api/articles/${artIdStr}/comments`, { timeout: 3500 });
+    const res = await axios.get(`/api/articles/${artIdStr}/comments`, { timeout: 4000 });
     if (res.data?.success && Array.isArray(res.data.data)) {
       dbComments = res.data.data.map((c: any) => ({
         id: c.id,
@@ -273,67 +264,13 @@ export async function fetchCommentsForArticle(articleId: string | number): Promi
       }));
     }
   } catch {
-    // Backend offline / serverless fallback
+    // Graceful error recovery
   }
 
-  // 3. Fallback curated seed comments if both DB and local are completely empty
-  const fallbackList = fallbackComments[artIdStr] || [];
-  let seedEditorial: Comment[] = [];
-  if (dbComments.length === 0 && localSaved.length === 0 && fallbackList.length === 0) {
-    const defaultQuotes = EDITORIAL_PERSPECTIVES.default;
-    seedEditorial = [
-      {
-        id: `seed-1-${artIdStr}`,
-        articleId: artIdStr,
-        user: {
-          id: 'u-persp-1',
-          name: 'Julian Hayes',
-          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-        },
-        body: defaultQuotes[0],
-        likes: 14,
-        createdAt: 'Yesterday',
-      },
-      {
-        id: `seed-2-${artIdStr}`,
-        articleId: artIdStr,
-        user: {
-          id: 'u-persp-2',
-          name: 'Elena Vance',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-        },
-        body: defaultQuotes[1],
-        likes: 9,
-        createdAt: '2 days ago',
-      },
-      {
-        id: `seed-3-${artIdStr}`,
-        articleId: artIdStr,
-        user: {
-          id: 'u-persp-3',
-          name: 'Marcus Thorne',
-          avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-        },
-        body: defaultQuotes[2],
-        likes: 18,
-        createdAt: '3 days ago',
-      }
-    ];
-  }
-
-  // Merge and deduplicate by comment ID
+  // Merge database comments with local user comments, strictly without synthetic fallbacks
   const map = new Map<string, Comment>();
-  // 1. Local saved comments first (author's own newest thoughts)
   localSaved.forEach(c => map.set(String(c.id), c));
-  // 2. Database comments
   dbComments.forEach(c => map.set(String(c.id), c));
-  // 3. Fallbacks
-  fallbackList.forEach(c => {
-    if (!map.has(String(c.id))) map.set(String(c.id), c);
-  });
-  seedEditorial.forEach(c => {
-    if (!map.has(String(c.id))) map.set(String(c.id), c);
-  });
 
   const merged = Array.from(map.values());
   appCache.set(cacheKey, merged);
