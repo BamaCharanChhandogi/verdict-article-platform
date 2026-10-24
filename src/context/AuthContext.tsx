@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await axios.post('/api/v1/auth/login', { email, password }).catch(async () => {
         // Fallback to demo login if backend is booting or serverless cold start
-        if (email.toLowerCase().includes('demo') || password === 'password123') {
+        if (email.toLowerCase().trim() === 'demo@verdict.com' && password === 'password123') {
           return {
             data: {
               success: true,
