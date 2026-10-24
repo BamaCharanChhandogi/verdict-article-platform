@@ -125,6 +125,13 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
   const scaledComments = Math.round(totalComments * timeframeMultiplier);
   const scaledSubscribers = Math.round((publishedStories.length * 128 + 840) * timeframeMultiplier);
 
+  // Dynamic Average Read Time computed from actual published stories
+  const totalReadingMinutes = publishedStories.reduce((acc, s) => acc + (s.readingTime || 4), 0);
+  const avgReadingTimeMinutes = publishedStories.length > 0 ? totalReadingMinutes / publishedStories.length : 4.5;
+  const avgMinutes = Math.floor(avgReadingTimeMinutes);
+  const avgSeconds = Math.round((avgReadingTimeMinutes - avgMinutes) * 60);
+  const avgReadTimeFormatted = `${avgMinutes}m ${avgSeconds < 10 ? '0' : ''}${avgSeconds}s`;
+
   // Readership Velocity Points for SVG Chart
   const chartPoints = [
     { label: timeframe === '7d' ? 'Mon' : 'Wk 1', views: Math.round(380 * timeframeMultiplier), reads: Math.round(310 * timeframeMultiplier) },
@@ -138,11 +145,15 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
 
   const maxViews = Math.max(...chartPoints.map(p => p.views), 100);
 
-  // Enriched published stories for the table
+  // Enriched published stories for the table with dynamic natural read completion ratios
   const enrichedStories = publishedStories.map((story, idx) => {
     const views = story.viewsCount || Math.round((story.likesCount || 12) * 17 + 340 + (idx * 90));
-    const reads = Math.round(views * 0.78);
-    const readRatio = Math.min(94, Math.max(68, Math.round((reads / views) * 100)));
+    // Dynamic read completion ratio based on article length and engagement variance
+    const readLengthPenalty = (story.readingTime || 4) * 2.2;
+    const engagementBonus = ((story.likesCount || 0) % 9);
+    const naturalRatio = Math.max(62, Math.min(94, Math.round(89 - readLengthPenalty + engagementBonus)));
+    const reads = Math.round(views * (naturalRatio / 100));
+    const readRatio = Math.round((reads / views) * 100);
     return {
       ...story,
       analyticsViews: views,
@@ -150,6 +161,10 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
       readRatio,
     };
   });
+
+  const avgCompletionRate = enrichedStories.length > 0
+    ? Math.round(enrichedStories.reduce((acc, s) => acc + s.readRatio, 0) / enrichedStories.length)
+    : 81;
 
   const sortedStories = [...enrichedStories].sort((a, b) => {
     if (storySort === 'views') return b.analyticsViews - a.analyticsViews;
@@ -554,9 +569,9 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                   <Clock className="w-3.5 h-3.5" />
                 </span>
               </div>
-              <p className="font-editorial text-2xl font-bold text-[#141416] dark:text-[#F1F3F5]">4m 38s</p>
+              <p className="font-editorial text-2xl font-bold text-[#141416] dark:text-[#F1F3F5]">{avgReadTimeFormatted}</p>
               <div className="flex items-center space-x-1.5 mt-1.5 text-[10px]">
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">84.6%</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{avgCompletionRate}%</span>
                 <span className="text-zinc-400 dark:text-zinc-500">completion rate</span>
               </div>
             </div>
@@ -704,7 +719,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
               <div className="p-2.5 bg-[#FAF7F2] dark:bg-[#12151B] rounded-xl">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase">Peak Velocity</span>
                 <p className="text-xs sm:text-sm font-bold text-[#141416] dark:text-[#F1F3F5] mt-0.5">
-                  {chartPoints[chartPoints.length - 1].views.toLocaleString()} reads
+                  {chartPoints[chartPoints.length - 1].views.toLocaleString()} views
                 </p>
               </div>
               <div className="p-2.5 bg-[#FAF7F2] dark:bg-[#12151B] rounded-xl">
@@ -716,7 +731,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
               <div className="p-2.5 bg-[#FAF7F2] dark:bg-[#12151B] rounded-xl">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase">Read Ratio</span>
                 <p className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
-                  84.2% completion
+                  {avgCompletionRate}% completion
                 </p>
               </div>
               <div className="p-2.5 bg-[#FAF7F2] dark:bg-[#12151B] rounded-xl">
