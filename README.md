@@ -6,6 +6,23 @@
 
 ---
 
+## 🔑 Demo Access Credentials
+
+To evaluate all authoring, drafting, publishing, analytics, and interactive reader features immediately without manual registration:
+
+| Field | Demo Credential | Notes |
+|---|---|---|
+| **Email** | `demo@verdict.com` | Pre-configured Author & Editor in Chief |
+| **Password** | `password123` | Secure bcrypt-hashed database account |
+| **Quick Action** | ⚡ **1-Click Pre-fill** | Click *"Fill Demo Credentials"* inside the sign-in modal |
+
+> **Capabilities Unlocked**:
+> - **Writer Studio**: Create, edit, and publish rich markdown dispatches with cover art, category badges, and tags.
+> - **Author Dashboard & Analytics**: Access live PostgreSQL engagement stats, dynamic story read completion ratios, velocity charts, and draft management.
+> - **Interactive Reader**: Real-time clap counters, threaded discussions, reading progress tracker, and text-to-speech audio player.
+
+---
+
 ## 📖 1. Project Overview & Aesthetic Direction
 
 **Verdict.** is a modern, high-performance editorial magazine and article hosting web application. Departing from generic 3-column blog templates, Verdict embraces an **architectural magazine aesthetic** inspired by leading luxury editorial publications:
