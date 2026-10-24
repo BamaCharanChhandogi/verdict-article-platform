@@ -166,14 +166,14 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
             <img
               src={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
               alt={user?.name || 'User avatar'}
-              className="w-9 h-9 rounded-full object-cover shrink-0 ring-1 ring-[#EAE4D9] dark:ring-[#262C3A]"
+              className="w-9 h-9 rounded-full object-cover shrink-0 aspect-square ring-1 ring-[#EAE4D9] dark:ring-[#262C3A]"
             />
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-[#141416] dark:text-white">
+                <span className="text-xs font-bold text-[#141416] dark:text-white truncate">
                   Posting as <span className="text-[#9E5A38] dark:text-[#E05A30]">{user?.name}</span>
                 </span>
-                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 capitalize">{user?.role || 'Author'}</span>
+                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 capitalize shrink-0">{user?.role || 'Author'}</span>
               </div>
               <textarea
                 ref={textareaRef}
@@ -206,14 +206,14 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
                 </div>
               )}
 
-              <div className="flex items-center justify-between mt-3 pt-2">
-                <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+              <div className="flex items-center justify-between mt-3 pt-2 gap-2">
+                <span className="hidden sm:inline-block text-[11px] text-zinc-400 dark:text-zinc-500">
                   Tip: Press <kbd className="px-1.5 py-0.5 rounded-sm bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-[10px]">Ctrl+Enter</kbd> to publish
                 </span>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center space-x-2 bg-[#141416] dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-[#141416] text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  className="ml-auto inline-flex items-center space-x-2 bg-[#141416] dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-[#141416] text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-xs cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
                 >
                   {isSubmitting ? (
                     <>
@@ -262,7 +262,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
                     <img
                       src={comment.user.avatar}
                       alt={comment.user.name}
-                      className="w-8 h-8 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700"
+                      className="w-8 h-8 rounded-full object-cover shrink-0 aspect-square ring-1 ring-zinc-200 dark:ring-zinc-700"
                     />
                     <div>
                       <div className="flex items-center space-x-2">

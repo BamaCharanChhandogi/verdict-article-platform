@@ -238,7 +238,7 @@ export const ReadingListPage: React.FC<ReadingListPageProps> = ({
                       <img
                         src={article.author.avatar}
                         alt={article.author.name}
-                        className="w-6 h-6 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700 shrink-0"
+                        className="w-6 h-6 rounded-full object-cover shrink-0 aspect-square ring-1 ring-zinc-200 dark:ring-zinc-700"
                       />
                       <span className="text-xs font-semibold text-[#141416] dark:text-zinc-200 truncate">
                         {article.author.name}

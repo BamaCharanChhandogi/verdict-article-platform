@@ -70,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
             <img 
               src={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'} 
               alt={user?.name || 'Author Profile'} 
-              className="w-8 h-8 rounded-full object-cover border-2 border-[#EAE4D9] dark:border-[#262C3A] group-hover:border-[#9E5A38] dark:group-hover:border-[#E05A30] transition-all shadow-2xs group-hover:scale-105"
+              className="w-8 h-8 rounded-full object-cover shrink-0 aspect-square border-2 border-[#EAE4D9] dark:border-[#262C3A] group-hover:border-[#9E5A38] dark:group-hover:border-[#E05A30] transition-all shadow-2xs group-hover:scale-105"
             />
           </button>
         )}

@@ -64,24 +64,24 @@ export const ArticleRow: React.FC<ArticleRowProps> = ({
   return (
     <article className="group bg-white dark:bg-[#171B22] rounded-3xl p-5 sm:p-6 border border-[#EAE4D9] dark:border-[#262C3A] hover:border-zinc-300 dark:hover:border-zinc-600 shadow-2xs hover:shadow-md transition-all duration-300">
       {/* 1. Author & Metadata Header */}
-      <div className="flex items-center justify-between mb-3.5">
-        <div className="flex items-center space-x-2.5">
+      <div className="flex items-center justify-between gap-2 mb-3.5">
+        <div className="flex items-center space-x-2.5 min-w-0">
           <img
             src={article.author?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
             alt={article.author?.name || 'Author'}
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-black/5 dark:border-white/10"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover shrink-0 aspect-square border border-black/5 dark:border-white/10"
             loading="lazy"
           />
-          <div className="flex items-center space-x-2 text-xs">
-            <span className="font-bold text-[#141416] dark:text-[#F1F3F5] hover:underline cursor-pointer">
+          <div className="flex items-center space-x-2 text-xs min-w-0">
+            <span className="font-bold text-[#141416] dark:text-[#F1F3F5] hover:underline cursor-pointer truncate max-w-[105px] sm:max-w-none">
               {article.author?.name || 'Verdict Fellow'}
             </span>
             <span className="text-zinc-400 dark:text-zinc-500">&bull;</span>
-            <span className="text-zinc-500 dark:text-zinc-400">
+            <span className="text-zinc-500 dark:text-zinc-400 shrink-0 whitespace-nowrap">
               {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently'}
             </span>
             <span className="text-zinc-400 dark:text-zinc-500 hidden sm:inline">&bull;</span>
-            <span className="text-zinc-500 dark:text-zinc-400 hidden sm:inline font-medium">
+            <span className="text-zinc-500 dark:text-zinc-400 hidden sm:inline font-medium shrink-0 whitespace-nowrap">
               {article.readingTime || 4} min read
             </span>
           </div>
@@ -95,7 +95,7 @@ export const ArticleRow: React.FC<ArticleRowProps> = ({
             e.stopPropagation();
             if (onSelectCategory) onSelectCategory(article.category as Category);
           }}
-          className="text-[10px] uppercase font-bold tracking-widest text-[#9E5A38] dark:text-[#E05A30] bg-[#9E5A38]/10 dark:bg-[#E05A30]/15 hover:bg-[#9E5A38]/20 dark:hover:bg-[#E05A30]/25 px-2.5 py-0.5 rounded-full cursor-pointer transition-colors"
+          className="text-[10px] uppercase font-bold tracking-widest text-[#9E5A38] dark:text-[#E05A30] bg-[#9E5A38]/10 dark:bg-[#E05A30]/15 hover:bg-[#9E5A38]/20 dark:hover:bg-[#E05A30]/25 px-2.5 py-0.5 rounded-full cursor-pointer transition-colors shrink-0 whitespace-nowrap ml-2"
         >
           {article.category}
         </button>

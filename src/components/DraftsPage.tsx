@@ -132,7 +132,7 @@ export const DraftsPage: React.FC<DraftsPageProps> = ({
                   {draft.subtitle || draft.description || 'Draft content saved in progress...'}
                 </p>
 
-                <div className="flex items-center space-x-3 text-[11px] text-zinc-400 dark:text-zinc-500 mt-2">
+                <div className="flex items-center flex-wrap gap-y-1 gap-x-2 text-[11px] text-zinc-400 dark:text-zinc-500 mt-2">
                   <span>Last updated: {draft.updatedAt || 'Recently'}</span>
                   <span>&bull;</span>
                   <span>Cloud Synchronized</span>

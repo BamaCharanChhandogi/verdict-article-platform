@@ -180,15 +180,15 @@ export const DraftSettingsDrawer: React.FC<DraftSettingsDrawerProps> = ({
                   <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-2">
                     The author and byline of the draft.
                   </p>
-                  <div className="bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] rounded-xl p-3.5 flex items-center space-x-3.5">
+                  <div className="bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] rounded-xl p-3.5 flex items-center space-x-3.5 min-w-0">
                     <img 
                       src={authorAvatar} 
                       alt={authorName} 
-                      className="w-10 h-10 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700"
+                      className="w-10 h-10 rounded-full object-cover shrink-0 aspect-square ring-1 ring-zinc-200 dark:ring-zinc-700"
                     />
-                    <div>
-                      <p className="text-xs font-bold text-[#141416] dark:text-white">{authorName}</p>
-                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400">{authorRole}</p>
+                    <div className="min-w-0 truncate">
+                      <p className="text-xs font-bold text-[#141416] dark:text-white truncate">{authorName}</p>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">{authorRole}</p>
                     </div>
                   </div>
                 </div>

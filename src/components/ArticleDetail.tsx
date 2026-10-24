@@ -391,7 +391,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   ];
 
   return (
-    <article className="min-h-screen pb-20 relative">
+    <article className="min-h-screen pb-28 lg:pb-20 relative">
       {/* Scroll Reading Progress Bar at the top */}
       <ReadingProgress />
 
@@ -805,7 +805,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
           <img
             src={article.author.avatar}
             alt={article.author.name}
-            className="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700 shrink-0"
+            className="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700 shrink-0 aspect-square"
           />
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">

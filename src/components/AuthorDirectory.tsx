@@ -117,17 +117,17 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
                 <div>
                   {/* Top Bar: Avatar & Follow Button */}
                   <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className="flex items-center space-x-3.5">
+                    <div className="flex items-center space-x-3.5 min-w-0">
                       <img
                         src={author.avatar}
                         alt={author.name}
-                        className="w-14 h-14 rounded-full object-cover ring-2 ring-[#FAF7F2] dark:ring-zinc-700 group-hover:scale-105 transition-transform"
+                        className="w-14 h-14 rounded-full object-cover shrink-0 aspect-square ring-2 ring-[#FAF7F2] dark:ring-zinc-700 group-hover:scale-105 transition-transform"
                       />
-                      <div>
-                        <h3 className="font-editorial text-xl font-bold text-[#141416] dark:text-[#F1F3F5] leading-tight">
+                      <div className="min-w-0">
+                        <h3 className="font-editorial text-lg sm:text-xl font-bold text-[#141416] dark:text-[#F1F3F5] leading-tight truncate">
                           {author.name}
                         </h3>
-                        <p className="text-[11px] font-semibold text-[#9E5A38] dark:text-[#D98A62] uppercase tracking-wider mt-0.5">
+                        <p className="text-[11px] font-semibold text-[#9E5A38] dark:text-[#D98A62] uppercase tracking-wider mt-0.5 truncate">
                           {author.role}
                         </p>
                       </div>
@@ -135,7 +135,7 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
 
                     <button
                       onClick={() => handleToggleFollow(author)}
-                      className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all shrink-0 cursor-pointer flex items-center space-x-1.5 ${
+                      className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all shrink-0 whitespace-nowrap cursor-pointer flex items-center space-x-1.5 ${
                         isFollowing
                           ? 'bg-[#2E4A3E] text-white hover:bg-[#233a30] shadow-xs'
                           : 'bg-[#FAF7F2] dark:bg-[#1E232B] hover:bg-zinc-200 dark:hover:bg-[#252B36] text-[#141416] dark:text-[#F1F3F5] border border-[#EAE4D9] dark:border-[#262C3A]'
@@ -162,15 +162,15 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
                 </div>
 
                 {/* Footer Metrics & Action */}
-                <div className="pt-4 border-t border-[#FAF7F2] dark:border-[#1F242E] flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
-                  <div className="flex items-center space-x-4">
+                <div className="pt-4 border-t border-[#FAF7F2] dark:border-[#1F242E] flex flex-wrap sm:flex-nowrap items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 gap-2">
+                  <div className="flex items-center space-x-3 sm:space-x-4 shrink-0">
                     <div className="flex items-center space-x-1">
-                      <BookOpen className="w-3.5 h-3.5 text-zinc-400" />
+                      <BookOpen className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                       <span className="font-semibold text-zinc-800 dark:text-zinc-200">{author.articlesCount}</span>
                       <span>stories</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Users className="w-3.5 h-3.5 text-zinc-400" />
+                      <Users className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                       <span className="font-semibold text-zinc-800 dark:text-zinc-200">{dynamicFollowers.toLocaleString()}</span>
                       <span>readers</span>
                     </div>
@@ -179,7 +179,7 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
                   {onSelectAuthorArticles && (
                     <button
                       onClick={() => onSelectAuthorArticles(author.name)}
-                      className="text-[#2E4A3E] dark:text-emerald-400 hover:text-[#141416] dark:hover:text-white font-semibold flex items-center space-x-1 group/btn cursor-pointer"
+                      className="text-[#2E4A3E] dark:text-emerald-400 hover:text-[#141416] dark:hover:text-white font-semibold flex items-center space-x-1 group/btn cursor-pointer shrink-0 ml-auto sm:ml-0"
                     >
                       <span>Read stories</span>
                       <ArrowUpRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />

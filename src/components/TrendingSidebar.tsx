@@ -297,7 +297,7 @@ export const TrendingSidebar: React.FC<TrendingSidebarProps> = ({
                         key={idx}
                         src={url}
                         alt="Contributor"
-                        className="w-4 h-4 rounded-full ring-1 ring-white dark:ring-[#171B22] object-cover"
+                        className="w-4 h-4 rounded-full ring-1 ring-white dark:ring-[#171B22] object-cover shrink-0 aspect-square"
                         loading="lazy"
                       />
                     ))}
@@ -350,7 +350,7 @@ export const TrendingSidebar: React.FC<TrendingSidebarProps> = ({
                   <img
                     src={writer.avatar}
                     alt={writer.name}
-                    className="w-9 h-9 rounded-full object-cover shrink-0 border border-black/5 dark:border-white/10"
+                    className="w-9 h-9 rounded-full object-cover shrink-0 aspect-square border border-black/5 dark:border-white/10"
                     loading="lazy"
                   />
                   <div className="min-w-0">

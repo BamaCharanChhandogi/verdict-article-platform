@@ -285,7 +285,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                 {publishedStories.slice(0, 6).map((story) => (
                   <div 
                     key={story.id} 
-                    className="py-3.5 flex items-center justify-between gap-4 hover:bg-[#FAF7F2]/60 dark:hover:bg-[#1E232B] px-2 rounded-xl transition-colors group"
+                    className="py-3.5 flex items-center justify-between gap-3 sm:gap-4 hover:bg-[#FAF7F2]/60 dark:hover:bg-[#1E232B] px-1 sm:px-2 rounded-xl transition-colors group"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center space-x-2 mb-1">
@@ -297,16 +297,16 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                           {story.title}
                         </h3>
                       </div>
-                      <div className="flex items-center space-x-3 text-[11px] text-zinc-400 dark:text-zinc-500 pl-4">
-                        <span>{story.author.name}</span>
+                      <div className="flex items-center space-x-2 text-[11px] text-zinc-400 dark:text-zinc-500 pl-4 whitespace-nowrap overflow-hidden text-ellipsis">
+                        <span className="truncate max-w-[85px] sm:max-w-none shrink-0">{story.author.name}</span>
                         <span>&bull;</span>
-                        <span>{story.category}</span>
+                        <span className="shrink-0">{story.category}</span>
                         <span>&bull;</span>
-                        <span>{story.readingTime} min read</span>
+                        <span className="shrink-0 whitespace-nowrap">{story.readingTime} min read</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3 shrink-0">
+                    <div className="flex items-center space-x-1 sm:space-x-2.5 shrink-0">
                       <span className="text-xs text-zinc-400 dark:text-zinc-500 hidden sm:inline">
                         {story.publishedAt}
                       </span>
@@ -315,21 +315,21 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                         className="p-1.5 text-zinc-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#252B36] rounded-lg transition-colors cursor-pointer"
                         title="View Published Article"
                       >
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
                       <button
                         onClick={() => onResumeDraft(story)}
                         className="p-1.5 text-zinc-400 hover:text-[#2E4A3E] dark:hover:text-emerald-400 hover:bg-[#2E4A3E]/10 dark:hover:bg-emerald-950/40 rounded-lg transition-colors cursor-pointer"
                         title="Edit Article"
                       >
-                        <Edit3 className="w-4 h-4" />
+                        <Edit3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(story.id, story.title)}
                         className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
                         title="Delete Article"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
                     </div>
                   </div>
@@ -339,20 +339,21 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
           </section>
 
           {/* 4. ACTIVE DRAFTS IN PROGRESS */}
-          <section className="bg-white dark:bg-[#171B22] rounded-2xl border border-[#EAE4D9] dark:border-[#262C3A] p-6 shadow-2xs">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EAE4D9]/70 dark:border-[#222733]">
-              <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <h2 className="font-editorial text-xl font-bold text-[#141416] dark:text-[#F1F3F5]">
+          <section className="bg-white dark:bg-[#171B22] rounded-2xl border border-[#EAE4D9] dark:border-[#262C3A] p-4 sm:p-6 shadow-2xs">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EAE4D9]/70 dark:border-[#222733] gap-2">
+              <div className="flex items-center space-x-2 min-w-0">
+                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <h2 className="font-editorial text-lg sm:text-xl font-bold text-[#141416] dark:text-[#F1F3F5] truncate">
                   Drafts in progress ({draftStories.length})
                 </h2>
               </div>
               {onNavigateDrafts && (
                 <button
                   onClick={onNavigateDrafts}
-                  className="text-xs font-semibold text-[#9E5A38] dark:text-[#D98A62] hover:text-[#7d4428] dark:hover:text-[#f2a279] flex items-center space-x-1 cursor-pointer"
+                  className="text-xs font-semibold text-[#9E5A38] dark:text-[#D98A62] hover:text-[#7d4428] dark:hover:text-[#f2a279] flex items-center space-x-1 cursor-pointer shrink-0 whitespace-nowrap"
                 >
-                  <span>View all drafts</span>
+                  <span className="hidden sm:inline">View all drafts</span>
+                  <span className="sm:hidden">View all</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -371,10 +372,10 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full shrink-0">
                           Draft
                         </span>
-                        <span className="text-[11px] text-zinc-400">
+                        <span className="text-[11px] text-zinc-400 shrink-0">
                           {draft.category}
                         </span>
                       </div>
@@ -386,20 +387,20 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                       </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-[#EAE4D9]/60 dark:border-[#222733] flex items-center justify-between">
-                      <span className="text-[11px] text-zinc-400">
+                    <div className="mt-4 pt-3 border-t border-[#EAE4D9]/60 dark:border-[#222733] flex items-center justify-between gap-2">
+                      <span className="text-[11px] text-zinc-400 shrink-0 whitespace-nowrap">
                         {draft.readingTime} min estimated
                       </span>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 shrink-0">
                         <button
                           onClick={() => onResumeDraft(draft)}
-                          className="text-xs font-semibold text-white dark:text-[#0E1116] bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
+                          className="text-xs font-semibold text-white dark:text-[#0E1116] bg-[#141416] dark:bg-[#F1F3F5] hover:bg-black dark:hover:bg-white px-3.5 py-1.5 rounded-full transition-colors cursor-pointer shrink-0 whitespace-nowrap"
                         >
                           Resume
                         </button>
                         <button
                           onClick={() => handleDelete(draft.id, draft.title)}
-                          className="p-1.5 text-zinc-400 hover:text-rose-600 rounded-lg cursor-pointer"
+                          className="p-1.5 text-zinc-400 hover:text-rose-600 rounded-lg cursor-pointer shrink-0"
                           title="Delete draft"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -956,10 +957,10 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
                 </span>
                 <div className="flex flex-wrap gap-2 text-[11px]">
                   <span className="px-2.5 py-1 bg-[#FAF7F2] dark:bg-[#12151B] border border-[#EAE4D9] dark:border-[#262C3A] rounded-lg font-medium text-zinc-700 dark:text-zinc-300">
-                    💻 Systems Engineers (44%)
+                    💡 Systems Designers (44%)
                   </span>
                   <span className="px-2.5 py-1 bg-[#FAF7F2] dark:bg-[#12151B] border border-[#EAE4D9] dark:border-[#262C3A] rounded-lg font-medium text-zinc-700 dark:text-zinc-300">
-                    🚀 Tech Founders (29%)
+                    🚀 Founders &amp; Strategists (29%)
                   </span>
                   <span className="px-2.5 py-1 bg-[#FAF7F2] dark:bg-[#12151B] border border-[#EAE4D9] dark:border-[#262C3A] rounded-lg font-medium text-zinc-700 dark:text-zinc-300">
                     🎨 UI/UX Designers (16%)

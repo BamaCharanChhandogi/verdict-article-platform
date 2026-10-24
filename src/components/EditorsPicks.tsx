@@ -123,18 +123,18 @@ export const EditorsPicks: React.FC<EditorsPicksProps> = ({
             className="block p-3.5 rounded-2xl bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] hover:border-[#141416] dark:hover:border-zinc-500 shadow-2xs hover:shadow-xs transition-all cursor-pointer group no-underline text-inherit"
           >
             {/* Author Header */}
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <div className="flex items-center space-x-2 min-w-0">
                 <img 
                   src={post.authorAvatar} 
                   alt={post.authorName} 
-                  className="w-4 h-4 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700"
+                  className="w-4 h-4 rounded-full object-cover shrink-0 aspect-square ring-1 ring-zinc-200 dark:ring-zinc-700"
                 />
-                <span className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">
+                <span className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 truncate">
                   {post.authorName}
                 </span>
               </div>
-              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 shrink-0 whitespace-nowrap">
                 {post.timeAgo}
               </span>
             </div>
