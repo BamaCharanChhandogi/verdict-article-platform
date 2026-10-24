@@ -61,10 +61,10 @@ const CATEGORIES: Category[] = [
 
 const SERIES_OPTIONS = [
   'None',
-  'System Design & Distributed Scalability',
-  'The Architecture of Clarity & Typography',
+  'Architecture & Scalable Systems',
+  'The Architecture of Clarity & Form',
   'Cognitive Depth & Mindful Productivity',
-  'Humane Software Engineering'
+  'Humane Digital Technology'
 ];
 
 export const DraftSettingsDrawer: React.FC<DraftSettingsDrawerProps> = ({

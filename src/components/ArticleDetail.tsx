@@ -591,7 +591,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
               {isSerifFont ? 'Serif' : 'Sans'}
             </button>
             <div className="absolute right-14 bg-[#141416] dark:bg-white text-white dark:text-[#141416] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-              Font: {isSerifFont ? 'Editorial Serif (Cormorant Garamond)' : 'Clean Sans (Manrope)'}
+              Font: {isSerifFont ? 'Classic Editorial Serif' : 'Modern Clean Sans'}
             </div>
           </div>
         </aside>

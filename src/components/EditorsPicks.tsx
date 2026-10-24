@@ -37,7 +37,7 @@ const INITIAL_LIVE_POSTS: LiveIncomingPost[] = [
   },
   {
     id: 'live-2',
-    title: 'Distributed Consensus & Raft Protocol in Cloud Systems',
+    title: 'The Architecture of Resilient Cloud Infrastructure',
     authorName: 'Dr. Aris Thorne',
     authorAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
     category: 'Technology',
@@ -82,7 +82,7 @@ export const EditorsPicks: React.FC<EditorsPicksProps> = ({
   useEffect(() => {
     const interval = setInterval(() => {
       const sampleTitles = [
-        { title: 'Designing Zero-Downtime PostgreSQL Schema Migrations', author: 'Maya Lin', category: 'Technology', slug: 'the-architecture-of-sustainable-systems' },
+        { title: 'Designing Resilient Distributed Cloud Systems', author: 'Maya Lin', category: 'Technology', slug: 'the-architecture-of-sustainable-systems' },
         { title: 'The Psychology of Essentialism in Modern Leadership', author: 'Sarah Jenkins', category: 'Business', slug: 'the-future-of-remote-work' },
         { title: 'Slow Living in a Fast World: Finding Stillness', author: 'David K.', category: 'Lifestyle', slug: 'slow-living-in-a-fast-world' },
       ];

@@ -417,7 +417,7 @@ export const TrendingSidebar: React.FC<TrendingSidebarProps> = ({
         <div className="space-y-2.5 mb-4">
           <div className="flex items-start space-x-2.5 text-xs text-zinc-700 dark:text-zinc-300">
             <span className="w-1.5 h-1.5 rounded-full bg-[#9E5A38] dark:bg-[#E05A30] mt-1.5 shrink-0"></span>
-            <span><strong>AI That Takes Action:</strong> People are moving past simple chat prompts to tools that write, run, and test code directly.</span>
+            <span><strong>Autonomous Intelligence:</strong> Readers gravitated toward practical tools that handle complex workflows instead of superficial novelties.</span>
           </div>
           <div className="flex items-start space-x-2.5 text-xs text-zinc-700 dark:text-zinc-300">
             <span className="w-1.5 h-1.5 rounded-full bg-[#2E4A3E] dark:bg-emerald-400 mt-1.5 shrink-0"></span>
@@ -551,10 +551,10 @@ export const TrendingSidebar: React.FC<TrendingSidebarProps> = ({
               <div className="p-4 rounded-2xl bg-[#FAF7F2] dark:bg-[#1F2430] border border-[#EAE4D9]/60 dark:border-[#262C3A]">
                 <div className="flex items-center space-x-2 text-xs font-bold text-[#141416] dark:text-white mb-1">
                   <span className="w-2 h-2 rounded-full bg-[#9E5A38]"></span>
-                  <span>1. Moving from prompt tricks to real tools</span>
+                  <span>1. Practical depth over surface novelty</span>
                 </div>
                 <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                  The most discussed stories were not about clever prompt tricks, but about software agents that can browse, code, and test independently. Readers are interested in what actually saves time.
+                  The most discussed essays focused on thoughtful systems that take deliberate action across research and creative work. Readers are seeking ideas that genuinely elevate daily focus.
                 </p>
               </div>
 

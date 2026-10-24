@@ -16,7 +16,7 @@ export const fallbackAuthors: Author[] = [
     "name": "Marcus Vance",
     "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
     "role": "Principal Systems Architect",
-    "bio": "Investigating distributed resilience, zero-trust cloud infrastructure, and the physics of low-latency computation.",
+    "bio": "Investigating digital resilience, decentralized architectures, and high-performance computing systems.",
     "followers": 18300,
     "articlesCount": 51,
     "twitter": "@marcusvance"

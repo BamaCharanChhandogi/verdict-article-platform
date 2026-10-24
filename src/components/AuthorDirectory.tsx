@@ -61,7 +61,7 @@ export const AuthorDirectory: React.FC<AuthorDirectoryProps> = ({ onSelectAuthor
           Contributors &amp; Essayists
         </h2>
         <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base mt-3 leading-relaxed">
-          Meet the multidisciplinary minds, cognitive scientists, systems engineers, and architectural critics shaping the essays across Verdict.
+          Meet the multidisciplinary minds, cognitive scientists, systems designers, and architectural critics shaping the essays across Verdict.
         </p>
       </div>
 

@@ -190,7 +190,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
 
           {/* Simple Load 3 more text button */}
           {hasMore && (
-            <div className="mt-8 flex justify-center">
+            <div className="mt-5 flex justify-center">
               <button
                 type="button"
                 onClick={handleLoadMore}

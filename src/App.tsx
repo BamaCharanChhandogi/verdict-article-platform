@@ -483,6 +483,19 @@ export function App() {
                     onOpenAuthors={() => navigate('/authors')}
                     onOpenAuth={() => setIsAuthOpen(true)}
                   />
+
+                  <footer className="mt-8 pt-6 pb-10 border-t border-[#EAE4D9] dark:border-[#222733] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 gap-4">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-editorial text-base font-bold text-[#141416] dark:text-[#F1F3F5]">Verdict<span className="text-[#9E5A38] dark:text-[#D98A62]">.</span></span>
+                      <span>&bull;</span>
+                      <span>Curated for curious minds worldwide</span>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <span>Independent Editorial &amp; Long-form Perspectives</span>
+                      <span>&bull;</span>
+                      <span>&copy; {new Date().getFullYear()} Verdict Media</span>
+                    </div>
+                  </footer>
                 </main>
               )
             }
@@ -571,16 +584,14 @@ export function App() {
                   </>
                 )}
 
-                <footer className="mt-20 pt-8 pb-12 border-t border-[#EAE4D9] dark:border-[#222733] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 gap-4">
+                <footer className="mt-8 pt-6 pb-10 border-t border-[#EAE4D9] dark:border-[#222733] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 gap-4">
                   <div className="flex items-center space-x-2">
                     <span className="font-editorial text-base font-bold text-[#141416] dark:text-[#F1F3F5]">Verdict<span className="text-[#9E5A38] dark:text-[#D98A62]">.</span></span>
                     <span>&bull;</span>
                     <span>Curated for curious minds worldwide</span>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <span>Independent Editorial &amp; Long-form Journalism</span>
-                    <span>&bull;</span>
-                    <span>Typography: Cormorant Garamond &amp; Manrope</span>
+                    <span>Independent Editorial &amp; Long-form Perspectives</span>
                     <span>&bull;</span>
                     <span>&copy; {new Date().getFullYear()} Verdict Media</span>
                   </div>

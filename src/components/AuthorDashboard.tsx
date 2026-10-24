@@ -76,7 +76,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
     }
   };
 
-  const [bioText, setBioText] = useState(user?.bio || 'Writing at the intersection of architecture, systems engineering, and modern editorial aesthetics.');
+  const [bioText, setBioText] = useState(user?.bio || 'Writing at the intersection of architecture, systems design, and modern editorial aesthetics.');
   const [authorName, setAuthorName] = useState(user?.name || 'Author');
   const [savedSettings, setSavedSettings] = useState(false);
 
@@ -445,7 +445,7 @@ export const AuthorDashboard: React.FC<AuthorDashboardProps> = ({
             <div>
               <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-[#9E5A38] dark:text-[#E05A30] mb-1">
                 <Activity className="w-3.5 h-3.5" />
-                <span>Editorial Intelligence &bull; Live Telemetry</span>
+                <span>Editorial Intelligence &bull; Live Insights</span>
               </div>
               <h2 className="font-editorial text-2xl font-bold text-[#141416] dark:text-[#F1F3F5]">
                 Audience Resonance &amp; Performance
