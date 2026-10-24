@@ -531,9 +531,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       `;
       const params: any[] = [];
 
-      if (statusFilter) {
+      if (statusFilter && statusFilter !== 'all') {
         params.push(statusFilter);
         queryText += ` AND a.status = $${params.length}`;
+      } else if (!statusFilter) {
+        // Default public query: strictly only return published articles
+        queryText += ` AND (a.status = 'published' OR a.status IS NULL)`;
       }
 
       if (authorFilter) {

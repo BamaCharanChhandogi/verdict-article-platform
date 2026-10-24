@@ -120,8 +120,11 @@ export const ArticleRow: React.FC<ArticleRowProps> = ({
         {article.coverImage && (
           <div className="w-28 sm:w-44 h-20 sm:h-28 rounded-2xl overflow-hidden shrink-0 bg-zinc-100 dark:bg-zinc-800 border border-black/5 dark:border-white/5 shadow-2xs">
             <img
-              src={article.coverImage}
+              src={article.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80'}
               alt={article.title}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
+              }}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
               loading="lazy"
             />

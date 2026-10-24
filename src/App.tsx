@@ -334,7 +334,7 @@ export function App() {
                   onBack={() => navigate(isAuthenticated ? '/feed' : '/')}
                   onBookmarkToggle={handleBookmarkToggle}
                   isBookmarked={isBookmarked}
-                  allArticles={articles}
+                  allArticles={publishedArticles}
                   onOpenAuth={() => setIsAuthOpen(true)}
                   onSelectTag={(tag) => {
                     const cleanTag = tag.replace(/^#/, '').trim();

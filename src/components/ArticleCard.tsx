@@ -28,8 +28,11 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
         {/* Card Image with Bookmark Button Overlay */}
         <div className="relative aspect-16/10 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
           <img
-            src={article.coverImage}
+            src={article.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80'}
             alt={article.title}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
+            }}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             loading="lazy"
           />

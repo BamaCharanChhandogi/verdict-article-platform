@@ -358,7 +358,7 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   };
 
   const related = allArticles
-    .filter(a => a.id !== article.id && (a.category === article.category || a.isEditorPick))
+    .filter(a => a.status !== 'draft' && a.id !== article.id && (a.category === article.category || a.isEditorPick))
     .slice(0, 3);
 
   // Dynamic Content Parser supporting Markdown and HTML formats
@@ -673,8 +673,11 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-10">
         <div className="rounded-[28px] overflow-hidden shadow-xl aspect-16/9 bg-zinc-200 dark:bg-zinc-800">
           <img
-            src={article.coverImage}
+            src={article.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80'}
             alt={article.title}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80';
+            }}
             className="w-full h-full object-cover"
           />
         </div>
@@ -920,9 +923,13 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                 >
                   <div className="rounded-xl overflow-hidden aspect-16/10 mb-3 bg-zinc-100 dark:bg-zinc-800">
                     <img
-                      src={rel.coverImage}
+                      src={rel.coverImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80'}
                       alt={rel.title}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
                     />
                   </div>
                   <div>

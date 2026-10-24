@@ -16,14 +16,17 @@ export async function fetchArticles(): Promise<Article[]> {
   if (cached) return cached;
 
   try {
-    // 1. Fetch real articles and drafts directly from PostgreSQL REST API
-    const dbRes = await axios.get('/api/articles', { timeout: 3500 }).catch(() => null);
+    // 1. Fetch real published articles directly from PostgreSQL REST API
+    const dbRes = await axios.get('/api/articles?status=published', { timeout: 3500 }).catch(() => null);
     let dbArticles: Article[] = [];
     if (dbRes?.data?.data && Array.isArray(dbRes.data.data)) {
-      dbArticles = dbRes.data.data.map((item: any) => ({
-        ...item,
-        status: item.status || 'published',
-      }));
+      dbArticles = dbRes.data.data
+        .filter((item: any) => item.status === 'published' || !item.status)
+        .map((item: any) => ({
+          ...item,
+          status: 'published' as const,
+          coverImage: item.coverImage || item.cover_image || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+        }));
     }
 
     // 2. Fetch live multi-API articles from Dev.to
