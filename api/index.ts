@@ -54,35 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ success: false, message: 'Email and password required.' });
       }
 
-      const cleanEmail = email.toLowerCase().trim();
-
-      // Demo Account Auto-Provisioning / Fallback
-      if (cleanEmail === 'demo@verdict.com' && password === 'password123') {
-        let demoUserRes = await dbQuery('SELECT * FROM verdict_users WHERE email = $1', [cleanEmail]);
-        if (demoUserRes.rows.length === 0) {
-          const hashedDemoPw = await bcrypt.hash('password123', 10);
-          demoUserRes = await dbQuery(
-            `INSERT INTO verdict_users (email, password_hash, name, role, bio, avatar_url)
-             VALUES ($1, $2, $3, $4, $5, $6)
-             ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
-             RETURNING *`,
-            [
-              'demo@verdict.com',
-              hashedDemoPw,
-              'Elena Rostova',
-              'Editor in Chief',
-              'Writing on culture, architectural philosophy, and intentional design.',
-              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-            ]
-          );
-        }
-        const demoUser = demoUserRes.rows[0];
-        const token = jwt.sign({ id: demoUser.id, email: demoUser.email, name: demoUser.name, role: demoUser.role }, JWT_SECRET, { expiresIn: '7d' });
-        const { password_hash, ...safeDemoUser } = demoUser;
-        return res.status(200).json({ success: true, token, user: safeDemoUser });
-      }
-
-      const userRes = await dbQuery('SELECT * FROM verdict_users WHERE email = $1', [cleanEmail]);
+      const userRes = await dbQuery('SELECT * FROM verdict_users WHERE email = $1', [email.toLowerCase().trim()]);
       if (userRes.rows.length === 0) {
         return res.status(401).json({ success: false, message: 'Invalid credentials.' });
       }
