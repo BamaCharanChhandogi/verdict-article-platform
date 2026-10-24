@@ -109,9 +109,6 @@ export const ReadingListPage: React.FC<ReadingListPageProps> = ({
       {/* 1. Unauthenticated Gate: Clean Auth Required State */}
       {!isAuthenticated ? (
         <div className="bg-white dark:bg-[#171B22] rounded-3xl border border-[#EAE4D9] dark:border-[#262C3A] p-8 sm:p-14 text-center max-w-2xl mx-auto shadow-xs my-8">
-          <div className="w-16 h-16 rounded-2xl bg-[#FAF7F2] dark:bg-[#1F2430] border border-[#EAE4D9] dark:border-[#262C3A] text-[#9E5A38] dark:text-[#E05A30] flex items-center justify-center mx-auto mb-5 shadow-2xs">
-            <Bookmark className="w-8 h-8 stroke-[1.75]" />
-          </div>
           <h2 className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] dark:text-[#F1F3F5] mb-3">
             Access Your Reading List
           </h2>
@@ -138,9 +135,6 @@ export const ReadingListPage: React.FC<ReadingListPageProps> = ({
       ) : bookmarkedArticles.length === 0 ? (
         /* 2. Authenticated Empty State */
         <div className="bg-white dark:bg-[#171B22] rounded-3xl border border-[#EAE4D9] dark:border-[#262C3A] p-8 sm:p-12 text-center max-w-2xl mx-auto shadow-xs my-8">
-          <div className="w-16 h-16 rounded-2xl bg-[#FAF7F2] dark:bg-[#1F2430] border border-[#EAE4D9] dark:border-[#262C3A] text-[#9E5A38] dark:text-[#E05A30] flex items-center justify-center mx-auto mb-4">
-            <Bookmark className="w-8 h-8 stroke-[1.75]" />
-          </div>
           <h3 className="font-editorial text-2xl sm:text-3xl font-bold text-[#141416] dark:text-white mb-2">
             Your Reading Queue is Waiting
           </h3>

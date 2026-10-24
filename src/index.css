@@ -25,6 +25,11 @@ html {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+/* Eliminates Tap Flashing and Button Click Flicker */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: #FAF7F2;
@@ -33,7 +38,21 @@ body {
   min-height: 100vh;
 }
 
-/* Dark Mode Global Styles */
+/* Telegram-Style Expanding Circular Theme Transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
 html.dark {
   color-scheme: dark;
 }

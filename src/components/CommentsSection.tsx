@@ -24,7 +24,14 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [validationError, setValidationError] = useState('');
-  const [commentLikes, setCommentLikes] = useState<Record<string, number>>({});
+  const [commentLikes, setCommentLikes] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem('verdict_comment_likes_counts');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
   const [userLikedComments, setUserLikedComments] = useState<Set<string>>(() => {
     try {
       const saved = localStorage.getItem('verdict_liked_comments');
@@ -87,10 +94,15 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
       ? Math.max(0, (commentLikes[idStr] ?? currentLikes) - 1)
       : (commentLikes[idStr] ?? currentLikes) + 1;
 
-    setCommentLikes(prev => ({
-      ...prev,
-      [idStr]: newLikes
-    }));
+    setCommentLikes(prev => {
+      const next = { ...prev, [idStr]: newLikes };
+      try {
+        localStorage.setItem('verdict_comment_likes_counts', JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
 
     setUserLikedComments(prev => {
       const next = new Set(prev);

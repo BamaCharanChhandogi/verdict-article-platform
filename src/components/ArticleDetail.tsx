@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Bookmark, 
@@ -28,6 +28,7 @@ import { fetchCommentsForArticle, createRealComment, deleteRealComment, likeReal
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { isAuthorFollowed, toggleAuthorFollow } from '../utils/follows';
+import { isArticleLiked, getStoredArticleLikes, toggleArticleLike } from '../utils/likes';
 
 interface ArticleDetailProps {
   article?: Article | null;
@@ -37,6 +38,7 @@ interface ArticleDetailProps {
   onSelectRelated?: (article: Article) => void;
   allArticles: Article[];
   onOpenAuth?: () => void;
+  onSelectTag?: (tag: string) => void;
 }
 
 export const ArticleDetail: React.FC<ArticleDetailProps> = ({
@@ -47,19 +49,55 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
   onSelectRelated,
   allArticles,
   onOpenAuth,
+  onSelectTag,
 }) => {
   const { user, isAuthenticated, token } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Find active article from route slug or fallback to prop
   const article = propArticle || 
     allArticles.find(a => a.slug === slug || String(a.id) === slug) || 
     allArticles[0];
 
-  const [likes, setLikes] = useState(article?.likesCount || 0);
-  const [hasLiked, setHasLiked] = useState(false);
+  const isSelfAuthor = Boolean(
+    isAuthenticated && user && (
+      (user.name && article.author.name && user.name.toLowerCase() === article.author.name.toLowerCase()) ||
+      (user.id && article.author.id && String(user.id) === String(article.author.id))
+    )
+  );
+
+  // Smooth scroll directly to comments section if navigated with #comments
+  useEffect(() => {
+    if (location.hash === '#comments' || window.location.hash === '#comments') {
+      const scrollToComments = () => {
+        const el = document.getElementById('comments-section');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const textarea = el.querySelector('textarea');
+          if (textarea) {
+            textarea.focus();
+          }
+        }
+      };
+
+      scrollToComments();
+      const t1 = setTimeout(scrollToComments, 150);
+      const t2 = setTimeout(scrollToComments, 400);
+      const t3 = setTimeout(scrollToComments, 800);
+
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+      };
+    }
+  }, [location.hash, location.pathname, article?.id]);
+
+  const [likes, setLikes] = useState(() => getStoredArticleLikes(article?.id, article?.likesCount || 0));
+  const [hasLiked, setHasLiked] = useState(() => isArticleLiked(article?.id));
   const [copiedShare, setCopiedShare] = useState(false);
   const [isFollowing, setIsFollowing] = useState(() => isAuthorFollowed(article.author.name));
   const [comments, setComments] = useState<Comment[]>([]);
@@ -71,6 +109,15 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     }
     const next = toggleAuthorFollow(article.author.name);
     setIsFollowing(next);
+  };
+
+  const handleTagClick = (tag: string) => {
+    const cleanTag = tag.replace(/^#/, '').trim();
+    if (onSelectTag) {
+      onSelectTag(cleanTag);
+    } else {
+      navigate(`/?q=${encodeURIComponent(cleanTag)}`);
+    }
   };
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
@@ -127,6 +174,14 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       }
     };
   }, [article.id]);
+
+  // Sync likes and persistence on article switch
+  useEffect(() => {
+    if (article?.id) {
+      setLikes(getStoredArticleLikes(article.id, article.likesCount || 0));
+      setHasLiked(isArticleLiked(article.id));
+    }
+  }, [article?.id, article?.likesCount]);
 
   // Fetch comments via API 3
   useEffect(() => {
@@ -245,14 +300,11 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
       if (onOpenAuth) onOpenAuth();
       return;
     }
-    if (!hasLiked) {
-      setLikes(prev => prev + 1);
-      setHasLiked(true);
-      await likeRealArticle(article.id, token);
-    } else {
-      setLikes(prev => Math.max(0, prev - 1));
-      setHasLiked(false);
-    }
+    const { hasLiked: newHasLiked, likesCount: newLikesCount } = toggleArticleLike(article.id, likes);
+    setHasLiked(newHasLiked);
+    setLikes(newLikesCount);
+
+    likeRealArticle(article.id, token).catch(() => {});
   };
 
   const handleBookmarkClick = () => {
@@ -267,6 +319,10 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
     const el = document.getElementById('comments-section');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const textarea = el.querySelector('textarea');
+      if (textarea) {
+        textarea.focus();
+      }
     }
   };
 
@@ -576,9 +632,13 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         </button>
 
         <div className="flex items-center space-x-2.5">
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#2E4A3E] dark:text-emerald-400 bg-[#EBF1EE] dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
+          <button
+            type="button"
+            onClick={() => handleTagClick(article.category)}
+            className="text-[10px] uppercase font-bold tracking-widest text-[#2E4A3E] dark:text-emerald-400 bg-[#EBF1EE] dark:bg-emerald-950/40 px-2.5 py-1 rounded-full hover:opacity-80 transition-opacity cursor-pointer"
+          >
             {article.category}
-          </span>
+          </button>
           <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
             {article.readingTime} min read
           </span>
@@ -607,38 +667,6 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         >
           {article.description}
         </p>
-
-        {/* Author Metadata Bar */}
-        <div className="flex items-center justify-between py-4 border-y border-[#EAE4D9] dark:border-[#262C3A]">
-          {/* Author Info */}
-          <div className="flex items-center space-x-3.5">
-            <img
-              src={article.author.avatar}
-              alt={article.author.name}
-              className="w-12 h-12 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
-            />
-            <div>
-              <div className="flex items-center space-x-2">
-                <h3 className="font-sans text-sm font-bold text-[#141416] dark:text-white">
-                  {article.author.name}
-                </h3>
-                <button
-                  onClick={handleToggleFollow}
-                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full transition-colors cursor-pointer ${
-                    isFollowing
-                      ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white'
-                      : 'bg-zinc-100 dark:bg-[#1F2430] hover:bg-zinc-200 dark:hover:bg-[#262C3A] text-zinc-700 dark:text-zinc-200'
-                  }`}
-                >
-                  {isFollowing ? '✓ Following' : '+ Follow'}
-                </button>
-              </div>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-                Published {article.publishedAt} &bull; {article.readingTime} min read
-              </p>
-            </div>
-          </div>
-        </div>
       </header>
 
       {/* Featured Cover Image */}
@@ -761,12 +789,14 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
         {/* Tags Section */}
         <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-[#EAE4D9] dark:border-[#262C3A]">
           {article.tags.map((tag) => (
-            <span
+            <button
               key={tag}
-              className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] px-3 py-1 rounded-full hover:bg-zinc-100 dark:hover:bg-[#1F2430] transition-colors cursor-pointer"
+              type="button"
+              onClick={() => handleTagClick(tag)}
+              className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 bg-white dark:bg-[#171B22] border border-[#EAE4D9] dark:border-[#262C3A] px-3.5 py-1.5 rounded-full hover:bg-[#FAF7F2] dark:hover:bg-[#1F2430] hover:border-[#141416] dark:hover:border-zinc-500 hover:text-[#141416] dark:hover:text-white transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95"
             >
               #{tag}
-            </span>
+            </button>
           ))}
         </div>
 
@@ -787,16 +817,27 @@ export const ArticleDetail: React.FC<ArticleDetailProps> = ({
                   {article.author.role}
                 </p>
               </div>
-              <button
-                onClick={handleToggleFollow}
-                className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-colors cursor-pointer self-center sm:self-auto ${
-                  isFollowing
-                    ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white'
-                    : 'bg-[#FAF7F2] dark:bg-[#1F2430] hover:bg-zinc-200 dark:hover:bg-[#262C3A] text-[#141416] dark:text-white border border-[#EAE4D9] dark:border-[#262C3A]'
-                }`}
-              >
-                {isFollowing ? 'Following' : 'Follow Author'}
-              </button>
+              {isSelfAuthor ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/studio')}
+                  className="text-xs font-semibold px-4 py-1.5 rounded-full transition-colors cursor-pointer self-center sm:self-auto bg-zinc-100 dark:bg-[#1F2430] hover:bg-zinc-200 dark:hover:bg-[#262C3A] text-zinc-700 dark:text-zinc-200 border border-[#EAE4D9] dark:border-[#262C3A]"
+                >
+                  Edit in Studio
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleToggleFollow}
+                  className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-colors cursor-pointer self-center sm:self-auto ${
+                    isFollowing
+                      ? 'bg-[#2E4A3E] dark:bg-emerald-600 text-white'
+                      : 'bg-[#FAF7F2] dark:bg-[#1F2430] hover:bg-zinc-200 dark:hover:bg-[#262C3A] text-[#141416] dark:text-white border border-[#EAE4D9] dark:border-[#262C3A]'
+                  }`}
+                >
+                  {isFollowing ? 'Following' : 'Follow Author'}
+                </button>
+              )}
             </div>
             <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-2 leading-relaxed">
               {article.author.bio}

@@ -179,6 +179,11 @@ export function App() {
     }
   };
 
+  // Published articles for editorial showcases (not affected by category filter)
+  const publishedArticles = useMemo(() => {
+    return articles.filter(a => a.status !== 'draft');
+  }, [articles]);
+
   // Debounced Search & Filter Logic (Only show published articles on public feed)
   const filteredArticles = useMemo(() => {
     return articles
@@ -187,14 +192,18 @@ export function App() {
         // Category filter
         const matchesCategory = selectedCategory === 'All' || a.category.toLowerCase() === selectedCategory.toLowerCase();
 
-        // Search query filter
-        const q = searchQuery.toLowerCase().trim();
+        // Search query filter (matches title, description, author, category, or tags with/without #)
+        const rawQ = searchQuery.toLowerCase().trim();
+        const q = rawQ.replace(/^#/, '');
         const matchesSearch = !q || (
           a.title.toLowerCase().includes(q) ||
           a.description.toLowerCase().includes(q) ||
           a.author.name.toLowerCase().includes(q) ||
           a.category.toLowerCase().includes(q) ||
-          a.tags.some(t => t.toLowerCase().includes(q))
+          a.tags.some(t => {
+            const cleanT = t.toLowerCase().replace(/^#/, '');
+            return cleanT.includes(q) || q.includes(cleanT);
+          })
         );
 
         return matchesCategory && matchesSearch;
@@ -327,6 +336,21 @@ export function App() {
                   isBookmarked={isBookmarked}
                   allArticles={articles}
                   onOpenAuth={() => setIsAuthOpen(true)}
+                  onSelectTag={(tag) => {
+                    const cleanTag = tag.replace(/^#/, '').trim();
+                    const matchedCategory = ALL_CATEGORIES.find(
+                      c => c.toLowerCase() === cleanTag.toLowerCase()
+                    );
+                    if (matchedCategory) {
+                      setSelectedCategory(matchedCategory);
+                      setSearchQuery('');
+                      navigate(isAuthenticated ? '/feed' : '/');
+                    } else {
+                      setSelectedCategory('All');
+                      setSearchQuery(cleanTag);
+                      navigate('/');
+                    }
+                  }}
                 />
               </main>
             }
@@ -507,14 +531,14 @@ export function App() {
                         }} />
 
                         <FeaturedCarousel
-                          articles={filteredArticles}
+                          articles={publishedArticles}
                           onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
                         />
                       </div>
 
                       <div className="xl:col-span-3 pt-4 xl:pt-8 xl:border-l xl:border-[#EAE4D9] dark:xl:border-[#262C3A] xl:pl-6">
                         <EditorsPicks
-                          articles={filteredArticles}
+                          articles={publishedArticles}
                           onSelectArticle={(article) => navigate(`/article/${article.slug}`)}
                           onBookmarkToggle={handleBookmarkToggle}
                           isBookmarked={isBookmarked}

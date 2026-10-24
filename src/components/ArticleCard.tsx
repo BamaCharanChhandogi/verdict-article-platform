@@ -1,13 +1,14 @@
 import React from 'react';
 import { ArrowRight, Bookmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Article } from '../types';
+import { Article, Category } from '../types';
 
 interface ArticleCardProps {
   article: Article;
   onSelect?: (article: Article) => void;
   onBookmarkToggle: (article: Article) => void;
   isBookmarked: boolean;
+  onSelectCategory?: (category: Category) => void;
 }
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({
@@ -15,6 +16,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
   onSelect,
   onBookmarkToggle,
   isBookmarked,
+  onSelectCategory,
 }) => {
   return (
     <Link
@@ -51,9 +53,17 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
 
         {/* Card Content */}
         <div className="p-4 sm:p-5">
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#9E5A38] dark:text-[#D98A62] mb-1.5 block">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (onSelectCategory) onSelectCategory(article.category as Category);
+            }}
+            className="text-[10px] uppercase font-bold tracking-widest text-[#9E5A38] dark:text-[#D98A62] hover:underline mb-1.5 block cursor-pointer"
+          >
             {article.category}
-          </span>
+          </button>
           <h4 className="font-editorial text-base sm:text-lg font-bold text-[#141416] dark:text-[#F1F3F5] group-hover:text-[#2E4A3E] dark:group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">
             {article.title}
           </h4>

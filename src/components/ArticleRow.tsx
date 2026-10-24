@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Bookmark, MessageSquare, ArrowUpRight, Heart, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Article } from '../types';
+import { Article, Category } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { likeRealArticle } from '../services/api';
+import { isArticleLiked, getStoredArticleLikes, toggleArticleLike } from '../utils/likes';
 
 interface ArticleRowProps {
   article: Article;
@@ -11,6 +12,7 @@ interface ArticleRowProps {
   onBookmarkToggle: (article: Article) => void;
   isBookmarked: boolean;
   onOpenAuth?: () => void;
+  onSelectCategory?: (category: Category) => void;
 }
 
 export const ArticleRow: React.FC<ArticleRowProps> = ({
@@ -19,11 +21,11 @@ export const ArticleRow: React.FC<ArticleRowProps> = ({
   onBookmarkToggle,
   isBookmarked,
   onOpenAuth,
+  onSelectCategory,
 }) => {
   const { isAuthenticated, token } = useAuth();
-  const [likesCount, setLikesCount] = useState(article.likesCount || 0);
-  const [hasLiked, setHasLiked] = useState(false);
-  const [isLiking, setIsLiking] = useState(false);
+  const [likesCount, setLikesCount] = useState(() => getStoredArticleLikes(article.id, article.likesCount || 0));
+  const [hasLiked, setHasLiked] = useState(() => isArticleLiked(article.id));
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -34,20 +36,12 @@ export const ArticleRow: React.FC<ArticleRowProps> = ({
       return;
     }
 
-    if (isLiking || hasLiked) return;
+    const { hasLiked: newHasLiked, likesCount: newLikesCount } = toggleArticleLike(article.id, likesCount);
+    setHasLiked(newHasLiked);
+    setLikesCount(newLikesCount);
 
-    setIsLiking(true);
-    setHasLiked(true);
-    setLikesCount(prev => prev + 1);
-
-    try {
-      if (token) {
-        await likeRealArticle(article.id, token);
-      }
-    } catch (err) {
-      // Keep optimistic UI
-    } finally {
-      setIsLiking(false);
+    if (token) {
+      likeRealArticle(article.id, token).catch(() => {});
     }
   };
 
@@ -94,9 +88,17 @@ export const ArticleRow: React.FC<ArticleRowProps> = ({
         </div>
 
         {/* Category Badge */}
-        <span className="text-[10px] uppercase font-bold tracking-widest text-[#9E5A38] dark:text-[#E05A30] bg-[#9E5A38]/10 dark:bg-[#E05A30]/15 px-2.5 py-0.5 rounded-full">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (onSelectCategory) onSelectCategory(article.category as Category);
+          }}
+          className="text-[10px] uppercase font-bold tracking-widest text-[#9E5A38] dark:text-[#E05A30] bg-[#9E5A38]/10 dark:bg-[#E05A30]/15 hover:bg-[#9E5A38]/20 dark:hover:bg-[#E05A30]/25 px-2.5 py-0.5 rounded-full cursor-pointer transition-colors"
+        >
           {article.category}
-        </span>
+        </button>
       </div>
 
       {/* 2. Main Body: Headline + Excerpt (Left) & Thumbnail (Right) */}
@@ -148,7 +150,8 @@ export const ArticleRow: React.FC<ArticleRowProps> = ({
           {/* Comments Count */}
           <Link
             to={`/article/${article.slug}#comments`}
-            className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-inherit no-underline"
+            onClick={() => onSelect && onSelect(article)}
+            className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-inherit no-underline cursor-pointer"
           >
             <MessageSquare className="w-3.5 h-3.5" />
             <span>{article.commentsCount || 0}</span>

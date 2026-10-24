@@ -110,11 +110,8 @@ export const EditorsPicks: React.FC<EditorsPicksProps> = ({
       {/* Clean Editorial Title */}
       <div className="flex items-center justify-between mb-4 border-b border-[#EAE4D9] dark:border-[#262C3A] pb-3">
         <h3 className="font-editorial text-xl font-bold text-[#141416] dark:text-[#F1F3F5]">
-          Live Stories
+          Trending Now
         </h3>
-        <span className="text-[11px] font-sans text-zinc-400 dark:text-zinc-500">
-          Auto-updating stream
-        </span>
       </div>
 
       {/* Live Stories List */}

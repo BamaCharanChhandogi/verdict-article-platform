@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RefreshCw, Loader2, List, LayoutGrid } from 'lucide-react';
+import { RefreshCw, List, LayoutGrid } from 'lucide-react';
 import { Article, Category } from '../types';
 import { ArticleCard } from './ArticleCard';
 import { ArticleRow } from './ArticleRow';
@@ -17,7 +17,7 @@ interface ArticleGridProps {
   onOpenAuth?: () => void;
 }
 
-const BATCH_SIZE = 8;
+const BATCH_SIZE = 9;
 const THROTTLE_MS = 400;
 
 export const ArticleGrid: React.FC<ArticleGridProps> = ({
@@ -34,94 +34,22 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [viewMode, setViewMode] = useState<'feed' | 'grid'>('feed');
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const lastLoadTimeRef = useRef<number>(0);
-  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [prevFilter, setPrevFilter] = useState(activeFilterName);
+  const [prevArticlesLen, setPrevArticlesLen] = useState(articles.length);
 
-  // Reset pagination state when the active collection changes (search or category filter)
-  useEffect(() => {
+  // Synchronously reset visible count during render when filter or collection changes (zero flicker / no layout shift)
+  if (prevFilter !== activeFilterName || prevArticlesLen !== articles.length) {
+    setPrevFilter(activeFilterName);
+    setPrevArticlesLen(articles.length);
     setVisibleCount(BATCH_SIZE);
-    setIsLoadingMore(false);
-    if (loadTimeoutRef.current) {
-      clearTimeout(loadTimeoutRef.current);
-    }
-  }, [articles.length, activeFilterName]);
+  }
 
   const hasMore = visibleCount < articles.length;
 
-  // Throttled function to load the next chunk of articles
-  const loadNextBatch = () => {
-    const now = Date.now();
-    if (now - lastLoadTimeRef.current < THROTTLE_MS || isLoadingMore || !hasMore) {
-      return;
-    }
-    lastLoadTimeRef.current = now;
-    setIsLoadingMore(true);
-
-    loadTimeoutRef.current = setTimeout(() => {
-      setVisibleCount((prev) => Math.min(prev + BATCH_SIZE, articles.length));
-      setIsLoadingMore(false);
-    }, 450);
+  // Explicit click-only function to load 3 more articles
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => Math.min(prev + 3, articles.length));
   };
-
-  // Primary: IntersectionObserver on the bottom sentinel element
-  useEffect(() => {
-    if (!hasMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting) {
-          loadNextBatch();
-        }
-      },
-      {
-        root: null,
-        rootMargin: '300px', // trigger 300px before reaching the end of screen for seamless loading
-        threshold: 0.05,
-      }
-    );
-
-    const target = sentinelRef.current;
-    if (target) {
-      observer.observe(target);
-    }
-
-    return () => {
-      if (target) observer.unobserve(target);
-    };
-  }, [hasMore, visibleCount, articles.length, isLoadingMore]);
-
-  // Secondary: Window scroll listener fallback with throttle
-  useEffect(() => {
-    if (!hasMore) return;
-
-    let throttleTimer: ReturnType<typeof setTimeout> | null = null;
-    const handleScroll = () => {
-      if (throttleTimer) return;
-      throttleTimer = setTimeout(() => {
-        throttleTimer = null;
-        const scrollPosition = window.innerHeight + window.scrollY;
-        const threshold = document.documentElement.scrollHeight - 350;
-        if (scrollPosition >= threshold && hasMore && !isLoadingMore) {
-          loadNextBatch();
-        }
-      }, 150);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (throttleTimer) clearTimeout(throttleTimer);
-    };
-  }, [hasMore, visibleCount, articles.length, isLoadingMore]);
-
-  // Cleanup pending timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-    };
-  }, []);
 
   const visibleArticles = articles.slice(0, visibleCount);
 
@@ -152,7 +80,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
             <button
               type="button"
               onClick={() => setViewMode('feed')}
-              className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-colors duration-150 cursor-pointer select-none ${
                 viewMode === 'feed'
                   ? 'bg-[#141416] text-white dark:bg-white dark:text-[#141416] shadow-xs'
                   : 'text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white'
@@ -165,7 +93,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
             <button
               type="button"
               onClick={() => setViewMode('grid')}
-              className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-colors duration-150 cursor-pointer select-none ${
                 viewMode === 'grid'
                   ? 'bg-[#141416] text-white dark:bg-white dark:text-[#141416] shadow-xs'
                   : 'text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white'
@@ -215,69 +143,61 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
         </div>
       ) : (
         <>
-          {/* Main Feed + Trending Sidebar Layout */}
-          {viewMode === 'feed' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              {/* Left Column: Vertical Single-Row Feed (Hashnode style) */}
-              <div className="lg:col-span-8 space-y-4">
-                {visibleArticles.map((article) => (
-                  <ArticleRow
-                    key={article.id}
-                    article={article}
-                    onSelect={onSelectArticle}
-                    onBookmarkToggle={onBookmarkToggle}
-                    isBookmarked={isBookmarked(article.id)}
-                    onOpenAuth={onOpenAuth}
-                  />
-                ))}
-              </div>
-
-              {/* Right Column: Natural Scrolling Trending Tags & Top Writers Sidebar */}
-              <div className="lg:col-span-4 hidden lg:block space-y-6">
-                <TrendingSidebar
-                  onSelectTag={onSelectCategory || (() => {})}
-                  selectedTag={activeFilterName as Category}
-                  onOpenAuthors={onOpenAuthors}
-                  onOpenAuth={onOpenAuth}
-                />
-              </div>
+          {/* Main Content + Trending Sidebar Layout (Consistent across Feed & Grid view) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column: Feed rows or Card grid */}
+            <div className="lg:col-span-8 min-h-[450px]">
+              {viewMode === 'feed' ? (
+                <div className="space-y-4">
+                  {visibleArticles.map((article) => (
+                    <ArticleRow
+                      key={article.id}
+                      article={article}
+                      onSelect={onSelectArticle}
+                      onBookmarkToggle={onBookmarkToggle}
+                      isBookmarked={isBookmarked(article.id)}
+                      onOpenAuth={onOpenAuth}
+                      onSelectCategory={onSelectCategory}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {visibleArticles.map((article) => (
+                    <ArticleCard
+                      key={article.id}
+                      article={article}
+                      onSelect={onSelectArticle}
+                      onBookmarkToggle={onBookmarkToggle}
+                      isBookmarked={isBookmarked(article.id)}
+                      onSelectCategory={onSelectCategory}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            /* Traditional Card Grid Layout */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {visibleArticles.map((article) => (
-                <ArticleCard
-                  key={article.id}
-                  article={article}
-                  onSelect={onSelectArticle}
-                  onBookmarkToggle={onBookmarkToggle}
-                  isBookmarked={isBookmarked(article.id)}
-                />
-              ))}
-            </div>
-          )}
 
-          {/* Throttled Bottom Sentinel & Smooth Auto-Loading Indicator */}
+            {/* Right Column: Natural Scrolling Trending Tags & Top Writers Sidebar */}
+            <div className="lg:col-span-4 hidden lg:block space-y-6">
+              <TrendingSidebar
+                onSelectTag={onSelectCategory || (() => {})}
+                selectedTag={activeFilterName as Category}
+                onOpenAuthors={onOpenAuthors}
+                onOpenAuth={onOpenAuth}
+              />
+            </div>
+          </div>
+
+          {/* Simple Load 3 more text button */}
           {hasMore && (
-            <div 
-              ref={sentinelRef} 
-              className="mt-12 py-8 flex flex-col items-center justify-center space-y-2.5"
-            >
-              <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white/70 dark:bg-[#171B22]/70 backdrop-blur-md border border-[#EAE4D9] dark:border-[#262C3A] shadow-xs">
-                <Loader2 className="w-4 h-4 animate-spin text-[#9E5A38] dark:text-[#E05A30]" />
-                <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
-                  Loading more stories...
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* End of Collection Notice */}
-          {!hasMore && articles.length > BATCH_SIZE && (
-            <div className="mt-16 pt-8 border-t border-[#EAE4D9]/80 dark:border-[#262C3A]/80 flex flex-col items-center justify-center text-center">
-              <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
-                You've reached the end of the collection &bull; Stay curious
-              </p>
+            <div className="mt-8 flex justify-center">
+              <button
+                type="button"
+                onClick={handleLoadMore}
+                className="text-xs sm:text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-[#141416] dark:hover:text-white px-5 py-2 rounded-full border border-[#EAE4D9] dark:border-[#262C3A] hover:border-[#141416] dark:hover:border-zinc-400 bg-white dark:bg-[#171B22] transition-colors cursor-pointer"
+              >
+                Load {Math.min(3, articles.length - visibleCount)} more
+              </button>
             </div>
           )}
         </>

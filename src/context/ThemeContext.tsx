@@ -5,7 +5,7 @@ type Theme = 'light' | 'dark';
 interface ThemeContextType {
   theme: Theme;
   isDark: boolean;
-  toggleTheme: () => void;
+  toggleTheme: (e?: React.MouseEvent | MouseEvent) => void;
   setTheme: (theme: Theme) => void;
 }
 
@@ -39,8 +39,59 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [theme]);
 
-  const toggleTheme = () => {
-    setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'));
+  const toggleTheme = (e?: React.MouseEvent | MouseEvent) => {
+    // Check if View Transition API is supported and user doesn't prefer reduced motion
+    const doc = document as Document & {
+      startViewTransition?: (callback: () => void | Promise<void>) => {
+        ready: Promise<void>;
+      };
+    };
+
+    const isSupported =
+      typeof document !== 'undefined' &&
+      Boolean(doc.startViewTransition) &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!isSupported || !doc.startViewTransition) {
+      setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'));
+      return;
+    }
+
+    // Origin of ripple (button click position or fallback to center)
+    const x = e?.clientX ?? window.innerWidth / 2;
+    const y = e?.clientY ?? window.innerHeight / 2;
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    const transition = doc.startViewTransition(() => {
+      const nextTheme = theme === 'light' ? 'dark' : 'light';
+      const root = document.documentElement;
+      if (nextTheme === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+      setThemeState(nextTheme);
+    });
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`,
+      ];
+      document.documentElement.animate(
+        {
+          clipPath: clipPath,
+        },
+        {
+          duration: 500,
+          easing: 'ease-in-out',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      );
+    });
   };
 
   const setTheme = (newTheme: Theme) => {

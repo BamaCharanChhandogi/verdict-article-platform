@@ -44,12 +44,13 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
           return (
             <button
               key={category}
+              type="button"
               onClick={() => onSelectCategory(category)}
               className={`
-                px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer
+                px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors duration-150 cursor-pointer select-none border
                 ${isSelected
-                  ? 'bg-[#18181B] dark:bg-[#F1F3F5] text-white dark:text-[#0E1116] shadow-xs'
-                  : 'bg-white dark:bg-[#171B22] hover:bg-[#F3EFEA] dark:hover:bg-[#1E232B] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border border-[#EFECE6] dark:border-[#262C3A]'
+                  ? 'bg-[#18181B] dark:bg-[#F1F3F5] text-white dark:text-[#0E1116] border-[#18181B] dark:border-[#F1F3F5] shadow-xs'
+                  : 'bg-white dark:bg-[#171B22] hover:bg-[#F3EFEA] dark:hover:bg-[#1E232B] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border-[#EFECE6] dark:border-[#262C3A]'
                 }
               `}
             >
